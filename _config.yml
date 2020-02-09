@@ -35,6 +35,7 @@ github_username:  SalmonMode
 theme: minimal-mistakes-jekyll
 plugins:
   - jekyll-feed
+  - jekyll-include-cache
 
 defaults:
   # _posts
@@ -72,7 +73,6 @@ author:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
       url: mailto:chris.t.nejame@gmail.com
-
 
 kramdown:
   parse_block_html: true
