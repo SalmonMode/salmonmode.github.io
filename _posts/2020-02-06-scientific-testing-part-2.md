@@ -13,7 +13,7 @@ If we ignore validity, then our results can be dismissed for the same reasons th
 
 ## Validity
 
-There's several types of validity such as internal; external, face, predictive, construct, and many more. I won't be covering these individually, as that would make this post even longer than it already is. But I strongly encourage you to read up on at least a few them as just knowing what they are could give you new perspectives you can use to analyze your tests.
+There's several types of validity such as internal, external, face, predictive, construct, and many more. I won't be covering these individually, as that would make this post even longer than it already is. But I strongly encourage you to read up on at least a few them as just knowing what they are could give you new perspectives you can use to analyze your tests.
 
 Instead, I'll be giving a few examples and explaining what reduces or eliminates their validity.
 
