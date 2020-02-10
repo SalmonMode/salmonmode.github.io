@@ -1,6 +1,7 @@
 ---
 layout: posts
 title: "Scientific Testing Part 2: Validity"
+excerpt: "The validity of tests helps build our confidence in them and determines the value they add to our test suites. But what does it mean for a test to be 'valid'?"
 date: 2020-02-09 14:00:00 -0500
 ---
 

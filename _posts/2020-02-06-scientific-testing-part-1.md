@@ -1,6 +1,7 @@
 ---
 layout: posts
 title: "Scientific Testing Part 1: Getting Back on the Right Track"
+excerpt: "Software tests are a form of scientific research and should be treated with the same scrutiny. To show this, let's go over what 'science' is."
 date: 2020-02-09 13:00:00 -0500
 ---
 
