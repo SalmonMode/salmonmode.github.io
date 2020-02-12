@@ -117,11 +117,11 @@ You can also rely on magic comparison methods (e.g. `__eq__`) along with special
 
 * If you have a test function with more than one `assert` statement, and an earlier one fails, you won't know if the later ones would pass or fail because test execution stops on the first failure, and this prevents you from getting a complete understanding about what is wrong.
 * It's less cluttered.
-* A single `assert` should be the test, because that is thing you're *asserting*, so more than one `assert` means you're asserting more than one thing, and thus you are testing something different.
+* A single `assert` should be the test, because that is thing you're *asserting* should be the case, so more than one `assert` means you're asserting more than one thing, and thus you are testing something different.
 * If they're bundled into one test function, they can't be targeted and ran individually, which makes debugging specific asserts more difficult.
 * Doesn't prevent parallelization.
 * Doesn't prevent parameterization.
-* It's easily avoided in `python` and `pytest` by having multiple test methods in a test class/module/package, or by utilizing magic comparison methods like `__eq__`.
+* It's easily avoided in `python` and `pytest` by having multiple test methods in a test class/module/package, or by utilizing magic comparison methods like `__eq__` in custom data type objects.
 
 <https://testing.googleblog.com/2018/06/testing-on-toilet-keep-tests-focused.html>
 
@@ -310,7 +310,7 @@ Tests should be grouped together based on the behavior they are testing, and the
 
 #### Why?
 
-*  Tests are easily targeted according to the behaviors they apply to.
+* Tests are easily targeted according to the behaviors they apply to.
 * Less redundant code due to having common fixtures only having to be defined once, and only as high up as they need to be.
 * Common fixtures that need to be overridden due to the tests being run only have to be overridden once, and can be defined at a much lower level so they don't conflict with things they shouldn't.
 * Naming tests becomes much easier (see next point).
