@@ -498,4 +498,49 @@ If you find that you can't easily test your code, you should change the code so 
 
 <https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices#less-coupled-code>
 
+### Use interfaces/custom data types to pass data around
+
+Have your tests and the tools built for them take and return data using interfaces/custom data types. Everything should be communicating using uniform data shapes. Methods/functions should both accept and return data using these interfaces/data types, and your tests should be running asserts using them.
+
+#### Why?
+
+If everything is using the same interfaces/data types to communicate, there's less to maintain and the code is easier to read. You can also implement custom comparison logic into them for your tests to leverage. If implementation needs to change in one part of the code, the core of what that data is and how it should be compared will remain the same, so you only need to change the implementation in that one part of the code. If how the dats is compared changes, then you only need to change the comparison logic inside the interface/data type.
+
+It also reduces the number of arguments your functions take while making them more idiomatic, and can produce more intelligent failure reports (if made with that in mind).
+
+Plus, you can then use type annotations, which opens the door to lots of helpful tools.
+
+##### Bad:
+
+```py
+@pytest.fixture
+def user():
+    return {"name": "Chris", "hair_color": Color("brown")}
+
+@pytest.fixture(autouse=True)
+def set_user(client, user):
+    # equivalent to client.set_user(name=user["name"], hair_color=user["hair_color"])
+    client.set_user(**user)
+
+def test_set_user(client, user):
+    # client.get_user() returns a dict similar to the one return by the user fixture
+    assert client.get_user() == user
+```
+
+##### Good:
+
+```py
+@pytest.fixture
+def user():
+    return User(name="Chris", hair_color=Color("brown"))
+
+@pytest.fixture(autouse=True)
+def set_user(client, user):
+    client.set_user(user)
+
+def test_set_user(client, user):
+    # client.get_user() returns another User object
+    assert client.get_user() == user
+```
+
 *[SUT]: System Under Test
