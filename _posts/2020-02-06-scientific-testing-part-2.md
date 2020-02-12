@@ -286,7 +286,7 @@ You might think that these are too narrow in scope and that they don't cover eno
 
 You might then say that Test 2a and Test 2b are multiple asserts for the same test, but that isn't the case here. They are both separate tests that happen to share a common state that their checks run against. They both pass or fail on their own, though.
 
-## Wrapping It Up
+## Go and be Scientific!
 
 Hopefully this gave you some idea of the role validity plays and how to increase a tests validity. Nothing in science is perfectly valid, but that doesn't mean we should set the bar low. We should always strive to make our tests as valid as possible so that the results mean that much more.
 
