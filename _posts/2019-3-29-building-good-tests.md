@@ -2,7 +2,7 @@
 layout: posts
 title: Building Good Tests
 date: 2019-03-29 13:00:00 -0500
-excerpt: "A collection of testing maxims, tips, and gotchas, with some pytest-specific tips. Things to do and not to do when it comes to writing automated tests, with a few pytest-specific notes as well."
+excerpt: "A collection of testing maxims, tips, and gotchas. Things to do and not to do when it comes to writing automated tests, with a few pytest-specific notes, as well."
 ---
 
 This is written from the perspective of `pytest`. So some needs may change based on the language and testing framework used. But these principles should extend to all automated testing in some capacity.
