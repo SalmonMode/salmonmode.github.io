@@ -59,6 +59,16 @@ In this case, the test could leverage backend's API itself to make the account, 
 
 Hitting the DB directly is another options, but typically this is getting too close to implementation as the schemas are usually less stable than the web API, and it would make your test code much more complicated than it needs to be regardless.
 
+These shortcuts can be taken because most websites use the "stateless page-redraw model", where the client is only given a cookie, and the backend manages the state, so when going from one page to another, the client is not retaining any information about the state of the previous page. This means the state of the previous page doesn't matter because the client doesn't factor it in when getting the resources for and rendering the next page. So as long as the browser has the correct cookie, the next page willl always be rendered in the same way regardless of if it went to the previous page itself or not.
+
+#### Side Note
+
+There may be situations where the client is managing state on its end beyond just storing a cookie, and it's factoring in the previous page(s) in the next page is rendered, for example, SPAs. For SPAs, this is know as "thin server architecture". 
+
+Most SPAs, however, are designed to mimmick the same end result as those using stateless page-redraw model, using the previous page(s)'s state only to optimize by reducing redundant communication with the backend. They also tend to be built using third-party frameworks (e.g. React), and most (not all) of them manage this for you, so it's not something you usually need to worry about testing, and you can test your site with the assumption that it works just like any other site that uses that model.
+
+However, if you're defining logic in your frontend that controls what specifically is carried over from one page to another, you'll be responsible for testing that. If your site is meant to operate as though it follows the stateless page-redraw model, then such tests can be performed in the frontend's unit tests.
+
 </details>
 <details>
 <summary markdown='1'>
@@ -84,6 +94,8 @@ The test repeatedly clicks the "add to cart" until it can no longer click it any
 The test should never change what it does based on the state of the test subject, because if the test has to change what it does, then something already isn't happening as expected, so the test can't know what to expect at the end, meaning its results would be meaningless.
 
 The test, in this case, should wait for the page to be completely loaded, then click the button once, and then wait for the button to change before moving on. If the button doesn't change in time, then it means something if wrong and the test can't proceed regardless.
+
+Tests need to be reproducible, which means they need to be deterministic. If you can't reproduce a test the same way every time, then you can't know if the behavior it was meant to test has regressed, because it could be doing something different leading to a different behavior that hasn't regressed.
 
 Even though the driver shouldn't be involved in this step to begin with, I included this because it serves as another good example.
 
@@ -277,3 +289,5 @@ You might then say that Test 2a and Test 2b are multiple asserts for the same te
 ## Wrapping It Up
 
 Hopefully this gave you some idea of the role validity plays and how to increase a tests validity. Nothing in science is perfectly valid, but that doesn't mean we should set the bar low. We should always strive to make our tests as valid as possible so that the results mean that much more.
+
+*[SPA]: Single Page Application
