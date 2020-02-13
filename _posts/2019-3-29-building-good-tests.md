@@ -543,4 +543,89 @@ def test_set_user(client, user):
     assert client.get_user() == user
 ```
 
+### Make your test code succinct and idiomatic
+
+Your code should read like a short story written by C. S. Lewis. That is, it should be trivial and straightforward to read and shouldn't involve anything fancy. What goes on behind the scenes is another story, but at the level seen in the tests themselves, it should look like any other normal, simple code that you would typically see in the language you're using.
+
+### Why?
+
+* Reading and maintaining your code is easier in the long term
+* It's more obvious what a given test is actually testing
+* Anyone can come along and have no problem understanding your code (especially you, 6 months after you haven't touched it) without having to worry about your particular coding dialect
+* You will have significantly less top-level code on your tests
+
+##### Bad
+
+```
+def page(driver, url):
+    driver.get(url)
+    return CarTablePage(driver)
+
+@pytest.fixture(scope="class")
+def car():
+    return Car(CarMake.CHEVROLET, ChevroletModel.IMPALA, 1995, Color.RED)
+
+class TestTableIsEmptyOnLoad:
+    def test_table_has_no_entries(self, page):
+        assert page.table.has_no_cars()
+
+class TestCarIsAdded:
+    @pytest.fixture(scope="class", autouse=True)
+    def add_car(self, car, page):
+        page.add_car(car)
+
+    def test_car_is_in_table(self, page, car):
+        assert page.table.has_car(car)
+
+class TestCarIsRemoved:
+    @pytest.fixture(scope="class", autouse=True)
+    def add_car(self, car, page):
+        page.add_car(car)
+
+    @pytest.fixture(scope="class", autouse=True)
+    def remove_car(self, car, page):
+        page.remove_car(car)
+
+    def test_car_is_not_in_table(self, page, car):
+        assert not page.table.has_car(car)
+```
+
+##### Good
+
+I'm pulling this directly from an example in [my POM's docs](https://pypcom.readthedocs.io/en/latest/advanced/iterables.html), if you were curious as to how the implementation looks:
+
+```
+def page(driver, url):
+    driver.get(url)
+    return CarTablePage(driver)
+
+@pytest.fixture(scope="class")
+def car():
+    return Car(CarMake.CHEVROLET, ChevroletModel.IMPALA, 1995, Color.RED)
+
+class TestTableIsEmptyOnLoad:
+    def test_table_has_no_entries(self, page):
+        assert len(page.cars) == 0
+
+class TestCarIsAdded:
+    @pytest.fixture(scope="class", autouse=True)
+    def add_car(self, car, page):
+        page.add_car(car)
+
+    def test_car_is_in_table(self, page, car):
+        assert car in page.cars
+
+class TestCarIsRemoved:
+    @pytest.fixture(scope="class", autouse=True)
+    def add_car(self, car, page):
+        page.add_car(car)
+
+    @pytest.fixture(scope="class", autouse=True)
+    def remove_car(self, car, page):
+        page.remove_car(car)
+
+    def test_car_is_not_in_table(self, page, car):
+        assert car not in page.cars
+```
+
 *[SUT]: System Under Test
