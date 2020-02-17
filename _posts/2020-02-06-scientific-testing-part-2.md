@@ -75,7 +75,7 @@ For those that _should_ be tested as end-to-end tests, it's up to you to underst
 
 If it truly is a concern, making sure that part of the state container isn't touched during any other operations can be tested fairly easily with frontend unit tests, so using a browser to test that would be an enormous waste of resources and adds unnecessary complexity.
 
-An example that comes to mind is logging in, which could set a cookie and cache some user data in the state container. If you really want to make sure that no other actions would try to modify that cache once it's been set, it's easy to just mock that object in the state container and check that nothing accessed it after performing those other actions.
+An example that comes to mind is logging in, which could set a cookie and cache some user data in the state container. If you really want to make sure that no other actions would try to modify that cache once it's been set, it's easy to just mock that object in the state container and check that nothing tried to change it after performing those other actions.
 
 </details>
 <details>
