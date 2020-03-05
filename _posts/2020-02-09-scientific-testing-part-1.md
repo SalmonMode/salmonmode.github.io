@@ -98,4 +98,4 @@ This may sound scary, but, like I said, understanding this is good. It means 2 t
 1. We can now treat our test results the way they are meant to be treated; as a means of building _confidence_; not as providing a guarantee.
 2. We can know to treat our tests as scientific research and treat them with the same scrutiny that any other scientific research gets treated with, and use the same techniques, refined over centuries, to strengthen the quality of our tests.
 
-With that in mind, let's move on to [Part 2]({% post_url 2020-02-06-scientific-testing-part-2 %}).
+With that in mind, let's move on to [Part 2]({% post_url 2020-02-09-scientific-testing-part-2 %}).
