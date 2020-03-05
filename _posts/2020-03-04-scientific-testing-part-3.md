@@ -67,11 +67,8 @@ You can still use the shortcut with confidence, because you have a test that cov
 
 The new test would also tell you more specifically where the problem was, and if there's a problem with how client-side state is managed when going through the normal flow vs jumping straight to the page after the image is uploaded.
 
-NOTE
-
 This all, of course, assumes that the same JS functions are being used to embed these elements in both cases. While this is usually the case, if they weren't, things would get a little more complicated, so for now, let's say that they are. 
-
-/NOTE
+{: .notice--info}
 
 #### What if there's a bug in both how state is managed going through the normal flow, as well as with one of the image modifying buttons?
 
