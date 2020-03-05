@@ -298,7 +298,7 @@ You might then say that Test 2a and Test 2b are multiple asserts for the same te
 
 Hopefully this gave you some idea of the role validity plays and how to increase a tests validity. Nothing in science is perfectly valid, but that doesn't mean we should set the bar low. We should always strive to make our tests as valid as possible so that the results mean that much more.
 
-Go and check out [Part 3]({% post_url 2020-03-04-scientific-testing-part-3 %}) to see how we can leverage this newfound validity and to drastically speed up our tests.
+Go and check out Part 3 to see how we can leverage this newfound validity and to drastically speed up our tests.
 
 *[SPA]: Single Page Application
 *[SPAs]: Single Page Applications
