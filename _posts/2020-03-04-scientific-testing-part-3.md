@@ -5,7 +5,7 @@ excerpt: "Now we know how to maximize test validity. But how can we leverage tha
 date: 2020-03-04 19:00:00 -0500
 ---
 
-Now that we know how to maximize the confidence a test provides from Part 2, we can use that confidence in more ways than just telling someone else in a test report. We can optimize our tests using this confidence to build chains of confidence that let us cut out certain dependencies because other tests have them covered.
+Now that we know how to maximize the confidence a test provides from [Part 2]({% post_url 2020-02-09-scientific-testing-part-2 %}), we can use that confidence in more ways than just telling someone else in a test report. We can optimize our tests using this confidence to build chains of confidence that let us cut out certain dependencies because other tests have them covered.
 
 ## An Important Note Before Diving In
 
