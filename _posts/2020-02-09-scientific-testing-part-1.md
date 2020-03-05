@@ -13,7 +13,7 @@ Put simply, software testing, as a whole, is not treated in a scientific manner,
 
 This shouldn't seem like some outlandish or ridiculous claim. If you feel it is, then let's review what exactly "science" is.
 
-If no more convincing is needed, feel free to skip ahead to [Part 2]({% post_url 2020-02-06-scientific-testing-part-2 %}).
+If no more convincing is needed, feel free to skip ahead to [Part 2]({% post_url 2020-02-09-scientific-testing-part-2 %}).
 
 ## What is science?
 
