@@ -5,7 +5,7 @@ excerpt: "The validity of tests helps build our confidence in them and determine
 date: 2020-02-09 14:00:00 -0500
 ---
 
-If you haven't yet, be sure to check out [Part 1]({% post_url 2020-02-06-scientific-testing-part-1 %}). The gist of it is that we need to treat our tests with the same scrutiny as scientific research, because they _are_ scientific research.
+If you haven't yet, be sure to check out [Part 1]({% post_url 2020-02-09-scientific-testing-part-1 %}). The gist of it is that we need to treat our tests with the same scrutiny as scientific research, because they _are_ scientific research.
 {: .notice--info}
 
 No matter how much time, or how many resources we have, or how smart we are, we can never write every single test that could possibly be written, nor will any of our tests actually _prove_ anything definitively. There will always be room for doubt. We still want to remove as much doubt as we can, though, so we have to make sure our tests are as "valid" as we can make them.
