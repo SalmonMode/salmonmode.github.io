@@ -35,7 +35,7 @@ Your test functions are for the end result, not the steps to get there, so don't
 
 #### Why?
 
-The setups are merely to get to the behavior you want to test, and then to act out that behavior. The test itself is how you **prove** that behavior worked as it should. If your assert doesn't definitively prove the behavior worked as it should, then the test serves no purpose.
+The setups are merely to get to the behavior you want to test, and then to trigger that behavior. The test itself is how you demonstrate that the behavior worked in a way that aligns with what you want. If your assert doesn't demonstrate this, then the test serves no purpose.
 
 Fixtures and tests should be written with the assumption that everything that went before them went as expected. This makes them fragile, but that's the idea (at least in this context). The tests should be deterministic and operate consistently, so if there's a slight deviation in behavior, the tests shouldn't pass.
 
@@ -322,7 +322,7 @@ The name of the outermost surrounding scopes should combine to describe what uni
 ##### Bad:
 
 ```
- tests.py::test_product_is_good FAILED
+ tests.py::test_check_product_is_good FAILED
 ```
 
 ##### Bad:
@@ -335,39 +335,36 @@ The name of the outermost surrounding scopes should combine to describe what uni
 ##### Good:
 
 ```
- tests/website/test_landing_page.py::TestAfterLogIn::test_header_is_displayed PASSED
- tests/website/test_landing_page.py::TestAfterLogIn::test_header_text FAILED
- tests/website/test_landing_page.py::TestAfterLogIn::test_header_tag_name FAILED
+ tests/website/test_landing_page.py::TestAfterLogIn::test_footer PASSED
+ tests/website/test_landing_page.py::TestAfterLogIn::test_user_info_in_navbar FAILED
+ tests/website/test_landing_page.py::TestAfterLogIn::test_welcome_message FAILED
 ```
 
 Failure Messages:
 
 ```
 =================================== FAILURES ======================================
-_________________________ TestAfterLogIn.test_header_text _________________________
+_____________________ TestAfterLogIn.test_user_info_in_navbar _____________________
 
-self = <tests.website.test_landing_page.TestAfterLogIn object at 0x7f8d20e0fd30>
-page = <tests.website.test_landing_page.LandingPage object at 0x7f8d20e0f860>
+self = <src.tests.website.test_landing_page.TestAfterLogIn object at 0x7f8d20e0fd30>
+page = <src.utils.pages.test_landing_page.LandingPage object at 0x7f8d20e0f860>
+user = <src.utils.user.User object at 0x7f2d21a0e970>
 
-    def test_header_text(self, page):
->       assert page.header.text == "My Header"
-E       AssertionError: assert 'Something else' == 'My Header'
-E         - Something else
-E         + My Header
+    def test_user_info_in_navbar(self, page, user):
+>       assert page.navbar.user == user
+E       AttributeError: No user info to parse from navbar.
 
-website/test_landing_page.py:25: AssertionError
-_______________________ TestAfterLogIn.test_header_tag_name _______________________
+website/test_landing_page.py:25: AttributeError
+_______________________ TestAfterLogIn.test_welcome_message _______________________
 
 self = <tests.website.test_landing_page.TestAfterLogIn object at 0x7f8d20e0f550>
 page = <tests.website.test_landing_page.LandingPage object at 0x7f8d20e0f860>
 
-    def test_header_tag_name(self, page):
->       assert page.header.tag_name == "h1"
-E       AssertionError: assert 'div' == 'h1'
-E         - div
-E         + h1
+    def test_welcome_message(self, page):
+>       assert page.welcome_message == "Welcome!"
+E       NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"#welcome"}
 
-website/test_landing_page.py:28: AssertionError
+website/test_landing_page.py:28: NoSuchElementException
 ```
 
 ##### Good:
