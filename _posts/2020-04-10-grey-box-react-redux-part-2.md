@@ -6,7 +6,6 @@ date: 2020-04-10 21:45:00 -0500
 ---
 
 {% include grey_box_react_redux/styles.html %}
-{% include grey_box_react_redux/grey_box_react_redux_js.html %}
 
 React and Redux are a powerful combo. When used properly, they allow us to make extremely useful refinements to our tests. Let's go over these refinements, and work through how they can help.
 
@@ -252,3 +251,5 @@ By using this technique, we can save an enormous amount of time and energy by cr
 The same goes for the tests that are checking those transition bugs. If the transition for a previous part of there flow is covered by another test, then they don't need to be concerned about accumulation and can likely cut that part out.
 
 As an added bonus, it also helps to expose bugs that we _wouldn't_ see if we'd gone through the whole flow, and would only see if we instead jumped straight to the relevant view (e.g. think of a bug you'd only see if you refreshed the page).
+
+{% include grey_box_react_redux/grey_box_react_redux_js.html %}
