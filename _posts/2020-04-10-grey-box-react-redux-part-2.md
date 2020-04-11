@@ -215,14 +215,14 @@ Luckily, React and Redux together make this incredibly easy. From the recap:
 
 Once you identify the root element for the app, you can use the following JavaScript snippet (pulled from [this answer](https://stackoverflow.com/a/57909332/11808480) on stack overflow <insert link to stack overflow answer>) to get a snapshot of the `store` in JSON format. 
 
-```JavaScript
+```js
 const reactRoot = document.getElementById('react-root');
 let base;
 
 try {
     base = reactRoot._reactRootContainer._internalRoot.current;
 } catch (e) {
-    console.log('Could not get internal root information from reactRoot element');
+    console.log('Could not get internal root information');
 }
 
 var state;
