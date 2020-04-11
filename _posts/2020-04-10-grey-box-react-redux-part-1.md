@@ -11,7 +11,7 @@ React Redux is a set of frameworks that do exactly this (at least, when used app
 
 Let's go over how things work in traditional websites, and how SPAs make things different so we can better understand the challenge at hand. Then, in the next part, let's go over how React Redux works so we can see where the opportunities are for making refinements, i.e. optimizations, increasing validity, and narrowing down where bugs are before we have to do any debugging.
 
-If you feel you have a decent grasp of how React and Redux work, or just want the TL;DR, then feel free to skip ahead to Part 2.
+If you feel you have a decent grasp of how React and Redux work, or just want the TL;DR, then feel free to skip ahead to [Part 2]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
 
 ## Non-AJAX Websites vs SPAs
 
