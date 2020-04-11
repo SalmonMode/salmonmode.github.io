@@ -41,6 +41,7 @@ In other words, it means the previous page the browser was at before going to th
 This is the core of the "stateless page redraw model", and gives us the ability to skip doing several setup steps through the browser for a given test. 
 
 Note: While you technically don't have to make the request through the browser to get the browser to use that response, making this happen is fairly complex and might counterproductive to the test you're trying to run. So I don't recommend making that last request through something other than the browser.
+{: .notice--info}
 
 ### SPAs
 
@@ -49,6 +50,7 @@ SPAs throw this concept out the window, but for good reason. While the backend i
 SPAs don't navigate from page to page to perform actions through the backend as a traditional site would, despite them often creating the illusion of this. Instead, they use what we can refer to as "views".
 
 Note: A website doesn't need to have a SPA to perform actions through the backend without navigating to a new page. That's just AJAX. But SPAs are getting more common nowadays, and this post is about React Redux.
+{: .notice--info}
 
 When you first land on the SPA's page, sure, it works just like a traditional site, fetching those resources it needs to completely finish rendering the page (unless they're using session/local storage, but we'll ignore that for now to keep things simple). But as you perform actions and go to new "views", the SPA is (ideally) only making the requests for the resources it doesn't already have that it needs to finish rendering those "views".
 
@@ -102,6 +104,7 @@ This is _great_ for testing, because it means we can be concerned about fewer, m
 3. Components render the expected HTML when made with a given set of `props`, as well as a given `state` (if dealing with stateful components)
 
 Note: Sometimes components can be made to work like wrappers, and aren't in complete control of what they render because another component is supposed to use them and tell them what components/elements they're wrapping. This is called ["containment"](https://reactjs.org/docs/composition-vs-inheritance.html#containment), and isn't something you need to worry about. They still control where those children go, and here still must be some component being used up the chain that has that complete control, so the general principles described here still apply.
+{: .notice--info}
 
 It's also important to know that React works usually by having [a single root component for the app](https://reactjs.org/docs/rendering-elements.html#rendering-an-element-into-the-dom). This root component ultimately determines what other components are used, and what their initial `props` are. All the other components that you see being used are put there because their parent component's render logic determined they should be there, and this chains up through the tree of components all the way up to that root component.
 
