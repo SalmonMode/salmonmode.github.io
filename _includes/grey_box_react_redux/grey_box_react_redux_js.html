@@ -1,3 +1,4 @@
+<script>
 var svg = d3.select("svg#fullFlow"),
   width = +svg.attr("width"),
   height = +svg.attr("height")
@@ -380,3 +381,4 @@ graphEndFlowCopy.allChains = graphEndFlowCopy.allChains.filter((chain) => {
 graphEndFlowCopy.tempAllChains = graphEndFlowCopy.allChains.slice();
 generateTestResults(graphEndFlowCopy);
 drawFullFlowTests(endFlowSvg, graphEndFlowCopy, endFlowTestCaseText, endFlowTestSuiteText);
+</script>
