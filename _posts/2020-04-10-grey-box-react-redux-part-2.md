@@ -1,7 +1,7 @@
 ---
 layout: posts
 title: "Grey Box Testing - React Redux Part 2: Cutting the Fat"
-excerpt: "The usage of ."
+excerpt: "The usage of React and Redux together creates fantastic opportunities for refining tests. Let's go over one of those opportunities and the benefits it provides for end-to-end testing."
 date: 2020-04-10 21:45:00 -0500
 ---
 
