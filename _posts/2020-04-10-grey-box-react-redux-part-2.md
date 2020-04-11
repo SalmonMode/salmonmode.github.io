@@ -186,8 +186,8 @@ It can quite easily be orders of magnitude faster. It's significantly more stabl
 You might be thinking "well, if I did that, it would miss a potential problem with <insert behavior here>!" But now that you've identified the behavior that you think it would miss, then you can add a test for that behavior to the web so it's no longer missed.
 
 <div class="notice--warning">
-  <h4>Keep in mind:</h4>
-  Remember, this is the ideal. If you aren't sure how to narrow a test down to the behavior you want to test, it's absolutely fine to include a few of the surrounding nodes in the test so that you can be confident you're testing that behavior.
+  <h4>Remember:</h4>
+  This is the ideal. If you aren't sure how to narrow a test down to the behavior you want to test, it's absolutely fine to include a few of the surrounding nodes in the test so that you can be confident you're testing that behavior.
 
   This is grey box testing, so it's required that you understand how it works to more effectively test it. If your understanding is limited (and _everyone's_ understanding is limited to some degree), then only leverage the aspects of it that you're confident you understand. Further refinement can always be done later.
 
