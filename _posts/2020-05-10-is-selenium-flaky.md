@@ -132,7 +132,9 @@ You might be thinking that it sounds like quite the task to put those waits in e
 
 Nope.
 
-Remember, Selenium wraps the WebDriver Protocol. That protocol is made _specifically_ for automated tests so that they can control browsers, and is defined by the W3C, which has hundreds of members, including Google, Mozilla, Microsoft, and Apple. They're all aware of this problem, and would _love_ to have a solution for it. If there _was_ a way, they'd be the ones to find it and implement it into the WebDriver Protocol. If they had, I wouldn't be writing this blog post, because you wouldn't have flakiness issues with Selenium.
+Remember, Selenium wraps the WebDriver Protocol. That protocol is made _specifically_ for automated tests so that they can control browsers, and is defined by the W3C, which has hundreds of members, including Google, Mozilla, Microsoft, and Apple. They're all aware of this problem, and would _love_ to have a solution for it.
+
+If there _was_ a way, they'd be the ones to find it and implement it into the WebDriver Protocol. If they had, I wouldn't be writing this blog post, because you wouldn't have flakiness issues with Selenium.
 
 ## "But &lt;insert tool here&gt; says they solved it and can handle the waits for me automatically"
 
@@ -156,11 +158,11 @@ The tools making these claims are usually open source, and you could inspect for
 
 So if these things are true, why haven't the teams behind these tools made any proposals to the W3C?
 
-Maybe they already have, but were rejected. I checked, but couldn't find any (that doesn't mean no one has made those proposals though). But if they had, why would they have been rejected?
+Maybe they already have, but were rejected. I checked, but couldn't find any (that doesn't mean no one has made those proposals, though). But if they had, they must have been rejected, so why would that be the case?
 
 ## "But this tool says they were able to do it because they don't use WebDriver"
 
-If that's true, then it's either running inside the JavaScript runtime of the browser and/or its using the DevTools Protocol. But that wouldn't explain how they were able to do it, because the WebDriver Protocol _transcends_ JavaScript.
+If it isn't using the WebDriver Protocol, then it's either running inside the JavaScript runtime of the browser and/or its using the DevTools Protocol. But that wouldn't explain how they were able to do it, because the WebDriver Protocol _transcends_ JavaScript.
 
 The WebDriver protocol's potential is really only limited to the scope of the browser as a whole.
 
