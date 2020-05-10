@@ -162,7 +162,7 @@ Maybe they already have, but were rejected. I checked, but couldn't find any (th
 
 If that's true, then it's either running inside the JavaScript runtime of the browser and/or its using the DevTools Protocol. But that wouldn't explain how they were able to do it, because the WebDriver Protocol _transcends_ JavaScript.
 
-The WebDriver protocol is not really limited to any scope. Its scope is the entire browser.
+The WebDriver protocol's potential is really only limited to the scope of the browser as a whole.
 
 If there's something in the DevTools Protocol that's essential for automated testing through a browser, there's nothing preventing that from being included in the WebDriver Protocol. The WebDriver Protocol also has access to the JavaScript runtime of the browser, so anything any other tool can do from inside that runtime, WebDriver can do it too.
 
