@@ -134,7 +134,7 @@ Nope.
 
 Remember, Selenium wraps the WebDriver Protocol. That protocol is made _specifically_ for automated tests so that they can control browsers, and is defined by the W3C, which has hundreds of members, including Google, Mozilla, Microsoft, and Apple. They're all aware of this problem, and would _love_ to have a solution for it. If there _was_ a way, they'd be the ones to find it and implement it into the WebDriver Protocol. If they had, I wouldn't be writing this blog post, because you wouldn't have flakiness issues with Selenium.
 
-## "But <insert tool here> says they solved it and can handle the waits for me automatically"
+## "But &lt;insert tool here&gt; says they solved it and can handle the waits for me automatically"
 
 They're either lying, or misinformed. I try to assume the latter.
 
