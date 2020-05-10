@@ -96,7 +96,7 @@ In order for a test to be valid and worthy of trust, it must be repeatable.
 
 If a test does things inconsistently, then its results can't be verified (even if its producing consistent results), because it isn't really the same test being performed each time, which means the test isn't repeatable. And even if you know if can only be done one of a limited number of ways, you still wouldn't be able to consistently get a specific test to be performed, and you wouldn't know which results to verify against which. If a test's results can't be verified, then they can't be trusted.
 
-If you still aren't sold on this idea, replace the word "test" above with "experiment".
+If you still aren't sold on this idea, replace the word "test" above with "experiment", and you may feel differently. 
 
 ## So is Selenium flaky?
 
