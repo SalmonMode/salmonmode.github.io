@@ -378,8 +378,8 @@ Well, first, they should definitely remove all the outright false claims on thei
 
 Everyone likes to embellish a little about their product, and that's fine. I tried to stay away from calling any of that out as much as I could because it's usually harmless. But trying to make your product look better by spreading misinformation is not okay. 
 
-With that stuff taken down, I would have Cypress migrate to the WebDriver protocol. As I established above, it doesn't put any limitations on what you can do, and you can even still operate from directly inside the JavaScript runtime while doing it. But using the standard protocol that was literally engineered for the purposes of end-to-end testing is a requirement for valid test results. If done right, users won't even notice the change.
+With that stuff taken down, I would recommend Cypress migrate to the WebDriver protocol. As It doesn't put any limitations on what you can do, and you can even still operate from directly inside the JavaScript runtime while doing it. But using the standard protocol that was literally engineered for the purposes of end-to-end testing is really a requirement for valid end-to-end test results. If done right, users won't even notice the change.
 
-After that's done, Cypress can use its popularity to help spread education on how to _properly_ wait in tests. They can teach their users how to identify what to look for, and how to write waits that check for those things.
+If they do all that, Cypress then can use its popularity to help spread education on how to _properly_ wait in tests. They can teach their users how to identify what to look for, and how to write waits that check for those things.
 
 I said it before, but to reiterate, we can't keep treating QA automation like it isn't a software engineering role, and that dealing with these waiting issues aren't the exact reason we get paid to do this. We have to stop treating it like it's a burden, and treat it like a challenge that we just have to overcome. Education is the only way to get us there. Selling false promises of impossible solutions will only draw things out and make them worse.
