@@ -178,6 +178,8 @@ Like I said, handling this problem is _exactly_ what you signed up for when you 
 
 There's just no way around it.
 
+We're always going to have to consider each page individually, by watching how it works, and identifying _specific_ things we can check for to determine when it's ready, and then put those into our code as explicit waits.
+
 I know it's not the answer you wanted. But QA Automation is a software engineering role, and that's just the reality of it.
 
 If you treat this problem like something you shouldn't have to deal with, it will just become a burden that eats at you and makes everything harder.
