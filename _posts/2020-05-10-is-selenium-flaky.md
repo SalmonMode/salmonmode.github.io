@@ -2,7 +2,7 @@
 layout: posts
 title: "Is Selenium Actually Flaky?"
 excerpt: "We've all gotten frustrated dealing with flakiness once we start involving Selenium in our tests. But is Selenium really the problem? What can we do to solve these issues?"
-date: 2020-05-09 22:00:00 -0500
+date: 2020-05-10 22:00:00 -0500
 ---
 
 We've all gotten frustrated working with Selenium. We've had to deal with our tests failing for seemingly no reason at all, and ended up burning a bunch of time trying to find some fix or workaround.
