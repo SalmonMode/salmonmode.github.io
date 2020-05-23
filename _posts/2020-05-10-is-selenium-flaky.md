@@ -142,11 +142,31 @@ They're either lying, or misinformed. I try to assume the latter.
 
 This whole issue with knowing when it's ok to move forward with the test is a prime example of ["The Halting Problem"](https://en.wikipedia.org/wiki/Halting_problem), which is an unsolvable problem.
 
-Basically, the problem is determining, just by looking at a program's code, if the program will run forever, or if it will eventually stop. For our purposes, if you can determine that it _will_ eventually stop, that means you can automatically determine criteria to recognize when it _has_ stopped, and if you can do this, then you can handle waiting automatically.
+Basically, the problem is determining, just by looking at a program's code, if the program will run forever, or if it will eventually stop.
+
+For our purposes, we'd like to not just know _if_ it will eventually stop, but also _when_ it would stop. If you can automatically determine _when_ it would stop, then you would be able to solve the auto-waiting problem. But in order to have a means of automatically recognizing when something will stop, you must first be able to recognize _if_ it will stop.
 
 The implications for someone solving this problem are endless, and if someone _did_ solve it, they would be very rich and famous overnight.
 
-But like I said, this is an unsolvable problem. Any tool claiming to have solved it, is either lying, or doesn't realize that their solution doesn't actually work.
+But, like I said, this is an unsolvable problem. Any tool claiming to have solved it, is either lying, or doesn't realize that their solution doesn't actually work.
+
+### "But that's about _predicting_, right? Can't the browser just monitor for when the DOM _does_ stop updating?"
+
+An excellent question!
+
+Unfortunately, JavaScript in the browser never really stops running, so there isn't a point where WebDriver can say "ok, you're good to go".
+
+For some pages, it could be the case that if you rule out all behavior that would be triggered by user activity (e.g. clicking, moving the mouse, typing), you _might_ be able to automatically determine that the page is done doing things by making sure there's no running functions, no active timeout callbacks, no active web requests, and no CSS animations active (or scheduled).
+
+But not every page can get into a state like this. It's becoming increasingly common for webpages to be constantly doing things, even in the background. It could be analytics tracking, continuously running CSS animations, checking in with the backend for updates, or really anything else. It's impossible for the browser to figure out the intent of these behaviors, so it can't rule any of them out. 
+
+You might then want to try and rule out the behaviors if you know they'll run indefinitely, but then we're back to the halting problem, making it impossible to tell which behaviors would run indefinitely.
+
+If this is how your webpage works, then the method I described before would make you wait forever.
+
+Since this method wouldn't work for everyone, it can't be built in to any universal frameworks.
+
+To make things worse, even trying to implement this approach for your own site is rapidly becoming ineffective as more and more sites utilize the kinds of indefinitely running things I mentioned. Chances are you're site already does at least one of these things.
 
 ### Further convincing
 
