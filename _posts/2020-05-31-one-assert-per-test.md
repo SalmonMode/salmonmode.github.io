@@ -24,9 +24,9 @@ A single behavior can only result in a single change. If we have more than one a
 
 Sometimes that state-changing action can trigger _multiple_ behaviors, and this is normal. It's the definition of complexity.
 
-But, a single test can still only evaluate a single behavior (more on this [below](#longer-to-run)).
+But a single test can still only evaluate a single behavior (more on this [below](#longer-to-run)).
 
-## The benefits of abstraction
+## The Benefits of Abstraction
 
 It can be difficult to spot the different behaviors you're trying to test, which is why it's so easy to fall into the trap of putting multiple asserts into a single test.
 
@@ -55,7 +55,7 @@ The same goes for that welcome text.
 
 But what about the other assertions?
 
-## Something straightforward
+## Something Straightforward
 
 First, let's go for something simple: the user's name in the profile info.
 
@@ -75,7 +75,7 @@ class TestLogin:
 
 If the name, profile, or even the header itself isn't there, then it'll throw an error, letting us know the test couldn't be performed (i.e. the assertion couldn't be evaluated) because something else went wrong. If the name is there, but not correct, it'll fail. If it's there and correct, it'll pass.
 
-## Something more advanced
+## Something More Advanced
 
 Let's look at the profile picture ones.
 
@@ -99,7 +99,7 @@ class TestLogin:
 
 If the image isn't present on the page, it will throw an error. If the image is there but using the wrong image data, it will fail. If it's there and all is good, it will pass.
 
-## Can we go even further?
+## Can We Go Even Further?
 
 We can!
 
@@ -132,7 +132,7 @@ class TestLogin:
 
 Everything works the same as the other two tests. If stuff isn't there, it errors. If stuff is wrong, it fails. If stuff is good, it passes.
 
-## _Should_ we go further?
+## _Should_ We Go Even Further?
 
 [Ian Malcom from Jurassic Park saying 'Your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should.'](/images/Ian_Malcom_ask_if_they_should.gif)
 
@@ -156,7 +156,7 @@ If an engineer doesn't know where to look to find the problem when they see a te
 
 I'm not saying comparing at the profile level is bad per se. But it's necessary to use discretion and think about the bigger picture of how everything goes together. If we bundle everything together into one big assert, it's more difficult to pull out what's wrong from a failure message, because it can be significantly longer, and prevents a developer from knowing where they need to look at a quick glance, because there's more components involved in that test.
 
-## Addressing concerns
+## Addressing Concerns
 
 ### "They'll take longer to run because they'll be doing the same setup multiple times" {#longer-to-run}
 
