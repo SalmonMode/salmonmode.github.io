@@ -5,7 +5,7 @@ excerpt: "Software tests are a form of scientific research and should be treated
 date: 2020-02-09 13:00:00 -0500
 ---
 
-Too often I see tests that more or less invalidate themselves, or otherwise hinder the value they could add. They test too much, don't test anything at all, are vulnerable to unrelated problems because of unnecessary dependencies, can't fail, are non-deterministic, or any number of other avoidable issues. It's incredibly common, despite the source of the problem being quite clear.
+Too often I see tests that more or less invalidate themselves, or otherwise hinder the value they could add. They test too much, don't test anything at all, are vulnerable to unrelated problems because of unnecessary dependencies, can't fail, are non-deterministic, or any number of other avoidable issues. It's an incredibly common trap to fall into, and seems to be the result of widespread (unintentional) misinformation.
 
 ![Mr. Incredible meme saying 'Science is Science' instead of 'Math is Math'](/images/science_is_science.jpg)
 
@@ -13,7 +13,7 @@ Put simply, software testing, as a whole, is not treated in a scientific manner,
 
 This shouldn't seem like some outlandish or ridiculous claim. If you feel it is, then let's review what exactly "science" is.
 
-If no more convincing is needed, feel free to skip ahead to [Part 2]({% post_url 2020-02-09-scientific-testing-part-2 %}).
+If no more convincing is needed, or at any point you've had enough of my ramblings, feel free to skip ahead to [Part 2]({% post_url 2020-02-09-scientific-testing-part-2 %}).
 
 ## What is science?
 
