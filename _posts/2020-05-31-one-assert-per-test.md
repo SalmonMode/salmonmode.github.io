@@ -134,7 +134,7 @@ Everything works the same as the other two tests. If stuff isn't there, it error
 
 ## _Should_ We Go Even Further?
 
-[Ian Malcom from Jurassic Park saying 'Your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should.'](/images/Ian_Malcom_ask_if_they_should.gif)
+![Ian Malcom from Jurassic Park saying 'Your scientists were so preoccupied with whether or not they could, they didn't stop to think if they should.'](/images/Ian_Malcom_ask_if_they_should.gif)
 
 There comes a point when it just complicates things and makes it harder to debug.
 
