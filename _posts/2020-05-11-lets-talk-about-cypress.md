@@ -27,7 +27,7 @@ First, let's establish some things to be true so we can be on the same page movi
 
 I covered this in [my last post]({% post_url 2020-05-10-is-selenium-flaky %}), because it's an important topic to go over, and there's a lot to go over to cover it thoroughly. The TL;DR is this:
 
-Selenium isn't flaky; your tests are. There is no universal way to determine automatically when a page is ready to be interacted with. In order to solve that, you just first solve [the Halting Problem](https://en.wikipedia.org/wiki/Halting_problem), which is an unsolvable problem. Any tool claiming this as a capability is, unfortunately, wrong.
+Selenium isn't flaky; your tests are. There is no universal way to determine automatically when a page is ready to be interacted with. In order to solve that problem, you must first solve [the Halting Problem](https://en.wikipedia.org/wiki/Halting_problem), which is an unsolvable problem. Any tool claiming this as a capability is, unfortunately, wrong.
 
 When writing end-to-end tests, it's up to us to use "explicit waits" that manage when our tests believe it's safe to move forward. No tool can do this for us automatically. This is exactly what we signed up for when we started writing those tests.
 
