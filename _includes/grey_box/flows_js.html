@@ -68,28 +68,28 @@ buildCircles(solSvg);
 var flowSvg = d3.select("#allFlowTests");
 buildCircles(flowSvg);
 
-circleAIndex = 20
-circleBIndex = 24
-isoSvg.selectAll("circle:nth-of-type(" + (circleAIndex + 1) + "), circle:nth-of-type(" + (circleBIndex + 1) + ")")
-  .attr("class", "permawhite");
+// circleAIndex = 20
+// circleBIndex = 24
+// isoSvg.selectAll("circle:nth-of-type(" + (circleAIndex + 1) + "), circle:nth-of-type(" + (circleBIndex + 1) + ")")
+//   .attr("class", "permawhite");
 
-var circleA = graph.nodes[circleAIndex];
-var circleB = graph.nodes[circleBIndex];
+// var circleA = graph.nodes[circleAIndex];
+// var circleB = graph.nodes[circleBIndex];
 
-var isoGraph = {
-  "nodes": [{
-    "x": circleA.x,
-    "y": circleA.y,
-    "parents": [],
-    "index": circleAIndex
-  }]
-};
-isoGraph.nodes.push({
-  "x": circleB.x,
-  "y": circleB.y,
-  "parents": [isoGraph.nodes[0]],
-  "index": circleBIndex
-});
+// var isoGraph = {
+//   "nodes": [{
+//     "x": circleA.x,
+//     "y": circleA.y,
+//     "parents": [],
+//     "index": circleAIndex
+//   }]
+// };
+// isoGraph.nodes.push({
+//   "x": circleB.x,
+//   "y": circleB.y,
+//   "parents": [isoGraph.nodes[0]],
+//   "index": circleBIndex
+// });
 
 var solutionSuiteCount = 0;
 var flowSuiteCount = 0;
