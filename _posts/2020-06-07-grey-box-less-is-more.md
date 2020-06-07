@@ -81,7 +81,7 @@ It's rare that you'll walk into a new code base and immediately be able to ident
 
 But as you acquire knowledge about the system, and other systems in general, you can start writing more and more refined tests. It's a process that never really ends, so don't sweat not being able to spot the finish line.
 
-{% include grey_box_react_redux/grey_box_react_redux_js.html %}
+{% include grey_box/flows_js.html %}
 
 ## **White box** testing isn't always the best, but it's usually essential
 
