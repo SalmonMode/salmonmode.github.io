@@ -189,7 +189,7 @@ If you say that "testing" is broken, you're quite literally saying "the scientif
 
 #### How is it harmful?
 
-This is what I'm talking about. We can't keep encouraging engineers to disregard proper scientific practices by making excuses on their behalf and telling them to blame their tools. 
+This is what I'm talking about. We can't keep encouraging engineers to disregard proper practices by making excuses on their behalf and telling them to blame their tools. 
 
  A _tool_ can't fix how someone goes about a process. Only _education_ can fix that. By making excuses on the behalf of these engineers, we push them away from knowledge, and no one wins. We have to do better. We have to educate people, not sell them snake oil.
  
