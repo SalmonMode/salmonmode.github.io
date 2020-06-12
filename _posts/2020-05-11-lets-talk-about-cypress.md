@@ -131,7 +131,7 @@ Sources: [1](https://web.archive.org/web/20200426195740/https://www.cypress.io/f
 
 #### How is it false?
 
-These are just as old as debuggers. This isn't a "game changer" just because Cypress supports them. Almost every other language has supported them for decades.
+These are just as old as debuggers. This isn't a "game changer" just because Cypress supports them. Most other languages have supported them for decades.
 
 #### How is it harmful?
 
