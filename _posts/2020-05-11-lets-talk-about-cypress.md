@@ -183,15 +183,15 @@ Sources: [1](https://web.archive.org/web/20200426173416/http://www.cypress.io/ho
 
 #### How is it false?
 
-"Testing" isn't broken. It was _never_ broken. Testing is a scientific process with a well-defined set of steps (see: the scientific method). There's nothing to fix there. If you aren't following the process properly and controlling for confounding variables, then you can't blame the process. You can only blame yourself.
+"Testing" isn't broken. It was _never_ broken. Testing is a scientific process with a well-defined set of steps (see: the scientific method). There's nothing to fix there. If you aren't following the process properly and controlling for confounding variables, then you can't blame the process. You can only blame the way you went about the process.
 
 If you say that "testing" is broken, you're quite literally saying "the scientific method is broken", which is complete nonsense.
 
 #### How is it harmful?
 
-This is what I'm talking about. We can't keep encouraging engineers to disregard proper scientific practices by making excuses for them and telling them to blame their tools. 
+This is what I'm talking about. We can't keep encouraging engineers to disregard proper scientific practices by making excuses on their behalf and telling them to blame their tools. 
 
- A _tool_ can't fix people that fail to follow the process properly. Only _education_ can fix that. By making excuses for these engineers, we encourage ignorance, and no one wins. We have to do better. We have to educate people, not sell them snake oil.
+ A _tool_ can't fix how someone goes about a process. Only _education_ can fix that. By making excuses on the behalf of these engineers, we push them away from knowledge, and no one wins. We have to do better. We have to educate people, not sell them snake oil.
  
  
 ### "Until now, end-to-end testing wasn’t easy."
@@ -210,7 +210,7 @@ You're still gonna need to make page objects and structure your tests properly s
 
 ####  How is it harmful?
 
-It makes more excuses for engineers and coddles them. It tells them they were never supposed to overcome these challenges because they weren't supposed to be part of the job. But that's unfortunately not true. It's a software engineering role and dealing with these challenges comes with the territory.
+It makes more excuses on the behalf of engineers and coddles them. It tells them they were never supposed to overcome these challenges because they weren't supposed to be part of the job. But that's unfortunately not true. It's a software engineering role and dealing with these challenges comes with the territory.
 
 ### "How it works: Before/After Cypress graph"
 
@@ -290,7 +290,7 @@ TDD with end-to-end tests was possible _long_ before Cypress was ever incepted.
 
 #### How is this harmful?
 
-It makes more excuses for engineers, and pretends that somehow Cypress will magically make all the challenges go away.
+It makes more excuses on the behalf of engineers, and pretends that somehow Cypress will magically make all the challenges go away.
 
 ### "7 ways Cypress is different: Cypress runs much, much faster."
 
@@ -308,7 +308,7 @@ Write any test that you could for TDD using Cypress. Before actually doing the d
 
 #### How is this harmful?
 
-It makes more excuses for poor tests, and pretends that somehow Cypress will magically make all the challenges go away.
+It makes more excuses for poor tests, and pretends that somehow Cypress will magically make all the challenges go away. It implies that what you were doing before was clunky and slow to develop, such that TDD wouldn't be feasible.
 
 ### "Key Differences: Cypress has native access to everything."
 
@@ -332,7 +332,7 @@ Literally no new kinds of testing are possible with Cypress. Any kind of testing
 
 #### How is this harmful?
 
-Yet more negativity towards Selenium, and more excuses for poor tests.
+Yet more negativity towards Selenium, and more excuses for poor tests. It implies that you couldn't do all of these fancy types of testing that people may be talking about unless you use Cypress.
 
 ### "Key Differences: You can programmatically take shortcuts."
 
@@ -340,11 +340,11 @@ Sources: [1](https://web.archive.org/web/20200426173416/http://www.cypress.io/ho
 
 #### How is this false?
 
-You can do this with Selenium as well. Selenium doesn't "force you to act like a user". This just seems like a disingenuous claim to make.
+You can do this with Selenium as well. Selenium doesn't "force you to act like a user". It provides direct access to the JavaScript runtime, so you can take whatever shortcuts you need on the frontend, and you can hit the backend directly if needed without Selenium in the same tests that use Selenium. This just seems like a disingenuous claim to make.
 
 #### How is this harmful?
 
-Yet more negativity towards Selenium, and more excuses for poor tests.
+Yet more negativity towards Selenium, and more excuses for poor tests. It suggests that you can't write fast tests without Cypress, and that you're somehow locked in to taking things step by step exactly as a user would.  
 
 ### "Key Differences: Cypress is not flaky."
 
@@ -356,9 +356,9 @@ Cypress is just as flaky as Selenium. The difference is that Cypress recommends 
 
 #### How is this harmful?
 
-Yet more negativity towards Selenium, and more excuses for poor tests.
+Yet more negativity towards Selenium, and more excuses for poor tests. It suggests that their tests were fine, it's just Selenium that was the problem. It ignores the reality that explicit waits are absolutely necessary when a site uses AJAX. It also claims that Cypress somehow isn't flaky, and those that use it will never have nondeterministic tests, despite the fact that it recommends they write nondeterministic tests.
 
-You may have noticed me copying and pasting the same critiques over and over again. Well, that's because there's a pretty common theme running through their website and the claims they make about their product, and I didn't see much point in breaking out the thesaurus to see how many ways I could write "they have completely unjustified hate for Selenium and will take every opportunity to attack it".
+You may have noticed me copying and pasting the same core critiques over and over again. Well, that's because there's a pretty common theme running through their website and the claims they make about their product, and I didn't see much point in breaking out the thesaurus to see how many ways I could write "they have completely unjustified hate for Selenium and will take every opportunity to attack it".
 
 ## That's just a few parts of their main site.
 
