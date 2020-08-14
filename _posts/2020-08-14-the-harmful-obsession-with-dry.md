@@ -7,7 +7,7 @@ date: 2020-08-14 08:40:00 -0500
 
 ![Detailed close-up of SpongeBob dried out.](/images/spongebob_dry.gif){:height="auto" width="100%"}
 
-### Best practices
+## Best practices
 
 We hear a lot about "best practices", and that we should always follow them. After all, they are the _"best"_ practices, and we want our code to be the best, so it makes sense to follow them all as closely as possible... right?
 
@@ -29,7 +29,7 @@ As software engineers, we don't have a regulating body to do this for us, which 
 
 DRY is one such practice that I've seen in _far_ too many places being applied without consideration for other practices that should be followed.
 
-### DRY
+## DRY
 
 "DRY" stands for "Don't Repeat Yourself", which basically means that if there's a large block of code essentially being duplicated in multiple places, it might be best to turn that into a function instead. If it's turned into a function, the code only needs to be maintained in one spot, can be tested directly, and can even be stubbed when testing the functions that use it.
 
@@ -37,13 +37,13 @@ Sounds great, right?
 
 Often it is, but the problem comes in when it goes against other best practices. In particular, I want to focus on KISS and DAMP.
 
-### KISS
+## KISS
 
 "KISS" stands for "Keep It Simple, Stupid" or "Keep It Stupid Simple" (which is the friendlier of the two). Many interpret this to mean that, if your code _looks_ simple, in that there's not a lot going on _visually_, then it will be easier to grok. But this doesn't consider the nature of programming, which is _logical_. What the acronym _really_ means, is that complexity is the enemy, and that keeping a system logically simple (i.e. with few possible routes for the logic of the code to take) is essential for [internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) and being able to grok what the code is doing.
 
 One means of measuring code complexity is [cyclomatic complexity](https://en.m.wikipedia.org/wiki/Cyclomatic_complexity), which has been shown to correlate positively with defect rates, suggesting that the more complex the code is, the more likely it is for there to be defects. This measurement is also useful for determining the number of test cases needed to test that system thoroughly, which might help put that correlation into context.
 
-### DAMP
+## DAMP
 
 "DAMP" stands for "Descriptive And Meaningful Phrases", which means that the code should read in a self-explanatory manner, while still being idiomatic. The goal is to increase readability, in order to help others (and yourself in a few months) understand the code more efficiently. For example, you might have a function that adds an item to a user's cart that looks something like `assoc_item_pkey_with_user_item_acquisition_container(pkey, container_key, count)`, and that might be technically correct and descriptive, but it's not very meaningful. Instead, it could be `add_item_to_user_cart(item, cart, count)`, or even `user.cart.add(item, count)`.
 
@@ -51,7 +51,7 @@ I often like to say "your code should read like a short story written by C. S. L
 
 This doesn't just apply to the logic shown, as it also applies to the logic that _should_ be shown but might otherwise not be. If logic is hidden, then it only serves to confuse the reader, and this goes doubly so for side-effects of a function. That's not to say that you shouldn't call other functions in your functions, but if the function for step 1 of a process contains the logic for step 2 as well, then it can't be named in a description and meaningful way.
 
-### Consequences
+## Consequences of being too DRY
 
 In the pursuit of following DRY for the sake of it, KISS and DAMP are often forgotten about.
 
@@ -63,7 +63,7 @@ Repeating a complex chunk of code is a potentially missed opportunity for good a
 
 I've seen this obsession (or overdependence, depending on your perspective) go so far as to completely separate the core logic out from the code, and place it entirely behind dozens of layers of indirection in combination with a proprietary declarative system that depended entirely on the database to have any meaning. This made it fundamentally impossible to unit test that logic, and incredibly difficult to follow along with. Unsurprisingly, it made development far more difficult and time consuming than it needed to be, and greatly increased the chances of serious bugs being missed.
 
-### Focus on making the code understandable
+## Focus on making the code understandable
 
 Following DRY isn't inherently an issue. But it's impossible to apply it effectively, or even just in a way that doesn't actively harm the internal software quality, without considering the other best practices.
 
