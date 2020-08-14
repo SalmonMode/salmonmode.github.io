@@ -61,7 +61,7 @@ I could go more into detail about what the risks and consequences of these types
 
 Repeating a complex chunk of code is a potentially missed opportunity for good abstraction. I believe many fall back on DRY because it's one of the easiest to spot opportunities for it, and it's one of the easiest to implement. But, as a result, it's also far too easy to apply it in inappropriate places, and the consequences of that are reduced internal software quality.
 
-I've seen this obsession (or overdependence, depending on your perspective) go so far as to completely separate business logic out from the code, and place it entirely behind dozens of layers of indirection in combination with a proprietary declarative system that depended entirely on the database to have any meaning. This made it fundamentally impossible to unit test the business logic, and incredibly difficult to follow along with. Unsurprisingly, it made development far more difficult and time consuming than it needed to be, and greatly increased the chances of serious bugs being missed.
+I've seen this obsession (or overdependence, depending on your perspective) go so far as to completely separate the core logic out from the code, and place it entirely behind dozens of layers of indirection in combination with a proprietary declarative system that depended entirely on the database to have any meaning. This made it fundamentally impossible to unit test that logic, and incredibly difficult to follow along with. Unsurprisingly, it made development far more difficult and time consuming than it needed to be, and greatly increased the chances of serious bugs being missed.
 
 ### Focus on making the code understandable
 
