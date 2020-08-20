@@ -1,7 +1,7 @@
 ---
 layout: posts
 title: '"What would QA do all day?"'
-excerpt: "The intent of DRY is to help us find potential opportunities for abstraction. Many take it to mean we should never repeat a block of code. However, this interpretation comes at great cost."
+excerpt: "If the developer wrote the tests for their tickets before checking their changes in, what would QA do all day? Let's take a look at what leads to this question being asked, and why it's essential for developers to write their own tests in Agile."
 date: 2020-08-20 16:00:00 -0500
 ---
 
