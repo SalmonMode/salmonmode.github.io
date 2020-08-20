@@ -44,11 +44,11 @@ The only way for it to truly be sustainable is for the programmer to write the t
 
 ### Test suite execution time
 
-If the tester is the one writing the tests, they'll likely be writing them at the end-to-end level. That level is _extremely_ expensive to run at, and each test will require a significant amount of time, especially if a browser is involved. Every test added that runs at that level will add a _considerable_ amount of time to the test suite execution time. The tests need to done at lower levels where possible so they only add a negligible amount of time, otherwise, it grows out of control very quickly.
+If the tester is the one writing the tests, they'll likely be writing them at the end-to-end level. That level is _extremely_ expensive to run at, and each test will require a significant amount of time, especially if a browser is involved. Every test added that runs at that level will add a _considerable_ amount of time to the test suite execution time. The tests need to done at lower levels where possible so they only add a negligible amount of time, otherwise, it'll grow out of control very quickly.
 
 ### Prompt programmer feedback
 
-If the tests take too long to run, the programmer is likely to get frustrated, and possibly even move on to something else. If they move on to something else, it means having to context switch back to what they were doing originally once the tests finish, which burns time and mental effort (i.e. there was wasted work).
+[If the tests take too long to run, the programmer is likely to get frustrated, and possibly even move on to something else](https://www.youtube.com/watch?v=AJ7u_Z-TS-A). If they move on to something else, it means having to switch contexts again back to what they were doing originally once the tests finish, which burns time and mental effort (i.e. there was wasted work).
 
 Programmers need prompt feedback on their changes so they can iterate rapidly. The only way to provide this is to make sure there's sufficient tests, and those tests are operating at as low a level as possible. The only way to make sure those tests are in place, is to make sure the programmers are adding them as they add their changes (because, as mentioned above, adding them in after the fact is basically asking for the test development to be outpaced).
 
@@ -70,21 +70,21 @@ Having the programmer write the tests helps them identify problematic areas of t
 
 #### Regarding Tech Debt Sprints
 
-In an attempt to maintain internal software quality, some places use "tech debt" sprints where tech debt tickets are planned for that sprint. These seem fine in theory, but aren't very practical, and are actively harmful to the bottom line when done at regular intervals.
+In an attempt to maintain internal software quality, some places use "tech debt" sprints where tech debt tickets are planned for that sprint. These seem fine in theory, but aren't very practical and are actively harmful to the bottom line when done at regular intervals.
 
-Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's an attempt to _lie_ about what the team's capacity is for a given sprint, and it will inevitably lead to relase date estimates that are far sooner than is practical, which, of course, leads to crunch time.
+Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's an attempt to _lie_ (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
 
 [Here's a note from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) (the makers of Jira) on the importance of eliminating tech debt as you go.
 
-All that said, technical debt _does_ happen. It's not often that we can perfectly foresee what we'll need 3 months from now so that we can deterimine what the optimal implementation is now. While we should be trying to resolve that debt as we go, sometimes it's difficult to see the bigger problem until it's too late. In order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
+All that said, technical debt _does_ happen. It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. While we should be trying to resolve that debt as we go, sometimes it's difficult to see the bigger problem until it's too late. In order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
 
 # Disregard for quality (both internal and external)
 
 When the programmers aren't writing the tests, they don't have to be concerned with quality. It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/) which has its own, serious problems.
 
-Internal software quality is something they are accountable to, but they can always brush it off to get by. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can pass the buck off to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
+Internal software quality is something they are accountable to, but they can always brush it off to get by, and lac of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
 
-Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests.
+Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they lack discipline and the experience to understand the implications of this.
 
 Some programmers may say they don't have the skills or mentality for it. But that's a load of bunk.
 
@@ -127,7 +127,7 @@ But this encourages the siloing of responsibilities, which, in turn, builds wall
 
 # Fear from QA
 
-I think Lisa Crispin and Janet Gregory nailed it in their book _Agile Testing_. They said most of it bouls down to _fear_. They explained (among other things) that testers might not know what else there is to do, and even if they do, that they might be afraid they don't have the skills to cut it. If all they've ever known is checking criteria from tickets, there can be a sense of security in that. It has a very clear line where they can say "ok, I did my job. I'm done." If they get that work done, then they have nothing to fear regarding job security. It may not be _fulfilling_ work for them, but it _will_ at least pay the bills.
+I think Lisa Crispin and Janet Gregory nailed it in their book _Agile Testing_. They said most of it boils down to _fear_. They explained (among other things) that testers might not know what else there is to do, and even if they do, that they might be afraid they don't have the skills to cut it. If all they've ever known is checking criteria from tickets, there can be a sense of security in that. It has a very clear line where they can say "ok, I did my job. I'm done." If they get that work done, then they have nothing to fear regarding job security. It may not be _fulfilling_ work for them, but it _will_ at least pay the bills.
 
 This fear is entirely understandable, and shouldn't be ignored. It will take a culture change to make them feel like their job security isn't under constant threat.
 
@@ -241,15 +241,15 @@ Many may not truly understand the implications of this change, or know what ques
 
 **Do not wait for them to come to you.**
 
-You need to seek them out individually (preferrably in private), make it clear to them that it's in _your_ best interest to level them up, and provide the resources to them without being asked. This creates a sort of plausible deniability (for lack of a better term) so they don't feel like they're being called out, and don't take a hit to their pride (because you didn't wait to find out if they needed it before offering it as "a cool thing you thought they might be interested in").
+You need to seek them out individually (preferably in private), make it clear to them that it's in _your_ best interest to level them up, and provide the resources to them without being asked. This creates a sort of plausible deniability (for lack of a better term) so they don't feel like they're being called out, and don't take a hit to their pride (because you didn't wait to find out if they needed it before offering it as "a cool thing you thought they might be interested in").
 
 ## Be _patient_
 
-If you're hoping to hire a tester that comes ready out of the box, good luck. They are rare to come by, as that caliber of tester is likely well taken care of, or may have changed career paths already (it's a very common avenue for becomming a software engineer). You'll likely have to find driven individuals and help them acquire the skills they need.
+If you're hoping to hire a tester that comes ready out of the box, good luck. They are rare to come by, as that caliber of tester is likely well taken care of, or may have changed career paths already (it's a very common avenue for becoming a software engineer). You'll likely have to find driven individuals and help them acquire the skills they need.
 
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
-It takes a _lot_ of time and effort to learn these things, and many people often need to hear something explained _many_ different ways before it clicks (I am one of those people). This change will afford them the time to actually invest in learning, but they may feel guilty spending company time on it. So you'll need to emphasise to them that you're making an investment in them, that will surely have a huge return.
+It takes a _lot_ of time and effort to learn these things, and many people often need to hear something explained _many_ different ways before it clicks (I am one of those people). This change will afford them the time to actually invest in learning, but they may feel guilty spending company time on it. So you'll need to emphasize to them that you're making an investment in them, that will surely have a huge return.
 
 You can try to work out a schedule with them where they spend some amount of time each day or week on learning/improving (or even teaching/helping others!), and make sure they do it by engaging with them to see what they learned, e.g. "How'd you like chapter 17? Any cool takeaways? Could you help me understand what they meant by 'internal software quality'?". This creates an expectation for them to do it, but in a supportive atmosphere (and [an expectation that they'll have to teach you will help them study more effectively](https://www.futurity.org/learning-students-teaching-741342/)).
 
