@@ -255,4 +255,4 @@ You can try to work out a schedule with them where they spend some amount of tim
 
 I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately. In return, though, you will likely have an extremely loyal employee (because you showed them loyalty).
 
-You may get lucky and find a tester that needs very minimal direction
+You may get lucky and find a tester that needs very minimal direction or guidance. But I would assume this is never the case. You will likely find a similar situation with the programmers in terms of discipline and code design (and there is a lot of overlap here with testers), so that may require your attention as well.
