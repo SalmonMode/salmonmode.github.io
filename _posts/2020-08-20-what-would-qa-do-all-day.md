@@ -13,7 +13,16 @@ The fact that the question was asked carries many implications, and I'll try to 
 
 # Misunderstanding Agile principles
 
-I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software. But the reality is that Agile takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817).
+I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software.
+
+But the reality is that Agile takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
+
+> We _follow_ these principles
+
+not any of these:
+ - We follow _some of_ these principles
+ - We follow these principles _when we deem it to be convenient_
+ - We think these practices are _great in theory_
 
 The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one. It's actually a _fundamental requirement_ of Agile.
 
