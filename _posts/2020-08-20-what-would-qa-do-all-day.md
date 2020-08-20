@@ -38,7 +38,7 @@ The ratio of developers to testers on development teams almost always has fewer 
 
 If the tester is the one writing the automated tests, then they have to keep up with multiple programmers. There's just no way for this to feasibly be done properly and sufficiently, as the programmers can collectively outpace the tester easily. The tester will likely have to write their tests at the end-to-end level so their tests will take a long time to run and debug. They'll also have to work with whatever the programmers passed to them, and there's no way for the tester to know what that'll be ahead of time.
 
-The tester may have to resort to cutting corners, or look for tools that promise the world when they actually don't (e.g. [Cypress]({% post_url 2020-05-11-lets-talk-about-cypress %}).), and this will only come back to bite them later.
+The tester may have to resort to cutting corners, or look for tools that promise the world when they actually don't (e.g. [Cypress]({% post_url 2020-05-11-lets-talk-about-cypress %})), and this will only come back to bite them later.
 
 The only way for it to truly be sustainable is for the programmer to write the tests, as it will act as a regulating mechanism to make sure changes don't outpace test development.
 
