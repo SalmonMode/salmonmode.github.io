@@ -24,7 +24,9 @@ The "Waterfall" development model has testing done separately from programming a
 
 ## Why exactly Agile requires the programmer writes the tests
 
-There's many reasons, but the big hitters revolve around sustainability, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
+> Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.
+
+There's many reasons, but the big hitters revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
 
 ### Accumulation of tests
 
@@ -59,6 +61,8 @@ The tester would very likely be writing their tests at the end-to-end level, whi
 On top of this, every single time a ticket has to get passed back to the programmer, the programmer needs to learn what issue the tester found, the context in which they found it, and then they need to investigate it after re-establishing the context of their original changes. Context switching needs to be reduced because it's costly when switching to back to a context the programmer was already in previously.
 
 ### Maintaining internal software quality
+
+> Continuous attention to technical excellence and good design enhances agility.
 
 [Internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) is effectively the quality of the code's changeability. When this is reduced, so is productivity. If productivity declines over time, then it's not sustainable. So if internal software quality is not actively maintained as we move forward, then we're not sustainable.
 
@@ -241,8 +245,12 @@ You need to seek them out individually (preferrably in private), make it clear t
 
 ## Be _patient_
 
+If you're hoping to hire a tester that comes ready out of the box, good luck. They are rare to come by, as that caliber of tester is likely well taken care of, or may have changed career paths already (it's a very common avenue for becomming a software engineer). You'll likely have to find driven individuals and help them acquire the skills they need.
+
+> Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
+
 It takes a _lot_ of time and effort to learn these things, and many people often need to hear something explained _many_ different ways before it clicks (I am one of those people). This change will afford them the time to actually invest in learning, but they may feel guilty spending company time on it. So you'll need to emphasise to them that you're making an investment in them, that will surely have a huge return.
 
 You can try to work out a schedule with them where they spend some amount of time each day or week on learning/improving (or even teaching/helping others!), and make sure they do it by engaging with them to see what they learned, e.g. "How'd you like chapter 17? Any cool takeaways? Could you help me understand what they meant by 'internal software quality'?". This creates an expectation for them to do it, but in a supportive atmosphere (and [an expectation that they'll have to teach you will help them study more effectively](https://www.futurity.org/learning-students-teaching-741342/)).
 
-I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately.
+I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately. In return, though, you will likely have an extremely loyal employee (because you showed them loyalty).
