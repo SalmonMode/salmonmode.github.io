@@ -38,9 +38,9 @@ The ratio of developers to testers on development teams almost always has fewer 
 
 If the tester is the one writing the automated tests, then they have to keep up with multiple programmers. There's just no way for this to feasibly be done properly and sufficiently, as the programmers can collectively outpace the tester easily. The tester will likely have to write their tests at the end-to-end level so their tests will take a long time to run and debug. They'll also have to work with whatever the programmers passed to them, and there's no way for the tester to know what that'll be ahead of time.
 
-The tester may have to resort to cutting corners, or look for tools that promise the world when they actually don't (e.g. [Cypress]({% post_url 2020-05-11-lets-talk-about-cypress %})), and this will only come back to bite them later.
+The tester may have to resort to cutting corners, or look for tools that promise the world when they actually don't (e.g. [Cypress handling waits automatically]({% post_url 2020-05-11-lets-talk-about-cypress %})), and it'll only come back to bite them later.
 
-The only way for it to truly be sustainable is for the programmer to write the tests, as it will act as a regulating mechanism to make sure changes don't outpace test development.
+The only way for it to truly be sustainable is for the programmer to write the tests, as it will act as a regulating mechanism to make sure production code changes don't outpace test development.
 
 ### Test suite execution time
 
@@ -254,3 +254,5 @@ It takes a _lot_ of time and effort to learn these things, and many people often
 You can try to work out a schedule with them where they spend some amount of time each day or week on learning/improving (or even teaching/helping others!), and make sure they do it by engaging with them to see what they learned, e.g. "How'd you like chapter 17? Any cool takeaways? Could you help me understand what they meant by 'internal software quality'?". This creates an expectation for them to do it, but in a supportive atmosphere (and [an expectation that they'll have to teach you will help them study more effectively](https://www.futurity.org/learning-students-teaching-741342/)).
 
 I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately. In return, though, you will likely have an extremely loyal employee (because you showed them loyalty).
+
+You may get lucky and find a tester that needs very minimal direction
