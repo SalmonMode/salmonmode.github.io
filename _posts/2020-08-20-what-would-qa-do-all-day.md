@@ -268,7 +268,7 @@ You may get lucky and find a tester that needs very minimal direction or guidanc
 
 # How to get there from here
 
-This is not about having the developers do the "testing", but that is a good end goal, and Atlassian has laid out a pretty solid transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video, so you'll have to watch it to get an example plan).
+This is not about having the developers do the "testing", but that is a good next step, and Atlassian has laid out a pretty solid transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video, so you'll have to watch it to get an example plan).
 
 This is about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
 
