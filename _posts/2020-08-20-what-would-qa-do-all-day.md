@@ -265,3 +265,17 @@ You can try to work out a schedule with them where they spend some amount of tim
 I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately. In return, though, you will likely have an extremely loyal employee (because you showed them loyalty).
 
 You may get lucky and find a tester that needs very minimal direction or guidance. But I would assume this is never the case. You will likely find a similar situation with the programmers in terms of discipline and code design (and there is a lot of overlap here with testers), so that may require your attention as well.
+
+# How to get there from here
+
+This is not about having the developers do the "testing", but that is a good end goal, and Atlassian has laid out a pretty solid transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video, so you'll have to watch it to get an example plan).
+
+This is about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
+
+There is no transition necessary, as they can just start turning those thoughts into automated tests as part of their normal process, and they need to make sure that everyone else is doing the same (e.g. it's one of the first thing programmers can look for during code review, and send it back if the tests aren't providing good coverage). The programmers are _already_ thinking about these tests while they write their code. They couldn't write the code otherwise.
+
+They should be writing their code and tests with the expectation that no one else will catch their bugs for them, that it will be going straight out to production, and that they are responsible for the quality of it once it goes out that door.
+
+This will be perfectly fine for some engineers, but a _terrifying_ concept to many, and that's the point. It's a team effort, but we all need to approach quality like we're each 100% responsible for it, because we are.
+
+In _Agile Testing_, they highlight another important note, which is that when that deadline races up faster than they thought it would, they may panic, and fall back on old habits, i.e. they won't write the tests "just this once". But the work is _not complete_ unless those tests are written, and it compounds once we start making excuses to not be Agile. Their mentality should be "I can't push this without the tests to provide confidence in it", rather than "I can't write the tests because I have to get whatever I have now out the door."
