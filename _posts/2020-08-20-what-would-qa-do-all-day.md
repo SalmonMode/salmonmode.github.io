@@ -99,7 +99,7 @@ On top of this, every single time a ticket has to get passed back to the program
 
 [Internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) is effectively the quality of the code's changeability. When this is reduced, so is productivity. If productivity declines over time, then it's not sustainable. So if internal software quality is not actively maintained as we move forward, then we're not sustainable.
 
-Having the programmer write the tests helps them identify problematic areas of the code that need attention, so that they can fix them then and there to make future changes easier to make, rather than making the problem worse. The most cost-effective way to have those tests implemented while also maintaining internal software quality, is to have the programmer write the tests (and not just the happy path tests) as they make their changes.
+Having the programmer write the tests helps them identify problematic areas of the code that need attention, so that they can fix them then and there to make future changes easier, rather than worse. The most cost-effective way to have those tests implemented while also maintaining internal software quality, is to have the programmer write them (and not just the happy path tests) as they make their changes.
 
 #### Regarding Tech Debt Sprints
 
