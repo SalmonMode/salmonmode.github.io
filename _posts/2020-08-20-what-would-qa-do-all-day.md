@@ -285,7 +285,7 @@ _Things_ (e.g. equipment, software, permissions) can be provided by the company 
 
 Now, obviously, if someone was hired to be a programmer, but can't program, then they can't do the job _at all_. But if someone has proven capable of getting it done (e.g. the programmer had no problems with the technical challenge when they were hired), and they are a motivated individual, then it just comes down to find ways to help them be more productive (assuming they at least mix well in their team).
 
-For example, if they hunt and peck to type, maybe they could use some lessons on touch typing (and there's a _ton_ of free websites for exactly this). Or maybe they don't know how to use tools for performance/load testing. Or maybe knowing about how a certain framework really works under the hood [could save them a ton of time]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
+For example, maybe they could use some lessons on touch typing (there's a _ton_ of free websites for exactly this). Or maybe they don't know how to use tools for performance/load testing. Or maybe knowing about how a certain framework really works under the hood [could save them a ton of time]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
 
 Or maybe it's the process itself that's holding them back and you can take a hard look at it to identify ways to make it smoother.
 
