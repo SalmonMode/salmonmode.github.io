@@ -7,7 +7,7 @@ date: 2020-08-20 16:00:00 -0500
 
 ![John C. McGinley's character in Office Space saying "what would you say you do here?"](/images/what_would_you_say_you_do_here.gif){:height="auto" width="100%"}
 
-I've been asked this question, or some variation of it, many times by other developers, management, and even some in _QA_ when I've proposed having the programmers do the tests for tickets in order to follow Agile principles. The question assumes that the _only_ thing a tester is there for, is to verify the acceptance criteria of tickets.
+I've been asked this question, or some variation of it, many times by other developers, management, and even some in _QA_ when I've proposed **having the programmers write the tests for their tickets** in order to follow Agile principles. The question assumes that the _only_ thing a tester is there for, is to verify the acceptance criteria of tickets.
 
 The fact that the question was asked carries many implications, and I'll try to cover the ones I find to be the most concerning.
 
@@ -31,47 +31,50 @@ The "Waterfall" development model has testing done separately from programming a
 **Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD), before they check them in for code review.
 {: .notice--info}
 
-## Why exactly Agile requires the programmer writes the tests
+## In Agile, _programmers_ write the tests
+
+I know I may be losing some of you already, so **to prove I'm not _totally_ full of bologna**, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, Bitbucket, and more).
+
+This transparent appeal to authority may have been enough to convince some of you of my argument, and if it did, great! No need for you to read through the rest of my long-winded post, then.
+
+If not, but it was enough to at least get your attention, I want to expound on this a bit more than that Atlassian article, and provide some alternate takes as well as some observed cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum).
+
+## Why
 
 > Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.
 
 There's many reasons, but the big hitters revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
 
-### Accumulation of tests
+### Accumulation of manual tests
 
-If we assume that nobody writes the automated tests, and everything is tested manually by the tester, then it clearly isn't sustainable. As more behaviors are added in, the testers workload would be increasing every iteration.
+Hopefully we can at least agree that, unless the tests are automated, the manual checking work for QA will quickly become unsustainable. If not, I'll defer to that Atlassian article above.
 
-Automating regression tests keeps the tester's workload in check.
+### The math doesn't add up {:#math}
 
-### The math doesn't add up
+Example scenario:
+- a dev team consists of 1 tester and 5 programmers
+- the sprint cycle is 2 weeks
+- the tester checks all the changes made by the programmers when they pass their tickets to the tester for QA (after going through code review, of course)
+- the last 2 days of the sprint are reserved for the testers to do regression tests and for programmers to fix those bugs (if any are found)
+- if the programmers aren't fixing any bugs during those last 2 days, they'll continue to work on tickets for the next sprint.
 
-A programmer can make a relatively small change that has pretty big implications pretty quickly, especially if complexity is high. Certain large changes can also be made fairly quickly (e.g. using a find & replace tool along with regex to modify a pattern of text in several files).
-
-Those changes can take a while to verify manually by another person, especially if they have to be done through a browser as is often done a tester is manually checking something. It will take even longer if that other person has to write automated end-to-end tests for those checks as well.
-
-If a programmer knows that a tester will be checking all of the criteria for their changes, and can trust them to catch any problems before they go out to production, then the programmer has no reason to check those changes themselves. The programmer wants to go as fast as possible, which is often the reason they opt not to write tests as they make their changes, so after a cursory check of their changes, the be eager to move on to their next ticket.
-
-Without testing and writing tests to slow the programmer down, it's not unreasonable to say that, when done in this way, it can often take testers _longer_ to check the changes than it did for the programmers to make them. This is not always the case, but the possibility for it exists, and it's not even necessary for it to become a problem.
-
-As an example, let's say there's 1 tester and 5 programmers on a team in a two week sprint cycle, and that tester checks all the changes made by the programmers when they pass their tickets to the tester for QA (after going through code review, of course).
+This may sound vaguely familiar.
 
 Let's also say that each programmer can complete one ticket and code review another every 2 days, and it takes the tester roughly 1 hour to check each ticket manually.
 
-If work is done by everyone, every day of the sprint, that's 25 tickets, which means roughly 25 hours of checking the tester has to do each sprint.
+If work is done by everyone, every day of the sprint, that's 25 tickets each sprint, which means roughly 25 hours of checking the tester has to do each sprint.
 
 If it takes another 1-2 hours to automate the testing of each ticket (to keep things sustainable), that's a total of 50-75 hours of checking-related work the tester has to do every sprint.
 
-Now what about the ~2 hours worth of daily standups, ~2 hour long sprint planning/grooming being, ~1 hour retro, and all the other meetings that will inevitably happen?
+Having 70+ hours of productive work hours available _exclusively_ for new changes every sprint is not a realistic expectation.
 
-Having 70 hours of productive work hours available _exclusively_ for new changes every sprint is not a realistic expectation.
+Expecting 50 hours _might_ be reasonable, but don't forget about the daily standups, sprint planning/backlog grooming, possible retrospective, and any other inevitable meetings.
 
-Expecting 50 _might_ be reasonable if you have a don't have many meetings each week/day, but it's still cutting it close, and still account for any end-of-sprint manual regression testing that might need to be done.
-
-Let's say you reserve the last 2 days of the sprint just for regression tests and fixing any bugs you might find, during which, the programmers will otherwise continue to work on tickets for the next sprint. That leaves you with 8 days to find those 50+ hours to finish all that work, which means _at least_ 6-7 hours of free time each day.
+Since there's only 8 days available for that type of work, that means there needs to be _at least_ 6-7 hours of free time available every one of those 8 days.
 
 Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to.
 
-This sort of system is primed to make QA a bottleneck, and it's very easy for the development to slow down and for quality to be compromised because of it. You _could_ put more QA folks on each team, but that doesn't entirely eliminate the problem.
+This sort of system is _primed_ to make QA a bottleneck, and it's very easy for the development to slow down and for quality to be compromised because of it. You _could_ put more QA folks on each team, but that doesn't entirely eliminate the problem.
 
 If programmers are writing those sorts of tests up front, then the bottleneck is eliminated completely.
 
@@ -87,11 +90,11 @@ Programmers need prompt feedback on their changes so they can iterate rapidly. T
 
 ### Wasted work
 
-If we assume that the tester can somehow keep pace with the programmers when it comes to writing automated tests while the programmers make production code changes, there's still for more wasted work than is necessary.
+Context switching has a cost, and it's an expensive one. The more times a ticket changes hands, the more times someone had to switch contexts. It's less costly to have the programmer write their own tests, because there's less context switching, especially since there's no chance of a ticket being bounced back and forth between "in progress", "code review", and "QA".
 
-The tester would very likely be writing their tests at the end-to-end level, which means entirely new code structures would have to be made to abstract things like the presentation layer (e.g. page objects), or the web API interactions, and the tester would need to learn what the programmer did and the implications of their changes before they could even begin writing those structures.
+To add to this, testers aren't likely to write their tests at the unit/component level where most could be. Instead, they're likely to write them at a level that goes through the API or browser. Not only is this significantly more expensive in and of itself, but those tests are far more likely to have to change based on unrelated implementation (e.g. the structure of the DOM could change slightly, requiring now locators to be defined).
 
-On top of this, every single time a ticket has to get passed back to the programmer, the programmer needs to learn what issue the tester found, the context in which they found it, and then they need to investigate it after re-establishing the context of their original changes. Context switching needs to be reduced because it's costly when switching to back to a context the programmer was already in previously.
+This all translates to wasted work, i.e. the energy that went into it could have definitely gone into something that would yield a higher ROI.
 
 ### Maintaining internal software quality
 
@@ -105,42 +108,31 @@ Having the programmer write the tests helps them identify problematic areas of t
 
 In an attempt to maintain internal software quality, some places use "tech debt" sprints where tech debt tickets are planned for that sprint. These seem fine in theory, but aren't very practical and are actively harmful to the bottom line when done at regular intervals.
 
-Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's an attempt to _lie_ (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
+Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's, in effect, an attempt to _lie_ (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
 
-[Here's a note from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) (the makers of Jira) on the importance of eliminating tech debt as you go.
+[Here's another article from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) on the importance of eliminating tech debt as you go.
 
-All that said, technical debt _does_ happen. It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. While we should be trying to resolve that debt as we go, sometimes it's difficult to see the bigger problem until it's too late. In order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
+That said, it's certainly possible for tech debt to build up without it being noticed until it's too late.It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. So, in order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
 
 # Disregard for quality (both internal and external)
 
 When the programmers aren't writing the tests, they don't have to be concerned with quality. It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/) which has its own, serious problems.
 
-Internal software quality is something they are accountable to, but they can always brush it off to get by, and lac of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
+Internal software quality is something they are accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
 
 Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they lack discipline and the experience to understand the implications of this.
 
-Some programmers may say they don't have the skills or mentality for it. But that's a load of bunk.
+Some programmers may say they don't have the skills or mentality for it. But that's honestly a load of bunk.
 
-If the programmer understands the acceptance criteria and can reason about them, then they can figure out how what the general tests should be. If they don't understand the acceptance criteria, then they must not know how to implement it.
+If the programmer understands the acceptance criteria and can reason about them, then they can figure out how what the general tests should be. If they can't reason about the acceptance criteria, then they must not know how to implement it.
 
 # Disregard for QA
 
-When the programmer doesn't write the tests, this responsibility falls on the tester to either write the automated tests or do them manually. But this forces the tester into the position of being a bottleneck for the rest of the team and puts unrealistic (and often impossible) expectations on them.
+[As I mentioned above](#math), the math just doesn't work out.
 
-Often it will take more time to test a ticket at the end-to-end level than it does to make the associated code change, while testing it at the unit/component level (if possible) takes _less_ time (if it doesn't, then there's an issue in the code that needs to be addressed).
+Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may  be brushed off, and be told that they "just need to do what it takes", or that they "shouldn't go to unnecessary meetings".
 
-**Note:** This doesn't mean the work for QA in this particular context is _harder_ than what the programmers are doing. In fact, it's quite the opposite. This type of work is mind-numbing for a tester, which makes it that much worse to also have them doing such unfulfilling work their whole day.
-{: .notice--info}
-
-There's usually multiple programmers and far fewer testers, so, for the sake of simplicity, let's say there's a team with 5 programmers and one QA person. That means that the tester often has more work to do than all of the programmers combined (in terms of hours that it will take to complete that work). If the programmers are all working at full throttle, they can quickly and easily overload the tester.
-
-Programmers aren't always going full throttle, though, and there's also the buffer of code review. But, programmers probably aren't too concerned with quality, so code review also likely isn't a concern to them, meaning it won't be much of a buffer. So the risk of overloading the tester is always there, and very easy to achieve. After all, if the tester _wasn't_ working at 100% capacity, "what would QA be doing?" The assumption is baked in that they will always be operating at least at 100% capacity, and this is assuming they have the entire sprint to do these checks.
-
-This puts enormous pressure on QA to do what they likely don't have the time to do. They'll be pressured to cut corners, work overtime, skip non-critical (and sometimes culturally-significant) meetings, work through critical meetings (not giving them their full attention), work during the weekends, work during their vacation, not take vacation at all, and more. In some cases, they may not even be _allowed_ to take vacation time, and heaven forbid they want to take it at the same time as deployment.
-
-It's incredibly easy to hold QA accountable for issues that they have zero control over. If two programmers send their tickets to QA at the same time, only one can be worked on, but it's very clearly a bottleneck at QA that programmers will voice their concerns about. If bugs get through, it's because QA didn't catch them. The question of "What would QA do all day then?" assumes that checking acceptance criteria of tickets is all QA is meant for, and if they can't do it fast and thoroughly enough, then they must be the problem.
-
-It makes testers into gatekeepers of all things quality, and as such, are held responsible for any quality-related problems, which is... well... most things.
+Often the testers either cut corners, work through other meetings (when they should be paying attention), skip no-critical (and sometimes culturally-significant) meetings, work through their lunch "break", work overtime, not take vacation, and/or work _through_ their vacation, just to get things done before the deadline they were given. They may not even be _allowed_ to take vacation (especially at the same time as a deployment).
 
 This isn't healthy, nor is it practical.
 
@@ -154,7 +146,9 @@ They might also be afraid to ask for help, possibly because they fear their comp
 
 There's no more team-oriented mentality in such a system. Nobody wants to ask "how can I help you" because that would slow them down and possibly make them look like the bottleneck. Nobody wants to be _asked_ this question either, because it might make them feel like they're a constraint. This is partly why programmers want to avoid the responsibility of testing like it's the plague. If QA has to do the testing, it buys them time to crank out more changes for tickets that they can "throw over the wall" to QA.
 
-The programmer likely has no malicious intent in avoiding testing, but they also aren't considering the overall impact it has on the team's throughput, nor how it affects those in QA. Their concern for QA might be limited to something like "all QA has to do is check tickets, and how hard could that be? Sure it might take a long time, but that's what they're here for, right? I'm sure they'll be fine as long as they finish before the end of the sprint." They have no reason to believe anything other than this if they're asking what QA would do all day to begin with.
+It's not like the programmer has it out for QA. They just have to lookout for themselves first.
+
+They might be thinking that QA will be fine, so long as they finish checking all the tickets before the end of the sprint (even though [that math doesn't quite work out](#math) when you look at it).
 
 But this encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
 
@@ -166,19 +160,11 @@ This fear is entirely understandable, and shouldn't be ignored. It will take a c
 
 But the only thing that should really matter in Agile is whether or not the _team as a whole_ is delivering, and, on an individual level, whether or not a person is adding value to the team, regardless of what they're doing to add that value.
 
-If a programmer spent an entire sprint doing technical writing, does it really matter if they wrote no production code that sprint if the technical writing had to be done? Would they be viewed negatively for doing this?
-
-Does it matter if a PM took on some user stories and wrote the production code and tests? Would the programmers on the team be viewed negatively because they didn't do all the programming that sprint?
-
-Probably not.
-
-So why would it matter if the tester didn't do all the checks in a sprint?
-
 In Agile, the roles are flexible. If there's work to be done, anyone on the team can do it.
 
 # What QA _would_ do all day
 
-As I mentioned above, anyone can do anything on an Agile team. So long as the tester is providing sufficient value to the team in one way or another, that's all there is to it.
+Anyone can do anything on an Agile team. So long as the tester (or any other team member) is providing sufficient value to the team in one way or another, that's all there is to it.
 
 But I'm sure some reading this are looking for more testing-related activities for the testers to be doing all day. So here's a sampling of things.
 
@@ -204,7 +190,7 @@ Even though the tester may not be a security expert, they can still try to find 
 
 ### Ticket vetting
 
-The tester can go over the backlog of upcoming tickets and figure out if any questions need to be answered before scoring, or look at the test cases provided on the ticket (if documenting them there is part of the team's process) and see if any need to be added/adjusted.
+The tester can go over the backlog of upcoming tickets and figure out if any questions need to be answered before scoring, or look at the test cases provided on the ticket (if documenting them there is part of the team's process) and see if any need to be added/adjusted/removed.
 
 ### Metrics
 
@@ -228,7 +214,7 @@ Plus, it's a great opportunity for the tester to see if there's any automated te
 
 ### Atlassian's approach
 
-Atlassian, the company that makes Jira, Confluence and Trello, switched to this approach a while back, and made [this article](https://www.atlassian.com/agile/software-development/qa-at-speed) going over how they transitioned to it and the benefits they gained from it. They also cover exactly what QA then does all day (in the video, at least). They even stopped referring to QA as "Quality _Assurance_", and used "Quality _Assistance_" instead.
+Atlassian switched to this approach a while back, and made [this article](https://www.atlassian.com/agile/software-development/qa-at-speed) going over how they transitioned to it and the benefits they gained from it. They also cover exactly what QA then does all day (in the video, at least). They even stopped referring to QA as "Quality _Assurance_", and used "Quality _Assistance_" instead.
 
 # Support role
 
@@ -253,9 +239,9 @@ Many will fear this change, and you will need to assuage those fears. A cultural
 
 ## Programmers
 
-Programmers may be concerned because they might think that they'll have a larger work load, be less productive, or suddenly be responsible for quality.
+Programmers may be concerned because they might think that they'll have a larger work load, be less productive, or suddenly be responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
 
-They will need help to understand that their pace won't be changing, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (often through code review).
+They will need help to understand that their pace won't be changing, that they will only be expected to move as fast as **maintaining quality** allows them to, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (often through code review).
 
 ## Testers
 
@@ -275,15 +261,25 @@ You may need to seek them out individually (preferably in private), make it clea
 
 Books like _Agile Testing_ by Lisa Crispin and Janet Gregory or _Clean Code_ by Robert C. Martin ("Uncle Bob") are incredible resources, and communities like The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite) can provide them with an outside place for help (where there's less pressure). And if they don't need the help, they're still useful.
 
+## Have a positive mindset
+
+> Welcome changing requirements, even late in development. Agile processes harness change for the customer's competitive advantage.
+
+Try to avoid coming up with benchmarks for expected performance. While they do create concrete checkpoints for success, they also frame the person as already falling below expectations (which isn't a great motivator), create a narrow perspective of what adds value to a team (some things can't be quantified easily, if at all), can often be dependent on other people, and can often set someone up for failure in advance.
+
+Instead, try to give them a general, abstract direction to improve in (or have them come up with their own direction), and then sit down with them after some time and talk about anything they learned or if they feel more confident in that area.
+
 ## Be _patient_
 
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
 Motivated individuals _will_ try to get the job done on their own. It's the _environment and support_ that they need from you.
 
-_Things_ (e.g. equipment, software, permissions) can be provided by the company without any significant effort (of course money is a concern though), but some might _not_ have the knowledge and skills it takes to get the job done on time, or effectively, in a newly Agile environment. That doesn't mean you can't help them there, though. You can help them find resources, like the books and communities I mentioned above, and work with them to make sure they're making progress.
+_Things_ (e.g. equipment, software, permissions) can always be provided by the company (so long as it's not too expensive), but some might _not_ have the knowledge and skills it takes to get the job done as quickly and effectively as it _could_, in a newly Agile environment. That doesn't mean you can't help them there, though.
 
-Now, obviously, if someone was hired to be a programmer, but can't program, then they can't do the job _at all_. But if someone has proven capable of getting it done (e.g. the programmer had no problems with the technical challenge when they were hired), and they are a motivated individual, then it just comes down to find ways to help them be more productive (assuming they at least mix well in their team).
+You can help them find resources, like the books and communities I mentioned above, and work with them to make sure they're making progress.
+
+Now, obviously, it's not recommended to hire someone that can't do the job _at all_. But if they _can_, and they're motivated, then it just comes down to find ways to help them be move faster without sacrificing quality (assuming they at least mix well in their team).
 
 For example, maybe they could use some lessons on touch typing (there's a _ton_ of free websites for exactly this). Or maybe they don't know how to use tools for performance/load testing. Or maybe knowing about how a certain framework really works under the hood [could save them a ton of time]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
 
