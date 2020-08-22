@@ -240,31 +240,28 @@ Remember that, in Agile, teams are _self-organizing_ that need to be _trusted_ t
 
 # A note to management
 
-It's important to note that KPIs don't really work here on the individual level anymore (since ones like "how many tickets a person tested" wouldn't exist anymore), and this can be a scary thought for management. But in Agile, management's focus needs to be on the team as a whole, and making sure they have any obstacles removed for them.
-
-You don't need to be concerned about when the project is "done", or what their workload is, because that's the team's concern.
-
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
-Your expectations fundamentally need to change if switching to Agile is going to work. You provide a service to the team, not the other way around (as is the case with the other individuals on the team). Your role has changed, and you need to embrace it, lest _you_ become an obstacle to success. Your role is tad nebulous as well, but that's the point: work is directed where it's needed by those who can do it most effectively.
+Your expectations fundamentally need to change if switching to Agile is going to work.
 
-All you really need to do is make sure you're there for whatever the team needs that they could use a hand with.
+Your goals will be to facilitate the team and the individuals in it. You'll need not just avoid being an obstacle for them, but also to eliminate obstacles where you can. For example, if the team's presence is needed in a meeting only so they can update others, you can attend that meeting on their behalf to maximize the amount of time the team can be working.
 
-But leading up to and during this change is probably where your role will be the most important.
 
-Many will fear this change, and you will need to assuage those fears.
+Leading up to and during this change is probably where your role will be the most important of any member on a team.
+
+Many will fear this change, and you will need to assuage those fears. A cultural change is needed, and you will need to drive that change.
 
 ## Programmers
 
-Programmers will be concerned because they might think that they'll have a larger work load, be less productive, or suddenly be responsible for quality. They will need help to understand that the only difference is that they'll be wasting _far_ less work and that they can work at a comfortable pace for them. They will need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (usually through code review).
+Programmers may be concerned because they might think that they'll have a larger work load, be less productive, or suddenly be responsible for quality.
 
-It will be difficult to get used to, and take discipline to keep doing, so they will need reassurance that you're there to support them along with the rest of the team, and they should never be afraid to ask questions no matter how repetitive or inane they may seem. As a head start, books like _Clean Code_ by Robert C. Martin (AKA "Uncle Bob") can offer an enormous amount of insight and guidance.
+They will need help to understand that their pace won't be changing, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (often through code review).
 
 ## Testers
 
-Testers will be nervous because they won't have a defined series of testing stages to fall back on to know whether or not they are performing well. Put plainly, they'll likely be scared that they'll lose their job because it may _appear_ they aren't doing enough work.
+Testers may be nervous because they won't have a defined series of testing stages to fall back on to know whether or not they are performing well. There's not always going to be tickets or strict processes to guide what they do each day. They may be also be concerned that they don't have the skills to cut it, or that they can't point to the number of tickets they've QA'd to show they're being productive.
 
-The fruits of their labor will be less obvious now that they can't point to the number of tickets they QA'd, and it'll be possible that they won't be able to find bugs (and it should be rare that they do). They may also be concerned that they don't have the skills to cut it.
+You can guide them in this transition, help them work with the team to find areas they can provide value, or point them to resources that can help build up their skills/knowledge.
 
 You will need to reassure them that how many bugs they find isn't a concern, because the focus is on _preventing_ bugs in the first place, not _detecting_ them. If they're concerned about their abilities, you will need to _actively_ help find them ways to build up their skills. There's many books out there (_Agile Testing_ by Lisa Crispin and Janet Gregory is a great start), online courses for things like critical thinking and logic, mentor programs (which can even be offered internally), communities (e.g. The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite)), etc.
 
@@ -274,32 +271,28 @@ Many may not truly understand the implications of this change, or know what ques
 
 **Do not wait for them to come to you.**
 
-You need to seek them out individually (preferably in private), make it clear to them that it's in _your_ best interest to level them up, and provide the resources to them without being asked. This creates a sort of plausible deniability (for lack of a better term) so they don't feel like they're being called out, and don't take a hit to their pride (because you didn't wait to find out if they needed it before offering it as "a cool thing you thought they might be interested in").
+You may need to seek them out individually (preferably in private), make it clear to them that it's in _your_ best interest to level them up, and possibly provide resources to them without being asked. It can often be easier to accept help when it isn't framed in the context of actually needing it.
+
+Books like _Agile Testing_ by Lisa Crispin and Janet Gregory or _Clean Code_ by Robert C. Martin ("Uncle Bob") are incredible resources, and communities like The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite) can provide them with an outside place for help (where there's less pressure). And if they don't need the help, they're still useful.
 
 ## Be _patient_
 
-If you're hoping to hire a tester that comes ready out of the box, good luck. They are rare to come by, as that caliber of tester is likely well taken care of, or may have changed career paths already (it's a very common avenue for becoming a software engineer). You'll likely have to find driven individuals and help them acquire the skills they need.
-
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
-It takes a _lot_ of time and effort to learn these things, and many people often need to hear something explained _many_ different ways before it clicks (I am one of those people). This change will afford them the time to actually invest in learning, but they may feel guilty spending company time on it. So you'll need to emphasize to them that you're making an investment in them, that will surely have a huge return.
+Motivated individuals _will_ try to get the job done on their own. It's the _environment and support_ that they need from you.
 
-You can try to work out a schedule with them where they spend some amount of time each day or week on learning/improving (or even teaching/helping others!), and make sure they do it by engaging with them to see what they learned, e.g. "How'd you like chapter 17? Any cool takeaways? Could you help me understand what they meant by 'internal software quality'?". This creates an expectation for them to do it, but in a supportive atmosphere (and [an expectation that they'll have to teach you will help them study more effectively](https://www.futurity.org/learning-students-teaching-741342/)).
+_Things_ (e.g. equipment, software, permissions) can be provided by the company without any significant effort (of course money is a concern though), but some might _not_ have the knowledge and skills it takes to get the job done on time, or effectively, in a newly Agile environment. That doesn't mean you can't help them there, though. You can help them find resources, like the books and communities I mentioned above, and work with them to make sure they're making progress.
 
-I'm talking on the scale of _several months_. But every day they learn something new, there will be an immediate return on investment because they'll often be able to apply it immediately. In return, though, you will likely have an extremely loyal employee (because you showed them loyalty).
+Now, obviously, if someone was hired to be a programmer, but can't program, then they can't do the job _at all_. But if someone has proven capable of getting it done (e.g. the programmer had no problems with the technical challenge when they were hired), and they are a motivated individual, then it just comes down to find ways to help them be more productive (assuming they at least mix well in their team).
 
-You may get lucky and find a tester that needs very minimal direction or guidance. But I would assume this is never the case. You will likely find a similar situation with the programmers in terms of discipline and code design (and there is a lot of overlap here with testers), so that may require your attention as well.
+For example, if they hunt and peck to type, maybe they could use some lessons on touch typing (and there's a _ton_ of free websites for exactly this). Or maybe they don't know how to use tools for performance/load testing. Or maybe knowing about how a certain framework really works under the hood [could save them a ton of time]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
+
+Or maybe it's the process itself that's holding them back and you can take a hard look at it to identify ways to make it smoother.
 
 # How to get there from here
 
-This is not about having the developers do the "testing", but that is a good next step, and Atlassian has laid out a pretty solid transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video, so you'll have to watch it to get an example plan).
+This is not about having the developers do the "testing", but that is a good next step, and Atlassian has laid out a general transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video), and even outline what QA does there after that change.
 
-This is about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
+This is just about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
 
-There is no transition necessary, as they can just start turning those thoughts into automated tests as part of their normal process, and they need to make sure that everyone else is doing the same (e.g. it's one of the first thing programmers can look for during code review, and send it back if the tests aren't providing good coverage). The programmers are _already_ thinking about these tests while they write their code. They couldn't write the code otherwise.
-
-They should be writing their code and tests with the expectation that no one else will catch their bugs for them, that it will be going straight out to production, and that they are responsible for the quality of it once it goes out that door.
-
-This will be perfectly fine for some engineers, but a _terrifying_ concept to many, and that's the point. It's a team effort, but we all need to approach quality like we're each 100% responsible for it, because we are.
-
-In _Agile Testing_, they highlight another important note, which is that when that deadline races up faster than they thought it would, they may panic, and fall back on old habits, i.e. they won't write the tests "just this once". But the work is _not complete_ unless those tests are written, and it compounds once we start making excuses to not be Agile. Their mentality should be "I can't push this without the tests to provide confidence in it", rather than "I can't write the tests because I have to get whatever I have now out the door."
+No transition is really necessary, but some programmers may fell uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with the tester not being their safety net.
