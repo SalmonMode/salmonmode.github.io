@@ -28,7 +28,7 @@ The idea that programmers should be writing the tests for the tickets in an Agil
 
 The "Waterfall" development model has testing done separately from programming at a later time. But Agile was created to combat waterfall and requires that testing and writing tests be done in tandem with programming.
 
-**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_ as per TDD), before they check them in for code review.
+**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD), before they check them in for code review.
 {: .notice--info}
 
 ## Why exactly Agile requires the programmer writes the tests
