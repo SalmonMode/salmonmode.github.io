@@ -7,7 +7,7 @@ date: 2020-08-20 16:00:00 -0500
 
 ![John C. McGinley's character in Office Space saying "what would you say you do here?"](/images/what_would_you_say_you_do_here.gif){:height="auto" width="100%"}
 
-I've been asked this question, or some variation of it, far too many times by other developers, management, and even some in _QA_ when I've proposed having the programmers do the tests for tickets in order to follow Agile principles. The question assumes that the _only_ thing a tester is there for, is to verify the acceptance criteria of tickets.
+I've been asked this question, or some variation of it, many times by other developers, management, and even some in _QA_ when I've proposed having the programmers do the tests for tickets in order to follow Agile principles. The question assumes that the _only_ thing a tester is there for, is to verify the acceptance criteria of tickets.
 
 The fact that the question was asked carries many implications, and I'll try to cover the ones I find to be the most concerning.
 
