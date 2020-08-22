@@ -13,9 +13,9 @@ The fact that the question was asked carries many implications, and I'll try to 
 
 # Misunderstanding Agile principles
 
-I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software.
+I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software faster.
 
-But the reality is that Agile takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
+It's a noble effort to seek out changes they feel will help their development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that. Agile requires a cultural change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
 
 > We _follow_ these principles
 
@@ -24,11 +24,11 @@ not any of these:
  - We follow these principles _when we deem it to be convenient_
  - We think these practices are _great in theory_
 
-The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one. It's actually a _fundamental requirement_ of Agile.
+The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one. It's a _fundamental requirement_ of Agile.
 
 The "Waterfall" development model has testing done separately from programming at a later time. But Agile was created to combat waterfall and requires that testing and writing tests be done in tandem with programming.
 
-**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those would contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests.
+**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_ as per TDD), before they check them in for code review.
 {: .notice--info}
 
 ## Why exactly Agile requires the programmer writes the tests
@@ -39,17 +39,41 @@ There's many reasons, but the big hitters revolve around **sustainability**, and
 
 ### Accumulation of tests
 
-If we assume that nobody writes the automated tests, and everything is tested manually by the tester, then it clearly isn't sustainable. As more behaviors are added in, there will be more test cases that the tester will need to run through manually every iteration. This means that the tester's workload is always increasing every iteration, which makes it unsustainable by definition. So it's clear that automated tests need to be written to make sure the tester's workload isn't increasing every iteration.
+If we assume that nobody writes the automated tests, and everything is tested manually by the tester, then it clearly isn't sustainable. As more behaviors are added in, the testers workload would be increasing every iteration.
 
-### The tester's time
+Automating regression tests keeps the tester's workload in check.
 
-The ratio of developers to testers on development teams almost always has fewer testers than programmers. In many cases, there's only one tester for a number of programmers.
+### The math doesn't add up
 
-If the tester is the one writing the automated tests, then they have to keep up with multiple programmers. There's just no way for this to feasibly be done properly and sufficiently, as the programmers can collectively outpace the tester easily. The tester will likely have to write their tests at the end-to-end level so their tests will take a long time to run and debug. They'll also have to work with whatever the programmers passed to them, and there's no way for the tester to know what that'll be ahead of time.
+A programmer can make a relatively small change that has pretty big implications pretty quickly, especially if complexity is high. Certain large changes can also be made fairly quickly (e.g. using a find & replace tool along with regex to modify a pattern of text in several files).
 
-The tester may have to resort to cutting corners, or look for tools that promise the world when they actually don't (e.g. [Cypress handling waits automatically]({% post_url 2020-05-11-lets-talk-about-cypress %})), and it'll only come back to bite them later.
+Those changes can take a while to verify manually by another person, especially if they have to be done through a browser as is often done a tester is manually checking something. It will take even longer if that other person has to write automated end-to-end tests for those checks as well.
 
-The only way for it to truly be sustainable is for the programmer to write the tests, as it will act as a regulating mechanism to make sure production code changes don't outpace test development.
+If a programmer knows that a tester will be checking all of the criteria for their changes, and can trust them to catch any problems before they go out to production, then the programmer has no reason to check those changes themselves. The programmer wants to go as fast as possible, which is often the reason they opt not to write tests as they make their changes, so after a cursory check of their changes, the be eager to move on to their next ticket.
+
+Without testing and writing tests to slow the programmer down, it's not unreasonable to say that, when done in this way, it can often take testers _longer_ to check the changes than it did for the programmers to make them. This is not always the case, but the possibility for it exists, and it's not even necessary for it to become a problem.
+
+As an example, let's say there's 1 tester and 5 programmers on a team in a two week sprint cycle, and that tester checks all the changes made by the programmers when they pass their tickets to the tester for QA (after going through code review, of course).
+
+Let's also say that each programmer can complete one ticket and code review another every 2 days, and it takes the tester roughly 1 hour to check each ticket manually.
+
+If work is done by everyone, every day of the sprint, that's 25 tickets, which means roughly 25 hours of checking the tester has to do each sprint.
+
+If it takes another 1-2 hours to automate the testing of each ticket (to keep things sustainable), that's a total of 50-75 hours of checking-related work the tester has to do every sprint.
+
+Now what about the ~2 hours worth of daily standups, ~2 hour long sprint planning/grooming being, ~1 hour retro, and all the other meetings that will inevitably happen?
+
+Having 70 hours of productive work hours available _exclusively_ for new changes every sprint is not a realistic expectation.
+
+Expecting 50 _might_ be reasonable if you have a don't have many meetings each week/day, but it's still cutting it close, and still account for any end-of-sprint manual regression testing that might need to be done.
+
+Let's say you reserve the last 2 days of the sprint just for regression tests and fixing any bugs you might find, during which, the programmers will otherwise continue to work on tickets for the next sprint. That leaves you with 8 days to find those 50+ hours to finish all that work, which means _at least_ 6-7 hours of free time each day.
+
+Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to.
+
+This sort of system is primed to make QA a bottleneck, and it's very easy for the development to slow down and for quality to be compromised because of it. You _could_ put more QA folks on each team, but that doesn't entirely eliminate the problem.
+
+If programmers are writing those sorts of tests up front, then the bottleneck is eliminated completely.
 
 ### Test suite execution time
 
