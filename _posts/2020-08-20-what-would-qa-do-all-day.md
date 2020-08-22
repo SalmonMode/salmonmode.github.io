@@ -295,4 +295,4 @@ This is not about having the developers do the "testing", but that is a good nex
 
 This is just about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
 
-No transition is really necessary, but some programmers may fell uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with the tester not being their safety net.
+No transition is really necessary, but some programmers may fell uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
