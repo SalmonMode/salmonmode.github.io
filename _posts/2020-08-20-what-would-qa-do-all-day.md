@@ -64,7 +64,7 @@ Let's also say that each programmer can complete one ticket and code review anot
 
 If work is done by everyone, every day of the sprint, that's 25 tickets each sprint, which means roughly 25 hours of checking the tester has to do each sprint.
 
-If it takes another 1-2 hours to automate the testing of each ticket (to keep things sustainable), that's a total of 50-75 hours of checking-related work the tester has to do every sprint.
+If it takes another 1-2 hours to automate the testing of each ticket (to keep things sustainable), then that's a total of 50-75 hours of checking-related work the tester has to do every sprint.
 
 Having 70+ hours of productive work hours available _exclusively_ for new changes every sprint is not a realistic expectation.
 
