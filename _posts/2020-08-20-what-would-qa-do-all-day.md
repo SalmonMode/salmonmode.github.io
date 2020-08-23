@@ -224,8 +224,7 @@ Remember that, in Agile, teams are _self-organizing_ that need to be _trusted_ t
 
 Your expectations fundamentally need to change if switching to Agile is going to work.
 
-Your goals will be to facilitate the team and the individuals in it. You'll need not just avoid being an obstacle for them, but also to eliminate obstacles where you can. For example, if the team's presence is needed in a meeting only so they can update others, you can attend that meeting on their behalf to maximize the amount of time the team can be working.
-
+Your goals will be to facilitate the team and the individuals in it. You'll need not just avoid being an obstacle for them, but also to eliminate obstacles where you can.
 
 Leading up to and during this change is probably where your role will be the most important of any member on a team.
 
@@ -255,29 +254,21 @@ You may need to seek them out individually (preferably in private), make it clea
 
 Books like _Agile Testing_ by Lisa Crispin and Janet Gregory or _Clean Code_ by Robert C. Martin ("Uncle Bob") are incredible resources, and communities like The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite) can provide them with an outside place for help (where there's less pressure). And if they don't need the help, they're still useful.
 
-## Have a positive mindset
-
-> Welcome changing requirements, even late in development. Agile processes harness change for the customer's competitive advantage.
-
-Try to avoid coming up with benchmarks for expected performance. While they do create concrete checkpoints for success, they also frame the person as already falling below expectations (which isn't a great motivator), create a narrow perspective of what adds value to a team (some things can't be quantified easily, if at all), can often be dependent on other people, and can often set someone up for failure in advance.
-
-Instead, try to give them a general, abstract direction to improve in (or have them come up with their own direction), and then sit down with them after some time and talk about anything they learned or if they feel more confident in that area.
-
 ## Be _patient_
 
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
 Motivated individuals _will_ try to get the job done on their own. It's the _environment and support_ that they need from you.
 
-_Things_ (e.g. equipment, software, permissions) can always be provided by the company (so long as it's not too expensive), but some might _not_ have the knowledge and skills it takes to get the job done as quickly and effectively as it _could_, in a newly Agile environment. That doesn't mean you can't help them there, though.
+_Things_ (e.g. equipment, software, permissions) can always be provided by the company (so long as it's not too expensive), but understand that some might _not_ have the knowledge and skills it takes to get the job done as quickly and effectively as it _could_, in a newly Agile environment. That doesn't mean you can't help them there, though.
 
 You can help them find resources, like the books and communities I mentioned above, and work with them to make sure they're making progress.
 
-Now, obviously, it's not recommended to hire someone that can't do the job _at all_. But if they _can_, and they're motivated, then it just comes down to find ways to help them be move faster without sacrificing quality (assuming they at least mix well in their team).
+If they're already decently and are working hard, then you can look at the process itself to see if there's any changes that could be made to speed things up.
 
-For example, maybe they could use some lessons on touch typing (there's a _ton_ of free websites for exactly this). Or maybe they don't know how to use tools for performance/load testing. Or maybe knowing about how a certain framework really works under the hood [could save them a ton of time]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
+And don't be afraid to jump in and get your hands dirty with team work as well, especially if a deadline is approaching.
 
-Or maybe it's the process itself that's holding them back and you can take a hard look at it to identify ways to make it smoother.
+You have a vested interest in the team, so your goal is to maximize your ROI, and there's many ways to do this.
 
 # How to get there from here
 
