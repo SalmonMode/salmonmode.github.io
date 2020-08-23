@@ -53,12 +53,12 @@ Hopefully we can at least agree that, unless the tests are automated, the manual
 
 Example scenario:
 - a dev team consists of 1 tester and 5 programmers
-- the sprint cycle is 2 weeks
 - the tester checks all the changes made by the programmers when they pass their tickets to the tester for QA (after going through code review, of course)
+- the sitting cycle is 2 weeks long
 - the last 2 days of the sprint are reserved for the testers to do regression tests and for programmers to fix those bugs (if any are found)
 - if the programmers aren't fixing any bugs during those last 2 days, they'll continue to work on tickets for the next sprint.
 
-This may sound vaguely familiar.
+This probably sounds somewhat familiar.
 
 Let's also say that each programmer can complete one ticket and code review another every 2 days, and it takes the tester roughly 1 hour to check each ticket manually.
 
