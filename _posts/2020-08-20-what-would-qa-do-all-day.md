@@ -82,12 +82,6 @@ If programmers are writing those sorts of tests up front, then the bottleneck is
 
 If the tester is the one writing the tests, they'll likely be writing them at the end-to-end level. That level is _extremely_ expensive to run at, and each test will require a significant amount of time, especially if a browser is involved. Every test added that runs at that level will add a _considerable_ amount of time to the test suite execution time. The tests need to done at lower levels where possible so they only add a negligible amount of time, otherwise, it'll grow out of control very quickly.
 
-### Prompt programmer feedback
-
-[If the tests take too long to run, the programmer is likely to get frustrated, and possibly even move on to something else](https://www.youtube.com/watch?v=AJ7u_Z-TS-A). If they move on to something else, it means having to switch contexts again back to what they were doing originally once the tests finish, which burns time and mental effort (i.e. there was wasted work).
-
-Programmers need prompt feedback on their changes so they can iterate rapidly. The only way to provide this is to make sure there's sufficient tests, and those tests are operating at as low a level as possible. The only way to make sure those tests are in place, is to make sure the programmers are adding them as they add their changes (because, as mentioned above, adding them in after the fact is basically asking for the test development to be outpaced).
-
 ### Wasted work
 
 Context switching has a cost, and it's an expensive one. The more times a ticket changes hands, the more times someone had to switch contexts. It's less costly to have the programmer write their own tests, because there's less context switching, especially since there's no chance of a ticket being bounced back and forth between "in progress", "code review", and "QA".
@@ -112,7 +106,7 @@ Technical debt is named that way, because it's borrowing velocity from the futur
 
 [Here's another article from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) on the importance of eliminating tech debt as you go.
 
-That said, it's certainly possible for tech debt to build up without it being noticed until it's too late.It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. So, in order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
+That said, it's certainly possible for tech debt to build up without it being noticed until it's too late. It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. So, in order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
 
 # Disregard for quality (both internal and external)
 
