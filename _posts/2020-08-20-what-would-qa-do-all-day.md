@@ -102,7 +102,7 @@ Having the programmer write the tests helps them identify problematic areas of t
 
 In an attempt to maintain internal software quality, some places use "tech debt" sprints where tech debt tickets are planned for that sprint. These seem fine in theory, but aren't very practical and are actively harmful to the bottom line when done at regular intervals.
 
-Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's, in effect, an attempt to _lie_ (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
+Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's, in effect, a lie (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
 
 [Here's another article from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) on the importance of eliminating tech debt as you go.
 
