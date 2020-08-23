@@ -33,11 +33,11 @@ The "Waterfall" development model has testing done separately from programming a
 
 ## In Agile, _programmers_ write the tests
 
-I know I may be losing some of you already, so to prove I'm not _totally_ full of bologna, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, Bitbucket, and more).
+I know I may be losing some of you already, so as a transparent appeal to authority, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, Bitbucket, and more).
 
-This transparent appeal to authority may have been enough to convince some of you of my argument, and if it did, great! No need for you to read through the rest of my long-winded post, then.
+This may have been enough to convince some of you, and if it did, great! There's no need for you to read through the rest of my long-winded post, then.
 
-If not, but it was enough to at least get your attention, I want to expound on this a bit more than that Atlassian article, and provide some alternate takes as well as some observed cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum).
+If not, but it was enough to at least get your attention, I want to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some observed cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum).
 
 ## Why
 
