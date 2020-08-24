@@ -15,7 +15,7 @@ The fact that the question was asked carries many implications, and I'll try to 
 
 I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software faster.
 
-It's a noble effort to seek out changes they feel will help their development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that. Agile requires a cultural change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
+It's a noble effort to seek out changes one feels will help their development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that. Agile requires a cultural change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
 
 > We _follow_ these principles
 
@@ -24,7 +24,7 @@ not any of these:
  - We follow these principles _when we deem it to be convenient_
  - We think these practices are _great in theory_
 
-The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one. It's a _fundamental requirement_ of Agile.
+The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one.
 
 The "Waterfall" development model has testing done separately from programming at a later time. But Agile was created to combat waterfall and requires that testing and writing tests be done in tandem with programming.
 
@@ -33,11 +33,11 @@ The "Waterfall" development model has testing done separately from programming a
 
 ## In Agile, _programmers_ write the tests
 
-I know I may be losing some of you already, so as a transparent appeal to authority, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, Bitbucket, and more).
+I know I may be losing some of you already, so as a transparent appeal to authority, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, and Bitbucket).
 
-This may have been enough to convince some of you, and if it did, great! There's no need for you to read through the rest of my long-winded post, then.
+This may have been enough to convince some of you, and if it did, great! There's no need for you to read through the rest of my long-winded post.
 
-If not, but it was enough to at least get your attention, I want to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some observed cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum).
+If not, but it was enough to at least get your attention, you might be wondering what else I could add. I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to help others identify where there potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems. I also want to provide those that aren't testers with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA.
 
 ## Why
 
@@ -98,8 +98,6 @@ This all translates to wasted work, i.e. the energy that went into it could have
 
 Maintaining ISQ is essential for moving forward at a sustainable pace, and [is well worth the investment](https://martinfowler.com/articles/is-quality-worth-cost.html).
 
-
-
 Having the programmer write the tests helps them identify problematic areas of the code that need attention, so that they can fix them then and there to make future changes easier, rather than worse. The most cost-effective way to have those tests implemented while also maintaining internal software quality, is to have the programmer write them (and not just the happy path tests) as they make their changes.
 
 #### Regarding Tech Debt Sprints
@@ -118,21 +116,21 @@ When the programmers aren't writing the tests, they don't have to be concerned w
 
 Internal software quality is something they are accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
 
-Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they lack discipline and the experience to understand the implications of this.
-
-Some programmers may say they don't have the skills or mentality for it. But that's honestly a load of bunk.
-
-If the programmer understands the acceptance criteria and can reason about them, then they can figure out how what the general tests should be. If they can't reason about the acceptance criteria, then they must not know how to implement it.
+Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they lack discipline and the experience to understand the implications of this, and there's the implication that QA will find any and all problems.
 
 # Disregard for QA
 
 [As I mentioned above](#the-math-doesnt-add-up-math), the math just doesn't work out.
 
-Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may  be brushed off, and be told that they "just need to do what it takes", or that they "shouldn't go to unnecessary meetings".
+Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may be brushed off, and be told that they "just need to do what it takes", or that they should manage their time better.
 
-Often the testers either cut corners, work through other meetings (when they should be paying attention), skip no-critical (and sometimes culturally-significant) meetings, work through their lunch "break", work overtime, not take vacation, and/or work _through_ their vacation, just to get things done before the deadline they were given. They may not even be _allowed_ to take vacation (especially at the same time as a deployment).
+To meet the deadlines set for them, they may often have to cut corners, work through other meetings (when they should be paying attention), skip no-critical (and sometimes culturally-significant) meetings, work through their lunch "break", work overtime, not take vacation, and/or work _through_ their vacation. They may not even be _allowed_ to take vacation (especially at the same time as a deployment).
 
 This isn't healthy, nor is it practical.
+
+This isn't to say that QA wasn't considered initially. They probably were, and it's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
+
+But be aware that this is often their reality, and is what's being asked of them if the programmers aren't writing the tests.
 
 # Toxic culture
 
@@ -140,25 +138,27 @@ Kent Beck (one of the original signatories of the Agile Manifesto) highlights in
 
 This encourages a very self-centered, and even fearful mentality. People are more concerned with how others can help them be less of a bottleneck, rather than how they themselves can help others be less of a bottleneck for the sake of overall team throughput.
 
-They might also be afraid to ask for help, possibly because they fear their competency will be questioned (and that's assuming they would be able to get help _in the first place_). They may feel that asking for help is a sign of weakness.
+They might also be afraid to ask for help, possibly because they fear their competency will be questioned, or that asking is a sign of weakness. Or they may just feel like they wouldn't get help if they did ask.
 
-There's no more team-oriented mentality in such a system. Nobody wants to ask "how can I help you" because that would slow them down and possibly make them look like the bottleneck. Nobody wants to be _asked_ this question either, because it might make them feel like they're a constraint. This is partly why programmers want to avoid the responsibility of testing like it's the plague. If QA has to do the testing, it buys them time to crank out more changes for tickets that they can "throw over the wall" to QA.
+There's no more team-oriented mentality in such a system. Nobody wants to ask "how can I help you" because that would slow them down and possibly make them look like the bottleneck. Nobody wants to be _asked_ this question either, because it might make them feel like they're a constraint. This is partly why programmers want to avoid the responsibility of testing like it's the plague. If QA has to perform and write the tests, it buys them time to crank out more changes for tickets that they can "throw over the wall" to QA.
 
-It's not like the programmer has it out for QA. They just have to lookout for themselves first.
+It's not like the programmers have it out for QA. They just have to lookout for themselves first.
 
 They might be thinking that QA will be fine, so long as they finish checking all the tickets before the end of the sprint (even though [that math doesn't quite work out](#math) when you look at it).
 
-But this encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
+But this mentality encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
 
 # Fear from QA
 
-I think Lisa Crispin and Janet Gregory nailed it in their book _Agile Testing_. They said most of it boils down to _fear_. They explained (among other things) that testers might not know what else there is to do, and even if they do, that they might be afraid they don't have the skills to cut it. If all they've ever known is checking criteria from tickets, there can be a sense of security in that. It has a very clear line where they can say "ok, I did my job. I'm done." If they get that work done, then they have nothing to fear regarding job security. It may not be _fulfilling_ work for them, but it _will_ at least pay the bills.
+I think Lisa Crispin and Janet Gregory nailed it in their book _Agile Testing_. They said most of it boils down to _fear_. They explained (among other things) that testers might not know what else there is to do, and even if they do, that they might be afraid they don't have the skills to cut it.
+
+If all they've ever known is checking criteria from tickets, there can be a sense of security in that. It has a very clear line where they can say "ok, I did my job. I'm done." If they get that work done, then they have nothing to fear regarding job security. It may not be _fulfilling_ work for them, but it _will_ at least pay the bills.
 
 This fear is entirely understandable, and shouldn't be ignored. It will take a culture change to make them feel like their job security isn't under constant threat.
 
 But the only thing that should really matter in Agile is whether or not the _team as a whole_ is delivering, and, on an individual level, whether or not a person is adding value to the team, regardless of what they're doing to add that value.
 
-In Agile, the roles are flexible. If there's work to be done, anyone on the team can do it.
+In Agile, the roles are flexible. If there's work to be done, anyone on the team can do it, and if one person actually can't, then it's a great opportunity for pairing.
 
 # What QA _would_ do all day
 
