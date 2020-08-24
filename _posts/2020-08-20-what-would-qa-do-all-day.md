@@ -136,17 +136,13 @@ But be aware that this is often their reality, and is what's being asked of them
 
 Kent Beck (one of the original signatories of the Agile Manifesto) highlights in their book _Extreme Programming Explained_ that nobody wants to be seen as the bottleneck in a "push" development model where everyone plays one specific role, and they will do whatever they can to not be seen as the constraint.
 
-This encourages a very self-centered, and even fearful mentality. People are more concerned with how others can help them be less of a bottleneck, rather than how they themselves can help others be less of a bottleneck for the sake of overall team throughput.
+This encourages a very self-centered, and possibly even fearful mentality. People are more concerned with not being a bottleneck, rather than how they can help others for the sake of overall team throughput.
 
 They might also be afraid to ask for help, possibly because they fear their competency will be questioned, or that asking is a sign of weakness. Or they may just feel like they wouldn't get help if they did ask.
 
-There's no more team-oriented mentality in such a system. Nobody wants to ask "how can I help you" because that would slow them down and possibly make them look like the bottleneck. Nobody wants to be _asked_ this question either, because it might make them feel like they're a constraint. This is partly why programmers want to avoid the responsibility of testing like it's the plague. If QA has to perform and write the tests, it buys them time to crank out more changes for tickets that they can "throw over the wall" to QA.
+Nobody wants to ask how they can help someone because that might slow them down and possibly make them look like a bottleneck.
 
-It's not like the programmers have it out for QA. They just have to lookout for themselves first.
-
-They might be thinking that QA will be fine, so long as they finish checking all the tickets before the end of the sprint (even though [that math doesn't quite work out](#math) when you look at it).
-
-But this mentality encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
+This mentality encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
 
 # Fear from QA
 
@@ -268,11 +264,11 @@ _Things_ (e.g. equipment, software, permissions) can always be provided by the c
 
 You can help them find resources, like the books and communities I mentioned above, and work with them to make sure they're making progress.
 
-If they're already decently and are working hard, then you can look at the process itself to see if there's any changes that could be made to speed things up.
+If they're already decently skilled and are working hard, then you can look at the process itself to see if there's any changes that could be made to speed things up.
 
 And don't be afraid to jump in and get your hands dirty with team work as well, especially if a deadline is approaching.
 
-You have a vested interest in the team, so your goal is to maximize your ROI, and there's many ways to do this.
+You have a vested interest in the team, so your goal is to maximize your ROI, and there's many opportunities for that.
 
 # How to get there from here
 
