@@ -67,6 +67,8 @@ That's an _insane_ reduction!
 
 You can read more about how this can be done [here]({% post_url 2020-04-10-grey-box-react-redux-part-2 %}).
 
+If it helps, you can think of it like the transitive property in math. If you demonstrate that `A` is less than `B` (`A < B`), and you demonstrate that `B` is less than `C` (`B < C`), then you've also demonstrated that `A` is less than `C` (`A < C`) without ever comparing them directly.
+
 ### Faster and easier debugging
 
 **Grey box** testing allows you to target very specific behaviors using only the dependencies you actually need. This means that when a behavior is broken, and a test caught it, the developer will get a _much_ clearer idea about where the bug is, because the test will involve less of the inner workings of the system so the developer has fewer places to look. If a failing test is named `test_tax_calculation`, the developer should immediately know the problem is in the function that calculates tax.
@@ -91,10 +93,12 @@ However, since **white box** testing means you are aware of all levels of the so
 
 You could argue that having complete access to the source code is always the best option. And you'd be right. But if we only considered the source code from that perspective, we might be so focused on testing that a specific custom exception is raised when an object of a certain custom data type is passed as the third argument to a function, that we forget to test the pipeline that exception is being raised to interrupt. This is an example of an assumption being made (unintentionally), but having a test make an assumption is not necessarily a bad thing.
 
-Being aware of where assumptions can/should be made and how to verify those assumptions, both in an efficient way, takes knowledge and experience. Until we have that knowledge and experience, it's best to play it safe and test at a higher level, while we figure it out.
+Being aware of where assumptions can/should be made and how to verify those assumptions (i.e. with separate tests), both in an efficient way, takes knowledge and experience. Until we have that knowledge and experience, it's best to play it safe and test at a higher level, while we figure it out.
 
 ## It's not cheating if it's not against the rules
 
 You'll likely hear others says you should always treat the test subject like a **black box**, and they're not entirely wrong. But the intent behind saying this is to prevent assumptions from being made unintentionally. Once you know more and have the experience, you can start looking inside and poking arond.
 
-It's also a warning against doing too much tinkering around inside the test subject with things like mocks/stubs, as too many of them can end up causing more harm than good. But the tests should also _inform the design of the code_. If the test has to mock out a bunch of stuff in a specific function to test a specific behavior, then maybe that function is involving more than it needs to and needs to be refactored. That's all part of the development process, and is the reason behind things liek TDD and TFD.
+It's also a warning against doing too much tinkering around inside the test subject with things like mocks/stubs, as too many of them can end up causing more harm than good. But the tests should also _inform the design of the code_. If the test has to mock out a bunch of stuff in a specific function to test a specific behavior, then maybe that function is involving more than it needs to and needs to be refactored. That's all part of the development process, and is the reason behind things like TDD and TFD.
+
+So just be careful, and only make assumptions when you can do it safely. Work with other devs to find out where behaviors can be most effectively tested, what _exactly_ would be assumed by testing them at those levels, and how those assumptions can be tested on their own. Then you can use this knowledge to build out a comprehession, efficient test suite.
