@@ -93,4 +93,6 @@ You could argue that having complete access to the source code is always the bes
 
 ## It's not cheating if it's not against the rules
 
-You'll likely hear others says you should always treat the test subject like a **black box**, and they're mostly right. You _should_ treat it like a **black box** for the most part. That doesn't mean you shouldn't peak inside to get an idea of tests to run it through. It just means you shouldn't do too much _tinkering_ around in the box while testing it. This is more so that 1) you don't bork your own test while it's running, and 2) your test works for longer because it's relying on the external interfaces of the box, which are slower to change than the insides.
+You'll likely hear others says you should always treat the test subject like a **black box**, and they're not wrong. You _should_ treat it like a **black box** in many cases. But that doesn't mean you can't peak inside to get an idea of what tests to run it through, or what things you can mock out to control for things. It just means you shouldn't do too much _tinkering around_ in the box while testing it.
+
+The tests should also inform the design of the code. If the test has to mock out a bunch of stuff in a specific function to test a specific behavior, then maybe that function is involving more than it needs to and needs to be refactored. That's part of the development process.
