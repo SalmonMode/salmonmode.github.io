@@ -222,9 +222,9 @@ Remember that, in Agile, teams are _self-organizing_ that need to be _trusted_ t
 
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
-Your expectations fundamentally need to change if switching to Agile is going to work.
+Your expectations and how you work fundamentally need to change if switching to Agile is going to work.
 
-Your goals will be to facilitate the team and the individuals in it. You'll need not just avoid being an obstacle for them, but also to eliminate obstacles where you can.
+Your goals will be to facilitate the team and the individuals in it. You'll need to not just avoid being an obstacle for them, but also to eliminate obstacles and build team members up where you can.
 
 Leading up to and during this change is probably where your role will be the most important of any member on a team.
 
@@ -232,7 +232,7 @@ Many will fear this change, and you will need to assuage those fears. A cultural
 
 ## Programmers
 
-Programmers may be concerned because they might think that they'll have a larger work load, be less productive, or suddenly be responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
+Programmers may be concerned about having a larger work load, being less productive, or suddenly being responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
 
 They will need help to understand that their pace won't be changing, that they will only be expected to move as fast as **maintaining quality** allows them to, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (often through code review).
 
@@ -268,7 +268,7 @@ If they're already decently skilled and are working hard, then you can look at t
 
 And don't be afraid to jump in and get your hands dirty with team work as well, especially if a deadline is approaching.
 
-You have a vested interest in the team, so your goal is to maximize your ROI, and there's many opportunities for that.
+You have a vested interest in the team, so your goal is to maximize your ROI by building the team up, and there's plenty of opportunities for that.
 
 # How to get there from here
 
