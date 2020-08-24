@@ -49,7 +49,7 @@ There's many reasons, but the big hitters revolve around **sustainability**, and
 
 Hopefully we can at least agree that, unless the tests are automated, the manual checking work for QA will quickly become unsustainable. If not, I'll defer to that Atlassian article above.
 
-### The math doesn't add up {:#math}
+### The math doesn't add up
 
 Example scenario:
 - a dev team consists of 1 tester and 5 programmers
@@ -126,7 +126,7 @@ If the programmer understands the acceptance criteria and can reason about them,
 
 # Disregard for QA
 
-[As I mentioned above](#math), the math just doesn't work out.
+[As I mentioned above](#the-math-doesnt-add-up-math), the math just doesn't work out.
 
 Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may  be brushed off, and be told that they "just need to do what it takes", or that they "shouldn't go to unnecessary meetings".
 
