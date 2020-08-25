@@ -1,7 +1,7 @@
 ---
 layout: posts
 title: '"What would QA do all day?"'
-excerpt: "If the developer wrote the tests for their tickets before checking their changes in, what would QA do all day? Let's look at what leads to this question being asked, and why having them write their own tests is essential to be Agile."
+excerpt: "If the developer wrote the tests for their tickets, what would QA do all day? More importantly, what are the implications of asking the previous question?."
 date: 2020-08-20 16:00:00 -0500
 ---
 
