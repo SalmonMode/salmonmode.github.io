@@ -15,23 +15,15 @@ The fact that the question was asked carries many implications, and I'll try to 
 
 # Misunderstanding Agile principles
 
-I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software faster.
+Many places claim to be "Agile", and I believe that they think they are.
 
-It's a noble effort to seek out changes that could help development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that on its own. Agile requires a _cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
+Unfortunately, I think many of them conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked.
 
-> We _follow_ these principles
+I have a feeling they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software faster.
 
-not any of these:
- - We follow _some of_ these principles
- - We follow these principles _when we deem it to be convenient_
- - We think these practices are _great in theory_
+It's a noble effort to seek out changes that could help development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that on its own.
 
-The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one.
-
-The "Waterfall" development model has testing done separately from programming, at a later time. But Agile was created to _combat waterfall_ and requires that testing and writing tests be done in tandem with programming.
-
-**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
-{: .notice--info}
+Agile requires a _cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). Part of that discipline is making sure that quality is never sacrificed, particularly [internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) (ISQ).
 
 ## In Agile, _programmers_ write the tests
 
@@ -42,6 +34,9 @@ This may have been enough to convince some of you, and if it did, great! There's
 If not, but it was enough to at least get your attention, you might be wondering what else _I_ could add.
 
 I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to provide those that _aren't_ in QA with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA. I also want to help others identify where their potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems.
+
+**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
+{: .notice--info}
 
 ## Why programmers write the tests
 
@@ -76,11 +71,11 @@ Expecting 50 hours _might_ be reasonable, but don't forget about the daily stand
 
 Since there's only 8 days available for that type of work, that means there needs to be _at least_ 6-7 hours of free time available every one of those 8 days.
 
-Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to.
+Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to. I've personally worked with systems where developers would _regularly_ make 10-20 line changes in a couple hours and then say those changes required a full regression test run because everything was so tightly coupled to the parts they changed.
 
 This sort of system is _primed_ to make QA a bottleneck, and it's very easy for the development to slow down and for quality to be compromised because of it. You _could_ put more QA folks on each team, but that doesn't entirely eliminate the problem.
 
-If programmers are writing those sorts of tests up front, then the bottleneck is eliminated completely.
+If programmers are writing those sorts of tests up front, then the bottleneck is eliminated completely, and QA's time is freed up so they can add much more value to the team.
 
 ### Test suite execution time
 
@@ -94,33 +89,27 @@ To add to this, testers aren't likely to write their tests at the unit/component
 
 This all translates to wasted work, i.e. the energy that went into it could have definitely gone into something that would yield a higher ROI.
 
-### Maintaining internal software quality
+### Maintaining ISQ
 
 > Continuous attention to technical excellence and good design enhances agility.
 
-[Internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) is effectively the quality of the code's changeability.
+"Tech debt" is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future (whether intentional or not), it can both create an artificially inflated velocity for the current sprint, and increase the overall work that needs to be done to get to the desired end result.
+
+When tech debt is consciously added by sacrificing ISQ in an attempt to get something out the door sooner, it is, in effect, a sort of lie (to management and ourselves) about what the team's capacity is for normal sprints, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
 
 Maintaining ISQ is essential for moving forward at a sustainable pace, and [is well worth the investment](https://martinfowler.com/articles/is-quality-worth-cost.html).
 
-Having the programmer write the tests helps them identify problematic areas of the code that need attention, so that they can fix them then and there to make future changes easier, rather than worse. The most cost-effective way to have those tests implemented while also maintaining internal software quality, is to have the programmer write them (and not just the happy path tests) as they make their changes.
-
-#### Regarding Tech Debt Sprints
-
-In an attempt to maintain internal software quality, some places use "tech debt" sprints where tech debt tickets are planned for that sprint. These seem fine in theory, but aren't very practical and are actively harmful to the bottom line when done at regular intervals.
-
-Technical debt is named that way, because it's borrowing velocity from the future. The part that many seem to forget, is that **debt accrues interest**. By borrowing velocity from the future, it both creates an artificially inflated velocity for the current sprint, and increases the overall work that needs to be done to get to the desired end result. It's, in effect, a lie (to management and ourselves) about what the team's capacity is for a given sprint, and it will inevitably lead to release date estimates that are far sooner than is practical, which, of course, leads to crunch time.
-
-[Here's another article from Atlassian](https://www.atlassian.com/agile/software-development/technical-debt) on the importance of eliminating tech debt as you go.
-
-That said, it's certainly possible for tech debt to build up without it being noticed until it's too late. It's not often that we can perfectly foresee what we'll need 3 months from now so that we can determine what the optimal implementation is now. So, in order to maintain velocity going forward, it may be necessary to have ad hoc tech debt sprints that revolve around larger refactors.
+Having the programmer write the tests helps them identify problematic areas of the code that need attention, and keeps them mindful of ISQ. The most cost-effective way to have those tests implemented while also maintaining ISQ, is to have the programmer write them (and not just the happy path tests) as they make their changes.
 
 # Disregard for quality (both internal and external)
 
-When the programmers aren't writing the tests, they don't have to be concerned with quality. It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/) which has its own, serious problems.
+Programmers have no actual reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests.
 
-Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
+It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/), which has its own problems.
 
-Programmers have no actual reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, and there's a belief that QA will find any and all problems anyway.
+Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point at QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
+
+It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway.
 
 # Disregard for QA
 
@@ -134,7 +123,7 @@ This isn't healthy, nor is it practical.
 
 This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
 
-But be aware that this is often their reality, and is what's being asked of them if the programmers aren't writing the tests.
+But be aware that this is often their reality, and is what's being asked of them when the programmers aren't writing the tests.
 
 # Toxic culture
 
@@ -218,9 +207,9 @@ Atlassian switched to this approach a while back, and made [this article](https:
 
 The tester effectively takes on a _support_ role, operating, for the most part, outside the sprint's tickets (unless they have tickets to do themselves). [They'd become "Quality _Assistance_" rather than "Quality _Assurance_"](https://www.developsense.com/blog/2010/05/testers-get-out-of-the-quality-assurance-business/). With the free time they've gained from not having to do the checks of all the tickets, it opens the door to a staggering number of options.
 
-This change will likely be a massive boon to team throughput and quality overall (both internal and external), and it can understandably make it feel a bit nebulous as to what QA's responsibilities are exactly after the change has been made. But that's because it is, and that's the point. While I've laid out some of those options above, it's ultimately up to the team to determine where the tester's newfound time, energy, and passion can be directed, and that direction can change from day to day.
+This change will likely be a massive boon to team throughput and quality overall (both internal and external), and it can understandably make QA's responsibilities feel a bit nebulous.. But that's because it is, and that's the point. While I've laid out some of those options above, it's ultimately up to the team to determine where the tester's newfound time, energy, and passion can be directed, and that direction can change from day to day.
 
-Remember that, in Agile, teams are _self-organizing_ that need to be _trusted_ to get the job done. So it's up to the team, not management, to figure out where the tester can add the most value.
+Remember that, in Agile, teams are _self-organizing_ and need to be _trusted_ to get the job done. So it's up to the team, not management, to figure out where the tester can add the most value.
 
 # A note to management
 
