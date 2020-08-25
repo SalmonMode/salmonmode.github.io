@@ -7,7 +7,9 @@ date: 2020-08-20 16:00:00 -0500
 
 ![John C. McGinley's character in Office Space saying "what would you say you do here?"](/images/what_would_you_say_you_do_here.gif){:height="auto" width="100%"}
 
-I've been asked this question, or some variation of it, many times by other developers, management, and even some in _QA_ when I've proposed **having the programmers write the tests for their tickets** in order to follow Agile principles. The question assumes that the _only_ thing a tester is there for, is to verify the acceptance criteria of tickets.
+Whenever I've proposed **having the programmers write the tests for their tickets** in order to follow Agile principles, I almost always get asked, by other developers, management, and even some in _QA_, in one way or another, what QA would do all day if they weren't performing those tests.
+
+The question assumes that the _only_ things a tester is there for are to verify the acceptance criteria of tickets after a programmer's changes for that ticket get through code review, and possibly for the tester to perform a suite of regression tests at the end of each sprint. It assumes that the tester, through this process, will catch any and all problems that might exist. It assumes the tester is the team's quality safety net.
 
 The fact that the question was asked carries many implications, and I'll try to cover the ones I find to be the most concerning.
 
@@ -15,7 +17,7 @@ The fact that the question was asked carries many implications, and I'll try to 
 
 I believe many places conflate Agile and Scrum, and misconstrue [the principles laid out in the Agile manifesto](https://agilemanifesto.org/principles.html) as benefits to be gained, rather than a set of principles that they need to _actively uphold_ and that can't be cherry picked. I believe they think Scrum is a recipe for success that will help their development to be sustainable and to produce high quality software faster.
 
-It's a noble effort to seek out changes one feels will help their development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that. Agile requires a cultural change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
+It's a noble effort to seek out changes that could help development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that on its own. Agile requires a _cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). The Agile manifesto starts of its list of principles by saying:
 
 > We _follow_ these principles
 
@@ -26,24 +28,26 @@ not any of these:
 
 The idea that programmers should be writing the tests for the tickets in an Agile development environment isn't exactly a radical one.
 
-The "Waterfall" development model has testing done separately from programming at a later time. But Agile was created to combat waterfall and requires that testing and writing tests be done in tandem with programming.
+The "Waterfall" development model has testing done separately from programming, at a later time. But Agile was created to _combat waterfall_ and requires that testing and writing tests be done in tandem with programming.
 
-**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD), before they check them in for code review.
+**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
 {: .notice--info}
 
 ## In Agile, _programmers_ write the tests
 
 I know I may be losing some of you already, so as a transparent appeal to authority, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, and Bitbucket).
 
-This may have been enough to convince some of you, and if it did, great! There's no need for you to read through the rest of my long-winded post.
+This may have been enough to convince some of you, and if it did, great! There's no need for you to read through the rest of my long-winded post, unless you still need to convince someone else.
 
-If not, but it was enough to at least get your attention, you might be wondering what else I could add. I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to help others identify where there potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems. I also want to provide those that aren't testers with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA.
+If not, but it was enough to at least get your attention, you might be wondering what else _I_ could add.
 
-## Why
+I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to provide those that _aren't_ in QA with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA. I also want to help others identify where their potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems.
+
+## Why programmers write the tests
 
 > Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.
 
-There's many reasons, but the big hitters revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
+There's many reasons, but the big hitters (IMO) revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
 
 ### Accumulation of manual tests
 
@@ -114,9 +118,9 @@ That said, it's certainly possible for tech debt to build up without it being no
 
 When the programmers aren't writing the tests, they don't have to be concerned with quality. It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/) which has its own, serious problems.
 
-Internal software quality is something they are accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (which they can falsely claim is the nature of writing code).
+Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point to QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
 
-Programmers have no reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they lack discipline and the experience to understand the implications of this, and there's the implication that QA will find any and all problems.
+Programmers have no actual reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests. It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, and there's a belief that QA will find any and all problems anyway.
 
 # Disregard for QA
 
@@ -128,7 +132,7 @@ To meet the deadlines set for them, they may often have to cut corners, work thr
 
 This isn't healthy, nor is it practical.
 
-This isn't to say that QA wasn't considered initially. They probably were, and it's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
+This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
 
 But be aware that this is often their reality, and is what's being asked of them if the programmers aren't writing the tests.
 
@@ -150,7 +154,7 @@ I think Lisa Crispin and Janet Gregory nailed it in their book _Agile Testing_. 
 
 If all they've ever known is checking criteria from tickets, there can be a sense of security in that. It has a very clear line where they can say "ok, I did my job. I'm done." If they get that work done, then they have nothing to fear regarding job security. It may not be _fulfilling_ work for them, but it _will_ at least pay the bills.
 
-This fear is entirely understandable, and shouldn't be ignored. It will take a culture change to make them feel like their job security isn't under constant threat.
+This fear is entirely understandable, and shouldn't be ignored. It'll take a culture change to make them feel like their job security isn't under constant threat.
 
 But the only thing that should really matter in Agile is whether or not the _team as a whole_ is delivering, and, on an individual level, whether or not a person is adding value to the team, regardless of what they're doing to add that value.
 
