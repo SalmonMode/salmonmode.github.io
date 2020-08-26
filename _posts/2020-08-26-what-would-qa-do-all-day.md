@@ -129,7 +129,7 @@ But be aware that this is often their reality, and is what's being asked of them
 
 Kent Beck (one of the original signatories of the Agile Manifesto) highlights in their book _Extreme Programming Explained_ that nobody wants to be seen as the bottleneck in a "push" development model where everyone plays one specific role, and they will do whatever they can to not be seen as the constraint.
 
-This encourages a very self-centered, and possibly even fearful mentality. People are more concerned with not being a bottleneck, rather than how they can help others for the sake of overall team throughput.
+This encourages a very self-centered (in the literal sense, not necessarily implying greed), and possibly even fearful mentality. People are more concerned with not being a bottleneck, rather than how they can help others for the sake of overall team throughput.
 
 They might also be afraid to ask for help, possibly because they fear their competency will be questioned, or that asking is a sign of weakness. Or they may just feel like they wouldn't get help if they did ask.
 
