@@ -109,7 +109,7 @@ It becomes almost impossible to hold them accountable for poor external software
 
 Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point at QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
 
-It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway.
+It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway. They may even believe that passing everything off to QA for the checking is what it means to care about QA.
 
 # Disregard for QA
 
