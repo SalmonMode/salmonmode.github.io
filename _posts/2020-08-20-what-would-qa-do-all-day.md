@@ -271,6 +271,6 @@ You have a vested interest in the team, so your goal is to maximize your ROI by 
 
 This is not about having the developers do the general "testing", but that is a good next step as everyone on the team should always be critical of the product. Atlassian went through this already and laid out a general transition plan for that in the video [here](https://www.atlassian.com/agile/software-development/qa-at-speed).
 
-This is just about having the developers write the tests (i.e. ["checks" by how they're defined here](https://www.developsense.com/blog/2009/08/testing-vs-checking/)") for their tickets as part of their development process (i.e. before it goes to code review).
+This is just about having the developers write the tests (i.e. "checks" by how they're defined [here](https://www.developsense.com/blog/2009/08/testing-vs-checking/)) for their tickets as part of their development process (i.e. before it goes to code review).
 
 No transition is really necessary, but some programmers may feel uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
