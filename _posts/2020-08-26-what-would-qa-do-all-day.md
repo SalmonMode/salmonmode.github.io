@@ -121,7 +121,7 @@ To meet the deadlines set for them, they may often have to cut corners, work thr
 
 This isn't healthy, nor is it practical.
 
-This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
+This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades, so there wasn't any reason to believe the process should be any different in that regard.
 
 But be aware that this is often their reality, and is what's being asked of them when the programmers aren't writing the tests.
 
