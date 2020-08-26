@@ -2,7 +2,7 @@
 layout: posts
 title: '"What would QA do all day?"'
 excerpt: "If the developer wrote the tests for their tickets, what would QA do all day? More importantly, what are the implications of asking the previous question?"
-date: 2020-08-20 16:00:00 -0500
+date: 2020-08-26 16:00:00 -0500
 ---
 
 ![John C. McGinley's character in Office Space saying "what would you say you do here?"](/images/what_would_you_say_you_do_here.gif){:height="auto" width="100%"}
