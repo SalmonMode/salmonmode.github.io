@@ -113,7 +113,7 @@ It's not that they don't care. It's just that they don't have the knowledge and 
 
 # Disregard for QA
 
-[As I mentioned above](#the-math-doesnt-add-up-math), the math just doesn't work out.
+[I mentioned it already](#the-math-doesnt-add-up-math), but the math just doesn't work out.
 
 Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may be brushed off, and be told that they "just need to do what it takes", or that they should manage their time better.
 
