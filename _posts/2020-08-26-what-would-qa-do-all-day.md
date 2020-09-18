@@ -1,8 +1,8 @@
 ---
 layout: posts
 title: '"What would QA do all day?"'
-excerpt: "If the developer wrote the tests for their tickets, what would QA do all day? More importantly, what are the implications of asking the previous question?"
-date: 2020-08-20 16:00:00 -0500
+excerpt: "If the developer wrote the tests for their tickets, what would QA do all day? More importantly, what are the implications of that question being asked in the first place?"
+date: 2020-08-26 16:00:00 -0500
 ---
 
 ![John C. McGinley's character in Office Space saying "what would you say you do here?"](/images/what_would_you_say_you_do_here.gif){:height="auto" width="100%"}
@@ -109,11 +109,11 @@ It becomes almost impossible to hold them accountable for poor external software
 
 Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point at QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
 
-It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway.
+It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway. They may even believe that passing everything off to QA for the checking is what it means to care about QA.
 
 # Disregard for QA
 
-[As I mentioned above](#the-math-doesnt-add-up-math), the math just doesn't work out.
+[I mentioned it already](#the-math-doesnt-add-up), but the math just doesn't work out.
 
 Testers are often too afraid to speak out for fear of seeming weak, incompetent, or disloyal to the company, so they just tough it out. And if they _do_ speak out, they may be brushed off, and be told that they "just need to do what it takes", or that they should manage their time better.
 
@@ -121,7 +121,7 @@ To meet the deadlines set for them, they may often have to cut corners, work thr
 
 This isn't healthy, nor is it practical.
 
-This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades.
+This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades, so there wasn't any reason to believe the process should be any different in that regard.
 
 But be aware that this is often their reality, and is what's being asked of them when the programmers aren't writing the tests.
 
@@ -129,13 +129,13 @@ But be aware that this is often their reality, and is what's being asked of them
 
 Kent Beck (one of the original signatories of the Agile Manifesto) highlights in their book _Extreme Programming Explained_ that nobody wants to be seen as the bottleneck in a "push" development model where everyone plays one specific role, and they will do whatever they can to not be seen as the constraint.
 
-This encourages a very self-centered, and possibly even fearful mentality. People are more concerned with not being a bottleneck, rather than how they can help others for the sake of overall team throughput.
+This encourages a very self-centered (in the literal sense, not necessarily implying greed), and possibly even fearful mentality. People are more concerned with not being a bottleneck, rather than how they can help others for the sake of overall team throughput.
 
 They might also be afraid to ask for help, possibly because they fear their competency will be questioned, or that asking is a sign of weakness. Or they may just feel like they wouldn't get help if they did ask.
 
 Nobody wants to ask how they can help someone because that might slow them down and possibly make them look like a bottleneck.
 
-This mentality encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) vastly outnumbered by the programmers.
+This mentality encourages the siloing of responsibilities, which, in turn, builds walls between programmers and testers, making testers into outsiders. Even if all members of the team get along well, it becomes, on some level, two teams within one, where the testers are (usually) outnumbered by the programmers, making it more difficult for their voices to be heard.
 
 # Fear from QA
 
@@ -181,11 +181,13 @@ The tester can go over the backlog of upcoming tickets and figure out if any que
 
 ### Metrics
 
-The tester can look for ways to improve team throughput and internal software quality by gathering metrics. They can look at things like cyclomatic complexity throughout the code base, or even use tools to see what parts of the code are associated with the most defects to see where the code needs attention before it becomes (more of) a problem.
+The tester can look for ways to improve team throughput and internal software quality by gathering metrics and looking at the process itself. They can look at things like cyclomatic complexity throughout the code base, or even use tools to see what parts of the code are associated with the most defects to see where the code needs attention before it becomes (more of) a problem.
 
 ### Programmer collaboration
 
 If a programmer needs help determining the test cases for a ticket, or possibly needs help tracking down a supposed bug, they can work directly with the tester to get it done.
+
+They can also work with the programmers to help build up their testing mentality/skills, helping them to understand the value in only involving one thing per test and how to control for things they don't want to involve.
 
 ### Documentation
 
@@ -201,7 +203,9 @@ Plus, it's a great opportunity for the tester to see if there's any automated te
 
 ### Atlassian's approach
 
-Atlassian switched to this approach a while back, and made [this article](https://www.atlassian.com/agile/software-development/qa-at-speed) going over how they transitioned to it and the benefits they gained from it. They also cover exactly what QA then does all day (in the video, at least). They even stopped referring to QA as "Quality _Assurance_", and used "Quality _Assistance_" instead.
+Atlassian switched to this approach a while back, and made [this article](https://www.atlassian.com/agile/software-development/qa-at-speed) going over how they transitioned to it and the benefits they gained from it. They also cover exactly what QA then does all day (in the video, at least).
+
+They even stopped referring to QA as "Quality _Assurance_", and used "Quality _Assistance_" instead.
 
 # Support role
 
@@ -235,7 +239,7 @@ Testers may be nervous because they won't have a defined series of testing stage
 
 You can guide them in this transition, help them work with the team to find areas they can provide value, or point them to resources that can help build up their skills/knowledge.
 
-You will need to reassure them that how many bugs they find isn't a concern, because the focus is on _preventing_ bugs in the first place, not _detecting_ them. If they're concerned about their abilities, you will need to _actively_ help find them ways to build up their skills. There's many books out there (_Agile Testing_ by Lisa Crispin and Janet Gregory is a great start), online courses for things like critical thinking and logic, mentor programs (which can even be offered internally), communities (e.g. The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite)), etc.
+You will need to reassure them that how many bugs they find isn't a concern, because the focus is on _preventing_ bugs in the first place, not _detecting_ them (although detecting them is still valuable). If they're concerned about their abilities, you will need to _actively_ help find them ways to build up their skills. There's many books out there (_Agile Testing_ by Lisa Crispin and Janet Gregory is a great start), mentor programs (which can even be offered internally), communities (e.g. The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite)), etc.
 
 ## Be _active_
 
@@ -265,8 +269,8 @@ You have a vested interest in the team, so your goal is to maximize your ROI by 
 
 # How to get there from here
 
-This is not about having the developers do the "testing", but that is a good next step, and Atlassian has laid out a general transition plan for that [here](https://www.atlassian.com/agile/software-development/qa-at-speed) (although it's in the video), and even outline what QA does there after that change.
+This is not about having the developers do the general "testing", but that is a good next step as everyone on the team should always be critical of the product. Atlassian went through this already and laid out a general transition plan for that in the video [here](https://www.atlassian.com/agile/software-development/qa-at-speed).
 
-This is just about having the developers write the tests (i.e. "[checks](https://www.developsense.com/blog/2009/08/testing-vs-checking/)", but we call them "tests") for their tickets as part of their development process (i.e. before it goes to code review).
+This is just about having the developers write the tests (i.e. "checks" by how they're defined [here](https://www.developsense.com/blog/2009/08/testing-vs-checking/)) for their tickets as part of their development process (i.e. before it goes to code review).
 
-No transition is really necessary, but some programmers may fell uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
+No transition is really necessary, but some programmers may feel uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
