@@ -1,0 +1,2495 @@
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="/assets/js/probability-distributions-bundle.js"></script>
+
+<script>
+
+
+const ticketWorkColors = d3.schemeSet3.slice(0,2)
+    .concat(d3.schemeSet3.slice(4,8))
+    .concat(d3.schemeSet3[11]);
+const lunchColor = d3.schemeSet3[10];
+const meetingColor = d3.schemeSet3[9];
+const regressionTestingColor = d3.schemeSet3[3];
+const contextSwitchColor = d3.schemeSet3[8];
+const nothingColor = "#fff";
+
+function color(event) {
+    if (event instanceof ScheduledTicketWork) {
+        return ticketWorkColors[event.ticket.number % (ticketWorkColors.length - 1)];
+    } else if (event instanceof LunchBreak) {
+        return lunchColor;
+    } else if (event instanceof RegressionTesting) {
+        return regressionTestingColor;
+    } else if (event instanceof Meeting) {
+        return meetingColor;
+    } else if (event instanceof ContextSwitchEvent) {
+        return contextSwitchColor;
+    }
+    return nothingColor;
+}
+
+let workerIdentifierColors = [
+    "#003f5c",
+    "#2f4b7c",
+    "#665191",
+    "#a05195",
+    "#d45087",
+    "#f95d6a",
+    "#ff7c43",
+    "#ffa600"
+]
+
+class Event {
+    constructor(startTime, duration, owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = startTime + duration;
+        this.owner = owner;
+        this.day = day;
+        this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
+        this.rawStartDayTime = (this.day * 480) + this.startTime;
+        this.rawEndDayTime = this.rawStartDayTime + this.duration;
+    }
+    get color() {
+        return d3.color(color(this));
+    }
+}
+
+class Meeting extends Event {}
+
+class DailyStandup extends Meeting {
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(0, 15, owner, day)
+    }
+}
+
+class SprintPlanning extends Meeting {
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(0, 120, owner, day)
+    }
+}
+
+class SprintRetro extends Meeting {
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(420, 60, owner, day);
+    }
+}
+
+class RegressionTesting extends Event {}
+
+class MorningRegressionTesting extends RegressionTesting {
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(15, 105, owner, day);
+    }
+}
+
+class AfternoonRegressionTesting extends RegressionTesting {
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(180, 300, owner, day);
+    }
+}
+
+class AfternoonFinalDayRegressionTesting extends RegressionTesting {
+    // Shorter than normal, because of the sprint retro
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(180, 240, owner, day);
+    }
+}
+
+
+class NothingEvent extends Event {
+    // Nothing is done during this period of time. This is solely used to make logic
+    // easier, and is placed in a schedule when it's determined that no work can be done
+    // because it will take too long to switch contexts and get anything productive
+    // done.
+}
+
+class ContextSwitchEvent extends Event {
+    constructor(startTime, duration, ticket, firstIteration = true, lastIteration = true, owner, day){
+        super(startTime, duration, owner, day);
+        this.ticket = ticket;
+        this.firstIteration = firstIteration;
+        this.lastIteration = lastIteration;
+    }
+}
+
+class LunchBreak extends Meeting {
+    // Extends Meeting because meetings can be stacked back to back without having to
+    // worry about context switching between them, and when leading up to a meeting, if
+    // the prior Event ended less than or equal to 30 minutes before it, then new work
+    // won't be started. These are all true for Lunch as well.
+    constructor(owner, day) {
+        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
+        // analogous to 10 AM, and 6 PM respectively.
+        super(120, 60, owner, day);
+    }
+}
+
+class LunchAndLearn extends LunchBreak {
+    // Just like lunch, except treated like a meeting. Can replace any instance of
+    // lunch, provided it doesn't conflict.
+}
+
+class ScheduledTicketWork extends Event {
+    // ScheduledTicketWork is work for a ticket that either a programmer or tester is
+    // doing. ScheduledTicketWork will always require 20 minutes after any prior event
+    // in order to context switch. If 30 minutes or less would only be available before
+    // the next event, then work on a new ticket won't be scheduled. But if work was
+    // already being done on a ticket, an attempt to schedule some work will be made,
+    // although it may be only enough to context switch before time runs out.
+    constructor(startTime, duration, ticket, contextSwitchEvent, firstIteration = true, lastIteration = true, owner, day){
+        super(startTime, duration, owner, day);
+        this.ticket = ticket;
+        this.contextSwitchEvent = contextSwitchEvent;
+        this.firstIteration = firstIteration;
+        this.lastIteration = lastIteration;
+    }
+}
+
+class ScheduledNewTicketWork extends ScheduledTicketWork {
+    // This is exactly like ScheduledTicketWork, except it can't be placed in between a
+    // prior event's end and a Meeting (even Lunch), if that next Meeting starts 30
+    // minutes or less after the prior event.
+}
+
+class ScheduledPreviouslyInterruptedTicketWork extends ScheduledTicketWork {
+    // Represents follow-up work for a work iteration that was interrupted and context
+    // had to be re-acquired.
+}
+
+class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {}
+
+class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+
+class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+
+class DaySchedule {
+    constructor(owner, day) {
+        this.owner = owner;
+        this.day = day;
+        this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
+        this.items = [];
+        this.lastMeetingIndexBeforeAvailability = null;
+        let lunch = new LunchBreak(this.owner, this.day);
+        this.scheduleMeeting(lunch);
+    }
+
+    scheduleMeeting(meeting) {
+        // assumes meetings are set first, and that meetings will never conflict with
+        // lunch
+        if (this.items.length == 0) {
+            this.items.push(meeting);
+            this.lastMeetingIndexBeforeAvailability = 0;
+            this.findLastMeetingIndexBeforeAvailability();
+            return;
+        }
+        let startingIndex = this.lastMeetingIndexBeforeAvailability;
+        for (let i = this.lastMeetingIndexBeforeAvailability; i < this.items.length; i++) {
+            let event = this.items[i];
+            if (event.startTime < meeting.endTime && event.endTime > meeting.startTime) {
+                // event conflicts
+                throw Error("Meeting conflicts with another meeting");
+            } else if (event.startTime >= meeting.endTime && (i == 0 || this.items[i-1].endTime <= meeting.startTime)) {
+                // meeting can fit here
+                this.items.splice(i, 0, meeting);
+                if (!(meeting instanceof ContextSwitchEvent)) {
+                    this.findLastMeetingIndexBeforeAvailability();
+                } else {
+                    this.lastMeetingIndexBeforeAvailability = i;
+                }
+                return;
+            } else {
+                continue;
+            }
+        }
+        // meeting will be the last on the schedule
+        this.items.push(meeting);
+        this.findLastMeetingIndexBeforeAvailability();
+        return;
+    }
+
+    findLastMeetingIndexBeforeAvailability() {
+        if (this.lastMeetingIndexBeforeAvailability === -1) {
+            return -1;
+        }
+        let event = this.items[this.lastMeetingIndexBeforeAvailability];
+        if (event instanceof ContextSwitchEvent && ((this.lastMeetingIndexBeforeAvailability === this.items.length - 1) || !(this.items[this.lastMeetingIndexBeforeAvailability + 1] instanceof ScheduledTicketWork))) {
+            // If the last meeting before availability is a ContextSwitchEvent, and
+            // there either is no next event, or the next event isn't
+            // ScheduledTicketWork, then it must mean that the schedule is in the
+            // process of adding in a scheduled work event, so nothing should be
+            // changed.
+            return;
+        }
+
+        if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
+            // index is already pointing to last event scheduled for the day
+            let timeUntilEndOfDay = 480 - event.endTime;
+            if (timeUntilEndOfDay > 30) {
+                return;
+            } else if (timeUntilEndOfDay > 0) {
+                // not enough time in the day to do anything, so put in a NothingEvent
+                // and move on to the next day.
+                this.scheduleMeeting(new NothingEvent(event.endTime, timeUntilEndOfDay, this.owner, this.day));
+            }
+            // no more available slots on this day
+            this.lastMeetingIndexBeforeAvailability = -1;
+            return;
+        }
+        let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1];
+        let timeUntilNextEvent = nextEvent.startTime - event.endTime;
+        if (timeUntilNextEvent > 30) {
+            // There is time to fit more work after this event, so it can be considered
+            // the last meeting before availability
+            return;
+        } else if (timeUntilNextEvent > 0) {
+            // not enough time before the next meeting to do anything, so put in a
+            // NothingEvent and move on to the next event.
+            this.scheduleMeeting(new NothingEvent(event.endTime, timeUntilNextEvent, this.owner, this.day));
+            return;
+        }
+        // still not sure where the next gap is, so increment to make sure this next
+        // call to this function grabs the next event as it tries again.
+        this.lastMeetingIndexBeforeAvailability += 1;
+        this.findLastMeetingIndexBeforeAvailability();
+    }
+
+    get lastEventBeforeAvailable() {
+        if (this.lastMeetingIndexBeforeAvailability === -1) {
+            return null;
+        }
+        return this.items[this.lastMeetingIndexBeforeAvailability];
+    }
+
+    get hasAvailableTimeSlot() {
+        this.findLastMeetingIndexBeforeAvailability();
+        return this.lastMeetingIndexBeforeAvailability >= 0;
+    }
+
+    get nextAvailableWorkBlockMaxDuration() {
+        if (this.lastMeetingIndexBeforeAvailability === -1) {
+            // no more available blocks for this day
+            return null;
+        }
+        if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
+            // last event in the day
+            return 480 - this.lastEventBeforeAvailable.endTime;
+        }
+        let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1]
+        return nextEvent.startTime - this.lastEventBeforeAvailable.endTime;
+    }
+
+    get earliestAvailableTimeForWork() {
+        if (this.lastEventBeforeAvailable === null) {
+            return -1;
+        }
+        return this.lastEventBeforeAvailable.endTime;
+    }
+
+    isBusyAtTime(time) {
+        return this.earliestAvailableTimeForWork > time;
+    }
+}
+
+class NoAvailableTimeSlotsError extends Error {
+  constructor(...params) {
+    super(...params)
+
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, NoAvailableTimeSlotsError)
+    }
+
+    this.name = 'NoAvailableTimeSlotsError';
+  }
+}
+
+class Schedule {
+    constructor(sprintDayCount, regressionTestDayCount, owner) {
+        // The "first" 2 days of the sprint are actually the last two days of
+        // the previous sprint when the tester is doing the regression tests,
+        // and it is assumed that the programmers are getting a head start on
+        // next sprint, and are only working on tickets for that next sprint.
+        // Their work is simulated for these two days both to reflect that
+        // programmers would normally be continuing work during this time, but
+        // also so that the tester's schedule starts out on the first day of the
+        // sprint with ticket work to do.
+        this.owner = owner;
+        this.earliestAvailableDayForWorkIndex = 0;
+        this.daySchedules = [];
+        this.sprintDayCount = sprintDayCount;
+        this.regressionTestDayCount = regressionTestDayCount;
+        for (let i = 0; i < (this.sprintDayCount + this.regressionTestDayCount); i++) {
+            let schedule = new DaySchedule(this.owner, i);
+            if (i === regressionTestDayCount) {
+                // first actual day of sprint, so sprint planning
+                schedule.scheduleMeeting(new SprintPlanning(this.owner, i));
+            } else {
+                schedule.scheduleMeeting(new DailyStandup(this.owner, i));
+            }
+            this.daySchedules.push(schedule);
+        }
+        this.daySchedules[regressionTestDayCount - 1].scheduleMeeting(new SprintRetro(this.owner, regressionTestDayCount - 1));
+        this.daySchedules[this.daySchedules.length - 1].scheduleMeeting(new SprintRetro(this.owner, this.daySchedules.length - 1));
+        this.dayOfNextWorkIterationCompletion = null;
+        this.timeOfNextWorkIterationCompletion = null;
+        this.lastTicketWorkedOn = null;
+        this.findEarliestAvailableDayForWorkIndex();
+    }
+
+    findEarliestAvailableDayForWorkIndex() {
+        if (this.earliestAvailableDayForWorkIndex === -1) {
+            return;
+        } else if (this.daySchedules[this.earliestAvailableDayForWorkIndex].hasAvailableTimeSlot) {
+            return;
+        } else if (this.earliestAvailableDayForWorkIndex >= this.daySchedules.length - 1) {
+            // no more available time this sprint for this worker
+            this.earliestAvailableDayForWorkIndex = -1;
+            return
+        }
+        this.earliestAvailableDayForWorkIndex += 1;
+        this.findEarliestAvailableDayForWorkIndex();
+    }
+
+    get earliestAvailableDayScheduleForWork() {
+        this.findEarliestAvailableDayForWorkIndex();
+        if (this.earliestAvailableDayForWorkIndex === -1) {
+            return null;
+        }
+        return this.daySchedules[this.earliestAvailableDayForWorkIndex];
+    }
+
+    get earliestAvailableTimeForWork() {
+        if (this.earliestAvailableDayForWorkIndex === -1) {
+            return -1;
+        }
+        return this.earliestAvailableDayScheduleForWork.earliestAvailableTimeForWork;
+    }
+
+    isBusyAtTime(day, time) {
+        let schedule = this.daySchedules[day];
+        return schedule.isBusyAtTime(time);
+    }
+
+    get nextAvailableWorkBlockMaxDuration() {
+
+        if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
+            return 480 - this.lastEventBeforeAvailable.endTime;
+        }
+        let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1]
+        return nextEvent.startTime - this.lastEventBeforeAvailable.endTime;
+    }
+
+    addWork(ticket) {
+        // assumes the meetings have already been defined and that work is being added
+        // in the earliest available, viable time slot.
+        this.lastTicketWorkedOn = ticket;
+        let queue = this.getWorkIterationQueueFromTicket(ticket);
+        let workIteration = queue.shift();
+        this.copyOfLastWorkIterationTime = workIteration.time;
+        let needsCodeReview = !!ticket.needsCodeReview;
+        let firstIteration = ticket.firstIteration;
+        let finalIteration = !queue.length;
+        while (workIteration.time > 0) {
+            // work has a potential of being completed on the currently considered day,
+            // but if it isn't, this.earliestAvailableDayForWorkIndex will be updated to
+            // the next day that the work for this ticket could possibly be completed on
+            // and when this iterates through again, it will possibly be correct. This
+            // will repeat until eventually it is correct because
+            // this.earliestAvailableDayForWorkIndex will have been the day that the
+            // last of the work for this work iteration would be scheduled.
+            this.findEarliestAvailableDayForWorkIndex()
+            this.dayOfNextWorkIterationCompletion = this.earliestAvailableDayForWorkIndex;
+            if (this.earliestAvailableDayForWorkIndex === -1) {
+                queue.unshift(workIteration);
+                throw RangeError("Not enough time left in the sprint to finish this ticket");
+            }
+            let schedule = this.earliestAvailableDayScheduleForWork;
+            let contextSwitchTime = Math.round(Math.random() * (30 - 10) + 10);
+            let contextSwitchEvent = new ContextSwitchEvent(schedule.lastEventBeforeAvailable.endTime, contextSwitchTime, ticket, firstIteration, finalIteration, this.owner, this.earliestAvailableDayForWorkIndex);
+            schedule.scheduleMeeting(contextSwitchEvent);
+            let newWorkEvent;
+            // distinguish between interrupted work, and non-interrupted work
+            let scheduledWorkClass;
+            if (needsCodeReview){
+                scheduledWorkClass = workIteration.started? ScheduledPreviouslyInterruptedTicketCodeReviewWork : ScheduledTicketCodeReviewWork;
+            } else {
+                scheduledWorkClass = workIteration.started? ScheduledPreviouslyInterruptedTicketWork : ScheduledNewTicketWork;
+            }
+            workIteration.started = true;
+            if (schedule.nextAvailableWorkBlockMaxDuration >= workIteration.time) {
+                // enough time to complete the iteration
+                newWorkEvent = new scheduledWorkClass(contextSwitchEvent.endTime, workIteration.time, ticket, contextSwitchEvent, firstIteration, finalIteration, this.owner, this.earliestAvailableDayForWorkIndex);
+                this.timeOfNextWorkIterationCompletion = newWorkEvent.endTime;
+            } else {
+                // not enough time to complete the iteration
+                newWorkEvent = new scheduledWorkClass(contextSwitchEvent.endTime, schedule.nextAvailableWorkBlockMaxDuration, ticket, contextSwitchEvent, firstIteration, finalIteration, this.owner, this.earliestAvailableDayForWorkIndex);
+            }
+            workIteration.time -= newWorkEvent.duration;
+            schedule.scheduleMeeting(newWorkEvent);
+            if (schedule.lastMeetingIndexBeforeAvailability === -1) {
+                // no more time in the day for work for this worker
+                if (this.earliestAvailableDayForWorkIndex >= this.daySchedules.length - 1) {
+                    // no more time in the sprint for work for this worker
+                    this.earliestAvailableDayForWorkIndex = -1;
+                }
+                // The next day is the next opportunity for possible work time
+                this.earliestAvailableDayForWorkIndex += 1;
+            }
+        }
+        this.findEarliestAvailableDayForWorkIndex()
+        if (this.owner instanceof Programmer) {
+            // If the Programmer just finished scheduling the changes for this ticket,
+            // then the ticket will need to be code reviewed by another programmer. If
+            // a programmer just code reviewed it, it should be set to false and then
+            // passed to QA. If QA needs to send it back to the original programmer,
+            // then it staying set to false will make sure that code review work isn't
+            // scheduled by mistake.
+            //
+            // Because of how the logic works, the ticket's 'needsCodeReview' status may
+            // be misleading during a simulation. The ticket's 'needsCodeReview' status
+            // is set to true immediately after the work iteration for that ticket was
+            // scheduled, or set to false immediately after the work iteration for code
+            // review was scheduled. So if a programmer grabbed a ticket to code review
+            // its changes at 001, and it would take them until 030 to finish, the work
+            // would be scheduled when the simulation is at 001, and the
+            // 'needsCodeReview' status of the ticket would be set to false, even though
+            // the simulation would still be at 001.
+            //
+            // Because of this, be mindful of the point in the iteration of the
+            // simulation loop that this information is being queried at. For logging
+            // the stack, this is done at the beginning of the iteration before any new
+            // scheduling of work occurs (to better indicate the boundaries of when the
+            // stacks changed). So if a ticket that a programmer was working on at that
+            // moment had 'needsCodeReview' set to false, it would mean that that
+            // programmer was doing code review on that ticket, rather than writing the
+            // code for it.
+            ticket.needsCodeReview = !needsCodeReview;
+        }
+    }
+}
+
+class ProgrammerSchedule extends Schedule {
+    getWorkIterationQueueFromTicket(ticket) {
+        if (ticket.needsCodeReview){
+            return ticket.programmerCodeReviewWorkIterations;
+        }
+        return ticket.programmerWorkIterations;
+
+    }
+}
+
+class QaSchedule extends Schedule {
+    constructor(sprintDayCount, regressionTestDayCount, owner) {
+        super(sprintDayCount, regressionTestDayCount, owner);
+        for (let i = 0; i < regressionTestDayCount; i++) {
+            let previousSprintDaySchedule = this.daySchedules[i];
+            let currentSprintI = this.daySchedules.length - (regressionTestDayCount - i);
+            let currentSprintDaySchedule = this.daySchedules[currentSprintI];
+            // regression tests from previous sprint
+            previousSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(this.owner, i));
+            // regression tests for current sprint
+            currentSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(this.owner, currentSprintI));
+            if (i === (regressionTestDayCount - 1)) {
+                // final day of sprint where afternoon regression tests will be
+                // shorter because of the sprint retro
+
+                // regression tests from previous sprint
+                previousSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(this.owner, i));
+                // regression tests for current sprint
+                currentSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(this.owner, currentSprintI));
+            } else {
+                // regression tests from previous sprint
+                previousSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(this.owner, i));
+                // regression tests for current sprint
+                currentSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(this.owner, currentSprintI));
+            }
+        }
+        this.findEarliestAvailableDayForWorkIndex();
+    }
+    getWorkIterationQueueFromTicket(ticket) {
+        return ticket.testerWorkIterations;
+    }
+}
+
+class Worker {
+    constructor(sprintDayCount, regressionTestDayCount) {
+        this.tickets = [];
+        this.sprintDayCount = sprintDayCount
+        this.regressionTestDayCount = regressionTestDayCount
+
+        // These arrays track the minutes in the dayTime format (e.g. 1455 for day 4 at
+        // 10AM), which will be useful for determining how much time was spent on
+        // a particular event type up to a certain dayTime, because the index of that
+        // dayTime (plus 1) will be the total amount of minutes spent doing that kind of
+        // event up until that dayTime. An optimized binary search (possibly changing
+        // for each event type for better performance) can be used to efficiently find
+        // a given dayTime, using techniques such as setting the given dayTime as the
+        // search's upper bound index (after subtracting the time for regression tests,
+        // as those minutes from the previous sprint aren't tracked).
+        //
+        // If the searched for time doesn't match a minute that was tracked (e.g. a
+        // dayTime of 1678 was searched for to find meeting minutes, but on meetings
+        // were happening at that time), then the search algorithm can just round down
+        // to the closest minute that it can find, which makes searching still cheap.
+        //
+        // This simulation requires the regression test period from the previous sprint
+        // to also be simulated (as it reflects real scenarios and creates a basis of
+        // available work so QA can start on tickets on the first day of the observed
+        // sprint), but those minutes aren't tracked when building out the counts.
+        this.contextSwitchingMinutes = [];
+        this.meetingMinutes = [];
+        this.productiveTicketWorkMinutes = [];
+        this.codeReviewWorkMinutes = [];
+        // working on a ticket that had to be sent back
+        //
+        // Testers will actually write to this array unless it's their final iteration
+        // of work on this ticket before sending it to "done". This is done to reflect
+        // that the tester, for every work iteration, will have to repeat the entire
+        // collection of tests for that ticket until they either find a problem and send
+        // it back, or it's all good. So it reflects the repetitive nature of that work.
+        this.productiveTicketFixWorkMinutes = [];
+        // TODO: This array tracks minutes that were spent recovering from an interruption,
+        // other than Lunch, and an end of day that was reached without going through a
+        // meeting. So if the day ended with SprintRetro, and the worker was in the
+        // middle of a work iteration, the ContextSwitchEvent before they began work on
+        // that work iteration would count towards this, as would a meeting in the
+        // middle of the day. This may not be immediately relevant, but may come in
+        // handy if other meetings are implemented.
+        this.productivityRecoveryMinutes = [];
+        this.regressionTestingMinutes = [];
+        // Time spent doing nothing because there was no time to get started on anything
+        // before a meeting, lunch, or the end of the day came up.
+        this.nothingMinutes = [];
+
+        this.initializeSchedule();
+        this.minutesGenerated = false;
+    }
+    processEventMinutes() {
+        // Called at the end of the simulation, as the events will all be added and this
+        // can most efficiently iterate over them to determine the minutes and load them
+        // into the minute arrays. It also doesn't have to worry about the DaySchedules
+        // from the previous sprint, as it can just skip over them.
+        for (let day of this.schedule.daySchedules.slice(this.regressionTestDayCount)) {
+            for (let event of day.items) {
+                // generates range of numbers representing the duration of the event for
+                // the time range it took place. A 1 is added in the mapping to reflect
+                // how the information would be queried for. A meeting can start at
+                // dayTime 0, but if that dayTime is queried for, the response should be
+                // 0 minutes. The index of the timestamp plus 1 represents the number of
+                // minutes of the cumulative duration of events of that type.
+                let eventAdjustedRawStartDayTime = event.rawStartDayTime - (this.regressionTestDayCount * 480)
+                let eventMinutes = [...Array(event.duration).keys()].map(i => i + eventAdjustedRawStartDayTime + 1);
+
+                // standalone if statements are used because the minutes for one event
+                // category may apply to more than one event minute array.
+                if (event instanceof Meeting) {
+                    this.meetingMinutes.push(...eventMinutes);
+                }
+                if (event instanceof ContextSwitchEvent) {
+                    this.contextSwitchingMinutes.push(...eventMinutes);
+                }
+                if (event instanceof ScheduledTicketWork) {
+                    this.productiveTicketWorkMinutes.push(...eventMinutes);
+                    if (this instanceof Programmer && !event.firstIteration) {
+                        this.productiveTicketFixWorkMinutes.push(...eventMinutes);
+                    }
+                    if (this instanceof Tester && !event.finalIteration) {
+                        this.productiveTicketFixWorkMinutes.push(...eventMinutes);
+                    }
+                }
+                if (event instanceof ScheduledTicketCodeReviewWork) {
+                    this.codeReviewWorkMinutes.push(...eventMinutes);
+                }
+                if (event instanceof ContextSwitchEvent) {
+                    // TODO
+                    // this.productivityRecoveryMinutes.push(...eventMinutes);
+                }
+                if (event instanceof RegressionTesting) {
+                    this.regressionTestingMinutes.push(...eventMinutes);
+                }
+                if (event instanceof NothingEvent) {
+                    this.nothingMinutes.push(...eventMinutes);
+                }
+            }
+        }
+        this.minutesGenerated = true;
+    }
+    getMeetingMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.meetingMinutes, dayTime);
+    }
+    getContextSwitchingMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.contextSwitchingMinutes, dayTime);
+    }
+    getProductiveTicketWorkMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.productiveTicketWorkMinutes, dayTime);
+    }
+    getProductiveTicketFixWorkMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.productiveTicketFixWorkMinutes, dayTime);
+    }
+    getCodeReviewWorkMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.codeReviewWorkMinutes, dayTime);
+    }
+    getProductivityRecoveryMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.productivityRecoveryMinutes, dayTime);
+    }
+    getRegressionTestingMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.regressionTestingMinutes, dayTime);
+    }
+    getNothingMinutesAtDayTime(dayTime) {
+        return this.getMinutesOfTypeAtDayTime(this.nothingMinutes, dayTime);
+    }
+    getMinutesOfTypeAtDayTime(minutesArr, dayTime) {
+        // binary search
+        //
+        // Finds the index of the dayTime, or the index representing a dayTime that's
+        // the closest to the desired dayTime without going over. The index of that
+        // dayTime represents the number of minutes spent on that particular type up to
+        // that point in time.
+        if (!this.minutesGenerated) {
+            this.processEventMinutes();
+        }
+        if (minutesArr.length === 0) {
+            return 0;
+        }
+
+        // let dayTimeIndexShift = 480 * this.regressionTestDayCount;
+        let ceilingIndex = Math.min(dayTime, minutesArr.length) - 1;
+        let ceilingValue = minutesArr[ceilingIndex];
+        if (ceilingValue <= dayTime) {
+            // rule out the initial ceiling value to make the while loop more efficient.
+            // If it's ruled out here, the loop can assume that at some point, the
+            // ceilingIndex will have been a currentIndex in a previous iteration.
+            return ceilingIndex + 1;
+        }
+
+        let floorIndex = 0;
+        let floorValue = minutesArr[floorIndex];
+        if (floorValue > dayTime) {
+            return 0;
+        } else if (floorValue === dayTime) {
+            return 1;
+        }
+        while (true) {
+            let currentIndex = Math.round((floorIndex + ceilingIndex) / 2);
+            let foundTime = minutesArr[currentIndex];
+            if (foundTime === dayTime) {
+                return currentIndex + 1;
+            }
+            if (foundTime < dayTime){
+                if (ceilingIndex - currentIndex === 1) {
+                    // either the currentIndex or the ceilingIndex points at the
+                    // appropriate minute count, and the ceilingIndex was either ruled
+                    // out before the loop, or in a previous iteration.
+                    return currentIndex + 1;
+                }
+                // shift right to the next iteration
+                floorIndex = currentIndex;
+                continue;
+            }
+            // foundTime must be greater than the dayTime, but the dayTime must also be
+            // greater than the floorValue
+            if (currentIndex - floorIndex === 1) {
+                // the floorIndex is the only index representing the closest minute to
+                // the dayTime without going over
+                return floorIndex + 1;
+            }
+            // shift left to the next iteration
+            ceilingIndex = currentIndex;
+            continue;
+        }
+    }
+    clearSchedule() {
+        delete this.schedule;
+        this.initializeSchedule();
+    }
+    addTicket(ticket) {
+        if (!this.tickets.includes(ticket)) {
+            this.tickets.push(ticket);
+        }
+    }
+    get nextCheckInTime() {
+        // The next time this worker should be checked in on, either because they would
+        // have just finished working on an iteration of a ticket, or they would have
+        // time available to work then.
+        let iterationCompleteCheckIn = this.nextWorkIterationCompletionCheckIn;
+        let availabilityCheckIn = this.nextAvailabilityCheckIn;
+        if (iterationCompleteCheckIn === null) {
+            // work hasn't been added yet, so there isn't a need to check for completed
+            // work, and this can defer to the availability
+            return availabilityCheckIn;
+        }
+        // there is a chance that earliest day/time may be -1, but that would mean
+        // that there's no time left in the sprint, so there'd be no reason to check
+        // in on this worker. As a result, this evaluating to a negative number is
+        // expected as it can be used in other contexts.
+        return Math.min(iterationCompleteCheckIn, availabilityCheckIn);
+    }
+
+    get nextAvailabilityCheckIn() {
+        // The return value is in minutes, but each day prior is multiplied by 480 (the
+        // number of minutes in a day) and then added to the minutes. So if the next
+        // check-in time should be on the 5th day (which is actually the 4th because of
+        // zero indexing) at the 332 minute, that would be (4 * 480) + 332.
+        //
+        // If needed, the day can be found again by dividing by 480 and then rounding
+        // down.
+        let earliestDay = this.schedule.earliestAvailableDayForWorkIndex;
+        let earliestTime = this.schedule.earliestAvailableTimeForWork;
+        earliestTime += earliestDay * 480;
+        return earliestTime;
+    }
+
+    get nextWorkIterationCompletionCheckIn() {
+        // The return value is in minutes, but each day prior is multiplied by 480 (the
+        // number of minutes in a day) and then added to the minutes. So if the next
+        // check-in time should be on the 5th day (which is actually the 4th because of
+        // zero indexing) at the 332 minute, that would be (4 * 480) + 332.
+        //
+        // If needed, the day can be found again by dividing by 480 and then rounding
+        // down.
+        let earliestDay = this.schedule.dayOfNextWorkIterationCompletion;
+        if (earliestDay === null) {
+            return null
+        }
+        let earliestTime = this.schedule.timeOfNextWorkIterationCompletion;
+        if (earliestTime === null) {
+            return null
+        }
+        earliestTime += earliestDay * 480;
+        return earliestTime;
+    }
+}
+
+class Programmer extends Worker {
+    initializeSchedule() {
+        this.schedule = new ProgrammerSchedule(this.sprintDayCount, this.regressionTestDayCount, this);
+    }
+}
+
+class Tester extends Worker {
+    initializeSchedule() {
+        this.schedule = new QaSchedule(this.sprintDayCount, this.regressionTestDayCount, this);
+    }
+}
+
+class WorkIteration {
+    constructor(time) {
+        this.time = time;
+        this.started = false;
+    }
+}
+
+class Ticket {
+    constructor(number, priority, programmerWorkIterations, programmerCodeReviewWorkIterations, testerWorkIterations, automatedTestDevelopmentTime, totalTimesToBeSentBack) {
+        // the ticket number used to uniquely identify it
+        this.number = number;
+        // the ticket's importance represented as a number. The lower the number, the
+        // higher the priority
+        this.priority = priority;
+        // an array of amounts of uninterrupted time it will take the programmer to
+        // complete an iteration of the ticket's implementation before sending it off to
+        // QA
+        this.programmerWorkIterations = programmerWorkIterations;
+        this.programmerCodeReviewWorkIterations = programmerCodeReviewWorkIterations;
+        // The amount of uninterrupted time it will take the tester to manually test the
+        // ticket
+        this.testerWorkIterations = testerWorkIterations;
+        // The amount of uninterrupted time it will take the tester to write the
+        // high-level automated tests for this ticket
+        this.automatedTestDevelopmentTime = automatedTestDevelopmentTime;
+        // The amount of times this ticket would have to be sent back to the programmer
+        // before it would be completed.
+        this.totalTimesToBeSentBack = totalTimesToBeSentBack;
+        this.initialProgrammerWorkIterationTime = this.programmerWorkIterations[0].time;
+        this.initialProgrammerCodeReviewWorkIterationTime = this.programmerCodeReviewWorkIterations[0].time;
+        this.initialTesterWorkIterationTime = this.testerWorkIterations[0].time;
+        // After the programmer has done work on the ticket, it will need code review
+        // before being passed off to QA. Only once that work is done (or at least
+        // scheduled) is this set to true.
+        this.needsCodeReview = false;
+        // Whether or not any work has begun on this ticket or not. Used to track
+        // metrics relating to work that was done in repeated iterations of work for
+        // tickets needed. For programmers, this means any work iteration that wasn't
+        // the very first for the ticket. For testers, this means any iteration that
+        // wasn't the last iteration.
+        this.fresh = true;
+    }
+}
+
+function generateWorkIterationTime(maxTimeInHours = 16) {
+    let maxWorkTimePercentage = Math.min((PD.rgamma(1, 3, 0.1)[0] / 100.0), 1);
+    let minimumWorkTimeInMinutes = 30;
+    return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60) + minimumWorkTimeInMinutes);
+}
+
+function generateFixWorkIterationTime(baseWorkIterationTime) {
+    // when a ticket is sent back to the programmer from QA, a fix is likely to take
+    // less time than the initial work, but it's still possible for it to take more
+    // time. This gamma probability distribution is used to determine the percentage of
+    // the initial work time that it will take to fix the issue the tester found. It has
+    // a significant lean towards 0% (with a 10 minute minimum), but also makes it
+    // possible for the percentage to exceed 100%, meaning it could take longer to
+    // create a potential fix than the initial implementation, and this reflects finding
+    // a serious issue with the implementation and possibly overall design of the code.
+    //
+    // For testers, it's similar. But any increases over the base work time can be
+    // chalked up to the tester trying to determine what exactly is wrong, or possibly
+    // struggling to get the system to work if it's particularly problematic.
+    //
+    // It's sometimes the same for code review, but this simulation makes the assumption
+    // that it is the same for code review as it is for testers checking.
+    let workTimePercentage = PD.rgamma(1, 1, 5)[0] / 100.0;
+    let minimumWorkTimeInMinutes = 30;
+    return new WorkIteration(minimumWorkTimeInMinutes + Math.round(baseWorkIterationTime.time * workTimePercentage));
+}
+
+// function generateProgrammerWorkIterationTime(maxTimeInHours = 16) {
+//     let maxWorkTimePercentage = Math.min((PD.rgamma(1, 3, 0.1)[0] / 100.0), 1);
+//     let minimumWorkTimeInMinutes = 30;
+//     return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60) + minimumWorkTimeInMinutes);
+// }
+
+function generateCodeReviewWorkIterationTime(maxTimeInHours = 0.5) {
+    let maxWorkTimePercentage = Math.min((PD.rgamma(1, 3, 0.1)[0] / 100.0), 1);
+    return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60));
+}
+
+function generateQaAutomationIterationTime(maxTimeInHours = 8) {
+    // The probability curve is flipped around for this, as QA automation is often
+    // beholden to the current implementation that the programmers put in place. So not
+    // only would they have to figure out what the programmers left them to work with,
+    // but they would also have to engineer likely complex solutions for things like
+    // explicit waits. Debugging while they develop can also take much longer as they
+    // are likely writing the tests at a higher level.
+    let minimumWorkTimeInMinutes = 30;
+    let maxWorkTimePercentage = Math.max((((PD.rgamma(1, 3, 0.1)[0] / 100.0) - 1.0) * -1), 0);
+    return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60) + minimumWorkTimeInMinutes);
+}
+
+function generateTicketPassBackCount(averagePassBackCount) {
+    // return Math.floor(PD.rchisq(1, 1, 5)[0]);
+    return PD.rpois(1, averagePassBackCount)[0];
+}
+
+function ticketFactory(ticketNumber, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    // maxInitialProgrammerWorkTimeInHours is the time it takes for the programmer to
+    // write the initial implementation that they believe meets the ticket's criteria.
+    //
+    // maxFullRunTesterWorkTimeInHours is the time it would take the tester to
+    // completely run through the tests they have for a ticket, assuming everything is
+    // working.
+    //
+    // They are phrased and treated differently, because the programmer does everything
+    // in one iteration, and then refines in later iterations, but the tester can't do
+    // everything in one go if something is wrong, and can only do the full run in one
+    // shot if everything is working. So the programmer's likely highest iteration time
+    // will be on their first iteration, while the tester's likely highest iteration
+    // time will be on their last iteration.
+    let initialProgrammerWorkTime = generateWorkIterationTime(maxInitialProgrammerWorkTimeInHours);
+    let fullRunTesterWorkTime = generateWorkIterationTime(maxFullRunTesterWorkTimeInHours);
+    let fullRunCodeReviewWorkTime = generateCodeReviewWorkIterationTime();
+    let programmerWorkIterations = [initialProgrammerWorkTime];
+    let testerWorkIterations = [];
+    let programmerCodeReviewWorkIterations = [];
+    let passBackCount = generateTicketPassBackCount(averagePassBackCount);
+    for (let i = 0; i < passBackCount; i++) {
+        programmerWorkIterations.push(generateFixWorkIterationTime(initialProgrammerWorkTime));
+        programmerCodeReviewWorkIterations.push(generateFixWorkIterationTime(fullRunCodeReviewWorkTime));
+        testerWorkIterations.push(generateFixWorkIterationTime(fullRunTesterWorkTime));
+    }
+    programmerCodeReviewWorkIterations.push(fullRunCodeReviewWorkTime);
+    testerWorkIterations.push(fullRunTesterWorkTime);
+    let qaAutomationTime = generateQaAutomationIterationTime(maxQaAutomationTime);
+    let priority = Math.round(Math.random() * 100);
+    return new Ticket(ticketNumber, priority, programmerWorkIterations, programmerCodeReviewWorkIterations, testerWorkIterations, qaAutomationTime, passBackCount)
+}
+
+function findHighestPriorityPassBackWorkIndexForProgrammer(programmer, passBackStack) {
+    let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
+
+    // needs to find highest priority ticket that belongs to them
+    let reducer = (highestPriorityOwnedTicketIndex, currentTicket, currentTicketIndex) => {
+        if (ownedTickets.includes(currentTicket.number)){
+            if (!highestPriorityOwnedTicketIndex) {
+                return currentTicketIndex;
+            }
+            if (currentTicket.priority < passBackStack[highestPriorityOwnedTicketIndex].priority) {
+                return currentTicketIndex;
+            }
+        }
+        return highestPriorityOwnedTicketIndex;
+    }
+    return passBackStack.reduce(reducer, null);
+}
+
+function findHighestPriorityCodeReviewWorkIndexForProgrammer(programmer, codeReviewStack) {
+    let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
+
+    // needs to find highest priority ticket that doesn't belongs to them
+    let reducer = (highestPriorityOwnedTicketIndex, currentTicket, currentTicketIndex) => {
+        if (!ownedTickets.includes(currentTicket.number)){
+            if (!highestPriorityOwnedTicketIndex) {
+                return currentTicketIndex;
+            }
+            if (currentTicket.priority < codeReviewStack[highestPriorityOwnedTicketIndex].priority) {
+                return currentTicketIndex;
+            }
+        }
+        return highestPriorityOwnedTicketIndex;
+    }
+    return codeReviewStack.reduce(reducer, null);
+}
+
+function findHighestPriorityTicketForTester(qaStack) {
+    let reducer = (highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
+        if (!highestPriorityTicketIndex) {
+            return currentTicketIndex;
+        }
+        if (currentTicket.priority < qaStack[highestPriorityTicketIndex].priority) {
+            return currentTicketIndex;
+        }
+        return highestPriorityTicketIndex;
+    }
+    return qaStack.reduce(reducer, null);
+}
+
+function getWorkerWithEarliestUpcomingCheckIn(workers, currentDay, currentTime) {
+    // Skip ahead to the next relevant point in time. This will either be the
+    // next time a worker finishes an iteration of work for a ticket, or the
+    // next time a worker is available for work. These are different times
+    // because a worker can finish the iteration of work for a ticket, but then
+    // have a meeting before they can begin work on another ticket. This is
+    // important because if they didn't wait until after the meeting to grab the
+    // next available ticket for them, another, more important ticket could
+    // become available for them (e.g. a ticket that had to be sent back because
+    // the tester found a problem, or a programmer sent a higher priority ticket
+    // to QA).
+    //
+    // The current day and time are needed to rule out potential check-ing points that
+    // have already passed. If they are in the past, they must have already been
+    // handled, or, in the case of the tester, they are waiting for work to become
+    // available.
+    let currentDayTime = (currentDay * 480) + currentTime;
+    let earliestWorker = workers.reduce((eWorker, nWorker) => {
+        if (eWorker.nextCheckInTime < 0) {
+            // The eWorker is either the first worker, or the worker returned by the
+            // previous iteration through this reduce function. A worker will only have
+            // a negative check-in time if they don't have a check-in time left in this
+            // sprint. If this is the case for eWorker, then return the next worker in
+            // line. Either the last worker will be returned even though they have a
+            // negative check-in time, which would mean that no more check-ins can
+            // happen this sprint, or a worker that still has a check-in in this sprint
+            // will be found.
+            return nWorker;
+        }
+        else if (nWorker.nextCheckInTime < 0) {
+            // If eWorker has a non-negative check-in time, and the next worker has a
+            // negative check-in time, the next worker should be disregarded to make
+            // sure that the eWorker would be recognized as having a check-in for this
+            // sprint.
+            return eWorker;
+        }
+        // both workers have a check-in time this sprint, so determine which is earlier,
+        // provided both have relevant check-ins coming up.
+        else if (eWorker.nextAvailabilityCheckIn <= currentDayTime && eWorker.nextWorkIterationCompletionCheckIn <= currentDayTime) {
+            // Both of the eWorker's check-ins are in the past, or were just performed.
+            // Even if the next nWorker has no check-ins coming up, there will
+            // eventually be an nWorker that does, because it would be impossible for
+            // all workers to have check-ins in the past if not all had a -1 check-in.
+            return nWorker;
+        }
+        else if (nWorker.nextAvailabilityCheckIn <= currentDayTime && nWorker.nextWorkIterationCompletionCheckIn <= currentDayTime) {
+            // If eWorker check-ins are not entirely in the past, but nWorker's are,
+            // then eWorker moves because it's the only relevant worker in this
+            // comparison.
+            return eWorker;
+        }
+        // Both have check-ins coming up. Find each of their earliest upcoming check-ins
+        // and compare them to determine which worker moves forward.
+        // at least one of eWorker's check-ins would have to be coming up
+        let eWorkerRelevantCheckIn;
+        if (eWorker.nextWorkIterationCompletionCheckIn > currentDayTime) {
+            // Worker has an upcoming work completion check-in. Work completion
+            // check-ins must always come before, or be at the same time as availability
+            // check-ins. If the completion check-in is earlier, then it must be the
+            // one we want. If it's at the same time as the availability check-in, then
+            // it doesn't matter which we use, so the logic is simpler if we defer to
+            // the completion check-in.
+            eWorkerRelevantCheckIn = eWorker.nextWorkIterationCompletionCheckIn;
+        } else {
+            // The work completion check-in must have been in the past, leaving the
+            // availability check-in as the only upcoming check-in for this worker.
+            eWorkerRelevantCheckIn = eWorker.nextAvailabilityCheckIn;
+        }
+        let nWorkerRelevantCheckIn;
+        if (nWorker.nextWorkIterationCompletionCheckIn > currentDayTime) {
+            // Worker has an upcoming work completion check-in. Work completion
+            // check-ins must always come before, or be at the same time as availability
+            // check-ins. If the completion check-in is earlier, then it must be the
+            // one we want. If it's at the same time as the availability check-in, then
+            // it doesn't matter which we use, so the logic is simpler if we defer to
+            // the completion check-in.
+            nWorkerRelevantCheckIn = nWorker.nextWorkIterationCompletionCheckIn;
+        } else {
+            // The work completion check-in must have been in the past, leaving the
+            // availability check-in as the only upcoming check-in for this worker.
+            nWorkerRelevantCheckIn = nWorker.nextAvailabilityCheckIn;
+        }
+        return eWorkerRelevantCheckIn > nWorkerRelevantCheckIn ? nWorker : eWorker;
+    });
+    return earliestWorker;
+}
+
+let stackTimelineHashMap = [];
+let stackTimelineSets = [];
+
+class StackLogEntry {
+    constructor(dayTimeRangeStart, dayTimeRangeEnd, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done) {
+        this.dayTimeRangeStart = dayTimeRangeStart;
+        this.dayTimeRangeEnd = dayTimeRangeEnd;
+        this.activeDevelopment = activeDevelopment;
+        this.waitingForCodeReview = waitingForCodeReview;
+        this.inCodeReview = inCodeReview;
+        this.waitingForQa = waitingForQa;
+        this.inQa = inQa;
+        this.sentBack = sentBack;
+        this.done = done;
+    }
+}
+
+function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack){
+    let activeDevelopment = [...programmers.reduce((tickets, programmer) => {
+        if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations < programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+            tickets.push(programmer.schedule.lastTicketWorkedOn);
+        }
+        return tickets;
+    }, [])];
+    let waitingForCodeReview = codeReviewStack.slice();
+    let inCodeReview = [...programmers.reduce((tickets, programmer) => {
+        if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations === programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+            tickets.push(programmer.schedule.lastTicketWorkedOn);
+        }
+        return tickets;
+    }, [])];
+    let waitingForQa = qaStack.slice();
+    let inQa = tester.schedule.lastTicketWorkedOn;
+    let sentBack = passBackStack.slice();
+    let done = doneStack.slice();
+    let logEntry = new StackLogEntry(previousSprintDayTime, currentSprintDayTime, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done);
+    for (let i = 0; i < currentSprintDayTime - previousSprintDayTime; i++) {
+        stackTimelineHashMap.push(logEntry);
+    }
+    stackTimelineSets.push(logEntry);
+}
+
+
+
+class Simulation {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+        this.dayLengthInMinutes = 480;
+        this.dayStartHour = 10;
+        this.sprintDayCount = sprintDayCount;
+        this.regressionTestDayCount = regressionTestDayCount;
+        this.totalDays = this.sprintDayCount + this.regressionTestDayCount;
+        this.totalSprintMinutes = sprintDayCount * this.dayLengthInMinutes;
+        this.simulationEndDay = this.totalDays;
+        this.simulationEndTime = this.dayLengthInMinutes;
+        this.simulationEndDayTime = this.dayTimeFromDayAndTime(this.simulationEndDay, this.simulationEndTime);
+        // The amount of minutes from the previous days of regression testing. The
+        // simulation starts at the first day of regression tests from the prior sprint,
+        // so this is used to get the dayTime of events relative to the full sprint.
+        this.dayTimeAdjustment = regressionTestDayCount * this.dayLengthInMinutes;
+        this.programmerCount = programmerCount;
+        this.maxInitialProgrammerWorkTimeInHours = maxInitialProgrammerWorkTimeInHours;
+        this.maxFullRunTesterWorkTimeInHours = maxFullRunTesterWorkTimeInHours;
+        this.maxQaAutomationTime = maxQaAutomationTime;
+        this.averagePassBackCount = averagePassBackCount;
+        this.prepareWorkers();
+        this.tickets = [];
+         // start the number off higher than 0 to make it more interesting
+        this.ticketCount = 100;
+        this.qaStack = [];
+        this.passBackStack = [];
+        this.doneStack = [];
+        this.unfinishedStack = [];
+        this.codeReviewStack = [];
+        this.stackTimelineHashMap = [];
+        this.stackTimelineSets = [];
+        this.simulate();
+        this.aggregateMinutesSpent();
+    }
+    prepareWorkers() {
+        this.programmers = [];
+        for (let i = 0; i < this.programmerCount; i++) {
+            let prog = new Programmer(this.sprintDayCount, this.regressionTestDayCount);
+            prog.name = `${Programmer.name} #${i + 1}`;
+            prog.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
+            this.programmers.push(prog);
+        }
+        this.tester = new Tester(this.sprintDayCount, this.regressionTestDayCount);
+        this.tester.name = `${Tester.name} #${1}`;
+        this.tester.color = workerIdentifierColors[this.programmerCount % (workerIdentifierColors.length - 1)];
+        this.workers = [...this.programmers, this.tester];
+    }
+    simulate() {
+        // let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, 0, 0);
+        this.currentDay = 0;
+        this.currentTime = 0;
+        this.currentDayTime = 0;
+        let checkInTime = this.getNextCheckInTime();
+        this.currentDay = Math.floor(checkInTime / this.dayLengthInMinutes);
+        this.currentTime = checkInTime % this.dayLengthInMinutes;
+        this.currentDayTime = this.dayTimeFromDayAndTime(this.currentDay, this.currentTime);
+        this.previousDay = null;
+        this.previousTime = null;
+        this.previousDayTime = null;
+        // let dayTimeAdjustment = regressionTestDayCount * this.dayLengthInMinutes;
+        while(this.currentDayTime <= this.simulationEndDayTime && this.currentDayTime >= 0) {
+            // process potentially completed work first
+            this.processProgrammerCompletedWork();
+            this.processTesterCompletedWork();
+
+            // process handing out new work after all available tickets have been
+            // determined
+            this.handOutNewProgrammerWork();
+            this.handOutNewTesterWork();
+            this.nextCheckInTime = this.getNextCheckInTime();
+            if (this.nextCheckInTime === this.currentDayTime) {
+                throw Error("DayTime would not progress");
+            }
+            this.previousDay = this.currentDay;
+            this.previousTime = this.currentTime;
+            this.previousDayTime = this.dayTimeFromDayAndTime(this.previousDay, this.previousTime);
+            this.currentDay = Math.floor(this.nextCheckInTime / this.dayLengthInMinutes);
+            this.currentTime = this.nextCheckInTime % this.dayLengthInMinutes;
+            this.currentDayTime = this.dayTimeFromDayAndTime(this.currentDay, this.currentTime);
+            let logEndTime = this.currentDayTime;
+
+            if (this.currentDay >= this.regressionTestDayCount || this.currentDayTime < 0) {
+                if (this.nextCheckInTime < 0) {
+                    // no more check-ins for this sprint, so set both values to -1 to exit the
+                    // loop. Add stack log entries from this time to the end of the sprint
+                    // because whatever the stacks are now will be what they are at the end of
+                    // the sprint.
+
+                    // set log end time to the last minute of the simulated time, so it
+                    // isn't a negative number
+                    logEndTime = this.simulationEndDayTime;
+                }
+                this.generateStackLogEntriesForDayTimeRange(this.previousDayTime, logEndTime);
+            }
+        }
+        this.unfinishedStack.concat([...this.qaStack, ...this.passBackStack]);
+    }
+    dayTimeFromDayAndTime(day, time) {
+        // given a day and a time, return the dayTime
+        return (day * this.dayLengthInMinutes) + time;
+    }
+    adjustedDayTimeFromDayAndTime(day, time) {
+        // given a day and a time, return the dayTime relative to the sprint, rather
+        // than the dayTime relative to the sprint plus the days where regression tests
+        // were done for the previous sprint.
+        //
+        // Note: this may return a negative number if the day and time are from the
+        // regression testing during the previous sprint.
+        return ((day * this.dayLengthInMinutes) + time) - this.dayTimeAdjustment;
+    }
+    generateStackLogEntriesForDayTimeRange(dayTimeRangeStart, dayTimeRangeEnd){
+        // take the stacks at the moment of this function being called, and create a
+        // series of stack log entries for each minute in the given dayTime range
+        let adjustedStartDayTime = Math.max(0, dayTimeRangeStart - this.dayTimeAdjustment);
+        let adjustedEndDayTime = Math.max(0, dayTimeRangeEnd - this.dayTimeAdjustment);
+        let activeDevelopment = this.getTicketsCurrentlyInActiveDevelopment();
+        let waitingForCodeReview = this.codeReviewStack.slice();
+        let inCodeReview = this.getTicketsCurrentlyInCodeReview();
+        let waitingForQa = this.qaStack.slice();
+        let inQa = this.tester.schedule.lastTicketWorkedOn;
+        let sentBack = this.passBackStack.slice();
+        let done = this.doneStack.slice();
+        let logEntry = new StackLogEntry(adjustedStartDayTime, adjustedEndDayTime, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done);
+        for (let i = 0; i < adjustedEndDayTime - adjustedStartDayTime; i++) {
+            this.stackTimelineHashMap.push(logEntry);
+        }
+        this.stackTimelineSets.push(logEntry);
+    }
+    getTicketsCurrentlyInActiveDevelopment() {
+        // Iterates over the programmers and grabs all of the tickets that they're
+        // working on. Tickets being code reviewed are not considered for this, as they
+        // are tracked elsewhere.
+        return [...this.programmers.reduce((tickets, programmer) => {
+            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations < programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+                tickets.push(programmer.schedule.lastTicketWorkedOn);
+            }
+            return tickets;
+        }, [])];
+    }
+    getTicketsCurrentlyInCodeReview() {
+        // Iterates over the programmers and grabs all of the tickets that they're
+        // working on. Tickets being code reviewed are not considered for this, as they
+        // are tracked elsewhere.
+        return [...this.programmers.reduce((tickets, programmer) => {
+            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations === programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+                tickets.push(programmer.schedule.lastTicketWorkedOn);
+            }
+            return tickets;
+        }, [])];
+    }
+    getNextCheckInTime() {
+        let earliestWorker = this.getWorkerWithEarliestUpcomingCheckIn();
+        if (earliestWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime) {
+            return earliestWorker.nextWorkIterationCompletionCheckIn;
+        } else {
+            return earliestWorker.nextAvailabilityCheckIn;
+        }
+    }
+    getWorkerWithEarliestUpcomingCheckIn() {
+        // Skip ahead to the next relevant point in time. This will either be the
+        // next time a worker finishes an iteration of work for a ticket, or the
+        // next time a worker is available for work. These are different times
+        // because a worker can finish the iteration of work for a ticket, but then
+        // have a meeting before they can begin work on another ticket. This is
+        // important because if they didn't wait until after the meeting to grab the
+        // next available ticket for them, another, more important ticket could
+        // become available for them (e.g. a ticket that had to be sent back because
+        // the tester found a problem, or a programmer sent a higher priority ticket
+        // to QA).
+        //
+        // The current day and time are needed to rule out potential check-in points
+        // that have already passed. If they are in the past, they must have already
+        // been handled, or, in the case of the tester, they are waiting for work to
+        // become available.
+        return this.workers.reduce((eWorker, nWorker) => {
+            if (eWorker.nextCheckInTime < 0) {
+                // The eWorker is either the first worker, or the worker returned by the
+                // previous iteration through this reduce function. A worker will only have
+                // a negative check-in time if they don't have a check-in time left in this
+                // sprint. If this is the case for eWorker, then return the next worker in
+                // line. Either the last worker will be returned even though they have a
+                // negative check-in time, which would mean that no more check-ins can
+                // happen this sprint, or a worker that still has a check-in in this sprint
+                // will be found.
+                return nWorker;
+            }
+            else if (nWorker.nextCheckInTime < 0) {
+                // If eWorker has a non-negative check-in time, and the next worker has a
+                // negative check-in time, the next worker should be disregarded to make
+                // sure that the eWorker would be recognized as having a check-in for this
+                // sprint.
+                return eWorker;
+            }
+            // both workers have a check-in time this sprint, so determine which is earlier,
+            // provided both have relevant check-ins coming up.
+            else if (eWorker.nextAvailabilityCheckIn <= this.currentDayTime && eWorker.nextWorkIterationCompletionCheckIn <= this.currentDayTime) {
+                // Both of the eWorker's check-ins are in the past, or were just performed.
+                // Even if the next nWorker has no check-ins coming up, there will
+                // eventually be an nWorker that does, because it would be impossible for
+                // all workers to have check-ins in the past if not all had a -1 check-in.
+                return nWorker;
+            }
+            else if (nWorker.nextAvailabilityCheckIn <= this.currentDayTime && nWorker.nextWorkIterationCompletionCheckIn <= this.currentDayTime) {
+                // If eWorker check-ins are not entirely in the past, but nWorker's are,
+                // then eWorker moves because it's the only relevant worker in this
+                // comparison.
+                return eWorker;
+            }
+            // Both have check-ins coming up. Find each of their earliest upcoming check-ins
+            // and compare them to determine which worker moves forward.
+            // at least one of eWorker's check-ins would have to be coming up
+            let eWorkerRelevantCheckIn;
+            if (eWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime) {
+                // Worker has an upcoming work completion check-in. Work completion
+                // check-ins must always come before, or be at the same time as availability
+                // check-ins. If the completion check-in is earlier, then it must be the
+                // one we want. If it's at the same time as the availability check-in, then
+                // it doesn't matter which we use, so the logic is simpler if we defer to
+                // the completion check-in.
+                eWorkerRelevantCheckIn = eWorker.nextWorkIterationCompletionCheckIn;
+            } else {
+                // The work completion check-in must have been in the past, leaving the
+                // availability check-in as the only upcoming check-in for this worker.
+                eWorkerRelevantCheckIn = eWorker.nextAvailabilityCheckIn;
+            }
+            let nWorkerRelevantCheckIn;
+            if (nWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime) {
+                // Worker has an upcoming work completion check-in. Work completion
+                // check-ins must always come before, or be at the same time as availability
+                // check-ins. If the completion check-in is earlier, then it must be the
+                // one we want. If it's at the same time as the availability check-in, then
+                // it doesn't matter which we use, so the logic is simpler if we defer to
+                // the completion check-in.
+                nWorkerRelevantCheckIn = nWorker.nextWorkIterationCompletionCheckIn;
+            } else {
+                // The work completion check-in must have been in the past, leaving the
+                // availability check-in as the only upcoming check-in for this worker.
+                nWorkerRelevantCheckIn = nWorker.nextAvailabilityCheckIn;
+            }
+            return eWorkerRelevantCheckIn > nWorkerRelevantCheckIn ? nWorker : eWorker;
+        });
+        return earliestWorker;
+    }
+    processProgrammerCompletedWork() {
+        for (let p of this.programmers) {
+            if (p.nextWorkIterationCompletionCheckIn !== this.currentDayTime) {
+                continue;
+            }
+            let possiblyFinishedTicket = p.schedule.lastTicketWorkedOn;
+            p.schedule.lastTicketWorkedOn = null;
+            if (possiblyFinishedTicket.needsCodeReview) {
+                this.codeReviewStack.push(possiblyFinishedTicket);
+            } else {
+                this.qaStack.push(possiblyFinishedTicket);
+            }
+        }
+    }
+    processTesterCompletedWork() {
+        if (this.tester.nextWorkIterationCompletionCheckIn === this.currentDayTime) {
+            let possiblyFinishedTicket = this.tester.schedule.lastTicketWorkedOn;
+            this.tester.schedule.lastTicketWorkedOn = null;
+            if (possiblyFinishedTicket.testerWorkIterations.length > 0) {
+                // tester must have found a problem, so send it back to programmers
+                this.passBackStack.push(possiblyFinishedTicket);
+                possiblyFinishedTicket.firstIteration = false;
+            } else {
+                // no work iterations left, which means the tester didn't find any
+                // issues
+                this.doneStack.push(possiblyFinishedTicket);
+            }
+        }
+    }
+    handOutNewProgrammerWork() {
+        // For every programmer, find the ones that are available for work.
+        // For every one of those programmers, find the highest priority ticket in the
+        // passBackStack that belongs to them (if any), and find the highest priority
+        // ticket in the codeReviewStack that doesn't belong to them (if any). Of those
+        // two tickets, determine which is the higher priority one, and have the
+        // programmer work on that one. If they are the same priority, have the
+        // programmer do the code review as that is holding back another programmer, and
+        // it will take an hour or less to complete.
+        //
+        // If there are no existing tickets available for the programmer, then create a
+        // new one to assign to them. This can be considered to be either already
+        // planned work for the sprint, or work that was pulled into the sprint from the
+        // backlog. Either way, a programmer should always have work available to do.
+        for (let p of this.programmers) {
+            if (p.nextAvailabilityCheckIn !== this.currentDayTime) {
+                continue;
+            }
+            // can start new work
+            let ticket = null;
+            if (this.passBackStack.length > 0 || this.codeReviewStack.length > 0) {
+                let highestPriorityPassBackTicketIndex = this.getHighestPriorityPassBackWorkIndexForProgrammer(p);
+                let highestPriorityCodeReviewTicketIndex = this.getHighestPriorityCodeReviewWorkIndexForProgrammer(p);
+                if (highestPriorityPassBackTicketIndex !== null && highestPriorityCodeReviewTicketIndex !== null) {
+                    if (this.passBackStack[highestPriorityPassBackTicketIndex].priority < this.codeReviewStack[highestPriorityCodeReviewTicketIndex].priority){
+                        ticket = this.passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
+                    } else {
+                        ticket = this.codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
+                    }
+                } else if (highestPriorityPassBackTicketIndex !== null) {
+                    ticket = this.passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
+                } else if (highestPriorityCodeReviewTicketIndex !== null) {
+                    ticket = this.codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
+                }
+            }
+            if (ticket === null) {
+                // no ticket was passed back that the programmer owns, or that they can
+                // code review, so they can start on a new ticket
+                this.ticketCount++;
+                ticket = ticketFactory(this.ticketCount, this.maxInitialProgrammerWorkTimeInHours, this.maxFullRunTesterWorkTimeInHours, this.maxQaAutomationTime);
+                p.addTicket(ticket);
+                this.tickets.push(ticket);
+            }
+            try {
+                p.schedule.addWork(ticket);
+            } catch (err) {
+                if (err instanceof RangeError) {
+                    // ran out of time in the sprint
+                    this.unfinishedStack.push(ticket);
+                }
+                else {
+                    throw err;
+                }
+            }
+        }
+    }
+    getHighestPriorityPassBackWorkIndexForProgrammer(programmer) {
+        let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
+        // needs to get highest priority ticket that belongs to them
+        return this.passBackStack.reduce((highestPriorityOwnedTicketIndex, currentTicket, currentTicketIndex) => {
+            if (ownedTickets.includes(currentTicket.number)){
+                if (!highestPriorityOwnedTicketIndex) {
+                    return currentTicketIndex;
+                }
+                if (currentTicket.priority < this.passBackStack[highestPriorityOwnedTicketIndex].priority) {
+                    return currentTicketIndex;
+                }
+            }
+            return highestPriorityOwnedTicketIndex;
+        }, null);
+    }
+    getHighestPriorityCodeReviewWorkIndexForProgrammer(programmer, codeReviewStack) {
+        let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
+
+        // needs to get highest priority ticket that doesn't belongs to them
+        return this.codeReviewStack.reduce((highestPriorityOwnedTicketIndex, currentTicket, currentTicketIndex) => {
+            if (!ownedTickets.includes(currentTicket.number)){
+                if (!highestPriorityOwnedTicketIndex) {
+                    return currentTicketIndex;
+                }
+                if (currentTicket.priority < this.codeReviewStack[highestPriorityOwnedTicketIndex].priority) {
+                    return currentTicketIndex;
+                }
+            }
+            return highestPriorityOwnedTicketIndex;
+        }, null);
+    }
+    handOutNewTesterWork() {
+        if (this.tester.nextAvailabilityCheckIn === this.currentDayTime) {
+            // can start new work
+            if (this.qaStack.length > 0) {
+                let highestPriorityTicketIndex = this.getHighestPriorityTicketForTester();
+                let ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
+                this.tester.addTicket(ticket);
+                try {
+                    this.tester.schedule.addWork(ticket);
+                } catch (err) {
+                    if (err instanceof RangeError) {
+                        // ran out of time in the sprint
+                        this.unfinishedStack.push(ticket);
+                    } else {
+                        throw err;
+                    }
+                }
+            }
+        }
+    }
+    getHighestPriorityTicketForTester() {
+        return this.qaStack.reduce((highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
+            if (!highestPriorityTicketIndex) {
+                return currentTicketIndex;
+            }
+            if (currentTicket.priority < this.qaStack[highestPriorityTicketIndex].priority) {
+                return currentTicketIndex;
+            }
+            return highestPriorityTicketIndex;
+        }, null);
+    }
+    aggregateMinutesSpent() {
+        // Example for getting time spent context switching at minute 321
+        // worker 0: this.minutesSpentByDayTime[321].workers[0].contextSwitching
+        // all together: this.minutesSpentByDayTime[321].cumulativeMinutes.contextSwitching
+        this.minutesSpentByDayTime = [];
+
+        for (let i = 0; i < this.totalSprintMinutes; i++) {
+            let dataForWorkersAtThisDayTime = [];
+            for (let worker of this.workers) {
+                let minutes = {
+                    meeting: worker.getMeetingMinutesAtDayTime(i),
+                    contextSwitching: worker.getContextSwitchingMinutesAtDayTime(i),
+                    productiveTicketWork: worker.getProductiveTicketWorkMinutesAtDayTime(i),
+                    fixingTicketWork: worker.getProductiveTicketFixWorkMinutesAtDayTime(i),
+                    codeReview: worker.getCodeReviewWorkMinutesAtDayTime(i),
+                    // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
+                    regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
+                    nothing: worker.getNothingMinutesAtDayTime(i)
+                }
+                dataForWorkersAtThisDayTime.push(minutes);
+            }
+            let cumulativeMinutesForDayTime = dataForWorkersAtThisDayTime.reduce((acc, worker) => {
+                let newAcc = {};
+                for (let minuteName in worker) {
+                    newAcc[minuteName] = acc[minuteName] + worker[minuteName];
+                }
+                return newAcc;
+            });
+            dataForWorkersAtThisDayTime["all"] = cumulativeMinutesForDayTime;
+
+            this.minutesSpentByDayTime.push({
+                workers: dataForWorkersAtThisDayTime,
+                cumulativeMinutes: cumulativeMinutesForDayTime,
+                prettyDayTime: this.getPrettyFormattedDayTime(i)
+            });
+        }
+    }
+    getPrettyFormattedDayTime(dayTime) {
+        let day = parseInt(dayTime/this.dayLengthInMinutes) + 1;
+        let hour = (parseInt(((dayTime % this.dayLengthInMinutes) + 1) / 60) + this.dayStartHour) % 12 || 12;
+        let minute = (dayTime + 1) % 60;
+        return `Day ${day} ${hour}:${minute < 10 ? 0 : ''}${minute}`;
+    }
+}
+function simulate(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    const programmers = [];
+    for (let i = 0; i < programmerCount; i++) {
+        programmers.push(new Programmer(sprintDayCount, regressionTestDayCount));
+    }
+    const tester = new Tester(sprintDayCount, regressionTestDayCount);
+
+    const workers = [...programmers, tester];
+    workers.forEach((worker, i) => {
+        let mod = i;
+        if (worker instanceof Tester) {
+            mod -= workers.reduce((acc, cur) => acc + (cur instanceof Programmer? 1:0), 0);
+        }
+        worker.name = `${worker.constructor.name} #${mod}`
+    })
+
+    for (let i in workers) {
+        workers[i].color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
+    }
+    for (let p of programmers) {
+        p.clearSchedule();
+    }
+    ticketCount = 100;
+    tester.clearSchedule();
+    let allTickets = [];
+    for (let p of programmers) {
+        ticketCount++;
+        let ticket = ticketFactory(ticketCount, maxInitialProgrammerWorkTimeInHours, maxFullRunTesterWorkTimeInHours, maxQaAutomationTime, averagePassBackCount);
+        p.addTicket(ticket);
+        p.schedule.addWork(ticket);
+        allTickets.push(ticket);
+    }
+    let qaStack = [];
+    let passBackStack = [];
+    let doneStack = [];
+    let unfinishedStack = [];
+    let codeReviewStack = [];
+    let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, 0, 0);
+    let checkInTime = earliestWorker.nextCheckInTime;
+    var day = Math.floor(checkInTime / 480);
+    var time = checkInTime % 480;
+    var previousDay = null;
+    var previousTime = null;
+    let dayTimeAdjustment = regressionTestDayCount * 480;
+    while(day < (sprintDayCount + regressionTestDayCount) && day >= 0 && time <= 480 && time >= 0) {
+        let currentDayTime = (day * 480) + time;
+        if (day >= regressionTestDayCount) {
+            let previousSprintDayTime = Math.max(0, ((previousDay * 480) + previousTime) - dayTimeAdjustment);
+            let currentSprintDayTime = currentDayTime - dayTimeAdjustment;
+            generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack)
+
+        }
+        // process potentially completed work first
+        for (let p of programmers) {
+            if (p.nextWorkIterationCompletionCheckIn !== currentDayTime) {
+                continue;
+            }
+
+            let possiblyFinishedTicket = p.schedule.lastTicketWorkedOn;
+            p.schedule.lastTicketWorkedOn = null;
+            if (possiblyFinishedTicket.needsCodeReview) {
+                codeReviewStack.push(possiblyFinishedTicket);
+            } else {
+                qaStack.push(possiblyFinishedTicket);
+            }
+        }
+        if (tester.nextWorkIterationCompletionCheckIn === currentDayTime) {
+            let possiblyFinishedTicket = tester.schedule.lastTicketWorkedOn;
+            tester.schedule.lastTicketWorkedOn = null;
+            if (possiblyFinishedTicket.testerWorkIterations.length > 0) {
+                // tester must have found a problem, so send it back to programmers
+                passBackStack.push(possiblyFinishedTicket);
+            } else {
+                // no work iterations left, which means the tester didn't find any
+                // issues
+                doneStack.push(possiblyFinishedTicket);
+            }
+        }
+
+        // process handing out new work after all available tickets have been
+        // determined
+        for (let p of programmers) {
+            if (p.nextAvailabilityCheckIn !== currentDayTime) {
+                continue;
+            }
+            // can start new work
+            let ticket = null;
+            if (passBackStack.length > 0 || codeReviewStack.length > 0) {
+                let highestPriorityPassBackTicketIndex = findHighestPriorityPassBackWorkIndexForProgrammer(p, passBackStack);
+                let highestPriorityCodeReviewTicketIndex = findHighestPriorityCodeReviewWorkIndexForProgrammer(p, codeReviewStack);
+                if (highestPriorityPassBackTicketIndex !== null && highestPriorityCodeReviewTicketIndex !== null) {
+                    if (passBackStack[highestPriorityPassBackTicketIndex].priority < codeReviewStack[highestPriorityCodeReviewTicketIndex].priority){
+                        ticket = passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
+                    } else {
+                        ticket = codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
+                    }
+                } else if (highestPriorityPassBackTicketIndex !== null) {
+                    ticket = passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
+                } else if (highestPriorityCodeReviewTicketIndex !== null) {
+                    ticket = codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
+                }
+            }
+            if (ticket === null) {
+                // no ticket was passed back that the programmer owns, so they
+                // can start on a new ticket
+                ticketCount++;
+                ticket = ticketFactory(ticketCount, maxInitialProgrammerWorkTimeInHours, maxFullRunTesterWorkTimeInHours, maxQaAutomationTime);
+                p.addTicket(ticket);
+                allTickets.push(ticket);
+            }
+            try {
+                p.schedule.addWork(ticket);
+            } catch (err) {
+                if (err instanceof RangeError) {
+                    // ran out of time in the sprint
+                    unfinishedStack.push(ticket);
+                }
+                else {
+                    throw err;
+                }
+            }
+        }
+        if (tester.nextAvailabilityCheckIn === currentDayTime) {
+            // can start new work
+            if (qaStack.length > 0) {
+                let highestPriorityTicketIndex = findHighestPriorityTicketForTester(qaStack);
+                let ticket = qaStack.splice(highestPriorityTicketIndex, 1)[0];
+                tester.addTicket(ticket);
+                try {
+                    tester.schedule.addWork(ticket);
+                } catch (err) {
+                    if (err instanceof RangeError) {
+                        // ran out of time in the sprint
+                        unfinishedStack.push(ticket);
+                    } else {
+                        throw err;
+                    }
+                }
+            }
+        }
+        let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, day, time);
+        let checkInTime;
+        if (earliestWorker.nextWorkIterationCompletionCheckIn > ((day * 480) + time)) {
+            checkInTime = earliestWorker.nextWorkIterationCompletionCheckIn;
+        } else {
+            checkInTime = earliestWorker.nextAvailabilityCheckIn;
+        }
+        if (checkInTime < 0) {
+            // no more check-ins for this sprint, so set both values to -1 to exit the
+            // loop. Add stack log entries from this time to the end of the sprint
+            // because whatever the stacks are now will be what they are at the end of
+            // the sprint.
+            previousDay = day;
+            previousTime = time;
+            let previousSprintDayTime = Math.max(0, ((previousDay * 480) + previousTime) - dayTimeAdjustment);
+            let endSprintDayTime = 480 * sprintDayCount;
+            generateStackLogEntry(endSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack)
+            day = -1;
+            time = -1;
+            // continue rather than returning so any post processing can occur.
+            continue;
+        }
+        let newDay = Math.floor(checkInTime / 480);
+        let newTime = checkInTime % 480;
+        if (newDay === previousDay && newTime === previousTime) {
+            throw Error("DayTime did not progress");
+        }
+        previousDay = day;
+        previousTime = time;
+        day = newDay;
+        time = newTime;
+    }
+    unfinishedStack.concat([...qaStack, ...passBackStack]);
+    let averageProgrammerWorkPerTicketIteration = allTickets.map(ticket => ticket.initialProgrammerWorkIterationTime).reduce((total, next) => total + next) / allTickets.length;
+    let averageTesterWorkPerTicketIteration = allTickets.map(ticket => ticket.initialTesterWorkIterationTime).reduce((total, next) => total + next) / allTickets.length;
+    console.log("average programmer work time on first iteration")
+    console.log(averageProgrammerWorkPerTicketIteration);
+    console.log("average tester work time on first iteration")
+    console.log(averageTesterWorkPerTicketIteration);
+    return workers;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var t0 = performance.now()
+let simulation = new Simulation();
+let workers = simulation.workers;
+var t1 = performance.now()
+console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
+
+const height = 400;
+let margin = ({top: 0, right: 10, bottom: 15, left: 125});
+
+const svg = d3.select("svg#sprintTimeline")
+
+let svgWidth = +svg.style("width").replace("px", "");
+svg.append("svg")
+      .attr("x", margin.left)
+      .attr("width", svgWidth - margin.left)
+      .attr("class", "graph");
+const svgGraph = svg.select("svg.graph")
+let svgGraphWidth = svgWidth - margin.left;
+const svgMinimap = d3.select("svg#sprintTimelineMinimap")
+
+function getTooltipContent(event) {
+    let eventTimeSpan = `Day ${event.sprintDay} - ${formatDate(event.startTime)} - ${formatDate(event.endTime)}`
+    if(event instanceof ScheduledTicketWork) {
+        return `<b>Ticket ${event instanceof ScheduledTicketCodeReviewWork ? 'Code Review' : (event.owner instanceof Tester ? 'Testing' : 'Programming')} Work</b>
+        <br/>
+        <b style="color:${event.color.darker()}">#${event.ticket.number}</b>
+        <br/>
+        ${eventTimeSpan}
+        `
+    } else if(event instanceof LunchBreak) {
+        return `<b>Lunch</b>
+        <br/>
+        ${eventTimeSpan}
+        `
+    } else if(event instanceof RegressionTesting) {
+        return `<b>Regression Testing</b>
+        <br/>
+        ${eventTimeSpan}
+        `
+    } else if(event instanceof Meeting) {
+        return `<b>Meeting</b>
+        <br/>
+        <b style="color:${event.color.darker()}">${event.constructor.name}</b>
+        <br/>
+        ${eventTimeSpan}
+        `
+    }
+    return `<b>${event.constructor.name}</b>
+    <br/>
+    ${eventTimeSpan}
+    `
+}
+
+function formatDate(timeInMinutes) {
+    // start time is 10 am
+    let hour = Math.floor(timeInMinutes / 60) + 10;
+    let minute = timeInMinutes % 60;
+    return `${hour > 12 ? hour % 12 : hour}:${minute < 10 ? '0': ''}${minute} ${hour > 11 ? 'PM' : 'AM'}`;
+}
+
+let graphMarginLeft = 10;
+let regressionTestDayCount = 2
+
+let timeBoundary = 2; // in minutes
+
+let padding = timeBoundary/480; // timeBoundary as a percentage of a full day's worth of minutes
+
+let workableSpace = svgGraphWidth;
+let workableSpaceAfterBoundaries = workableSpace * (1 - (padding * 2));
+
+let dayWidth = (workableSpace * (1 - padding)) - graphMarginLeft;
+
+let regressionDayShift = dayWidth * simulation.regressionTestDayCount;
+
+x = d3.scaleBand()
+    .domain([...Array(simulation.totalDays).keys()].map((i) => i ))
+    .range([(graphMarginLeft-regressionDayShift), ((dayWidth * simulation.totalDays) - regressionDayShift) + graphMarginLeft])
+    .padding(padding);
+
+let fullGraphWidth = workableSpace * simulation.totalDays;
+let graphToMinimapRatio = svgWidth / fullGraphWidth;
+
+let workerScheduleHeightOnMinimap = 10;
+
+let workerScheduleHeightOnGraph = 20;
+
+svgGraph.attr("height", (workerScheduleHeightOnGraph * workers.length) + margin.top + margin.bottom );
+svg.attr("height", +svgGraph.attr("height") + margin.top + margin.bottom)
+
+svgGraphG = svgGraph.append("g").attr("class", "svgGraphG")
+
+y = d3.scaleBand()
+    .domain([...Array(simulation.workers.length).keys()])
+    .range([0, +svgGraph.attr("height") - (margin.top + margin.bottom)])
+    .padding(0.08);
+
+let minimapWidth = +svgMinimap.style("width").replace("px", "")
+
+minimapX = d3.scaleBand()
+    .domain([...Array(simulation.sprintDayCount).keys()])
+    .range([0, minimapWidth])
+    .padding(padding);
+
+minimapY = d3.scaleBand()
+    .domain([...Array(simulation.workers.length).keys()])
+    .range([0, workers.length*5])
+    .padding(0.01);
+
+eventX = d3.scaleLinear()
+    .domain([0,simulation.dayLengthInMinutes])
+    .range([0, x.bandwidth()])
+
+eventMinimapX = d3.scaleLinear()
+    .domain([0, simulation.dayLengthInMinutes])
+    .range([0, svgWidth/simulation.sprintDayCount * (1 - (padding * 2))]);
+
+
+svgGraphG.selectAll("svg")
+    .data(workers)
+    .join("svg")
+      .attr("x", 0)
+      .attr("y", (worker, i) => y(i))
+      .selectAll("svg")
+    .data((worker) => worker.schedule.daySchedules )
+    .join("svg")
+      .attr("x", (daySchedule, i) => x(i))
+    .selectAll("g")
+    .data((daySchedule) => daySchedule.items)
+    .join("g")
+      .on("mouseover", function(event, target) {
+        d3.select(this).select("rect").attr("fill", target.color.darker())
+        tooltip
+            .style("opacity", 1)
+            .html(getTooltipContent(target))
+        })
+      .on("mouseleave", function(event, target) {
+        d3.select(this).select("rect").attr("fill", target.color)
+        tooltip.style("opacity", 0)
+      })
+    .selectAll("rect")
+    .data(event => [event])
+    .join("rect")
+      .attr("x", event => eventX(event.startTime))
+      .attr("y", 0)
+      .attr("width", event => eventX(event.duration))
+      .attr("height", y.bandwidth())
+      .attr("fill", event => color(event))
+
+svg.append("svg")
+      .attr("width", margin.left - 10)
+      .attr("class", "workerLabels")
+    .selectAll("text")
+    .data(workers)
+    .join("text")
+      .text((worker) => worker.name)
+      .attr("alignment-baseline", "middle")
+      .attr("font-size", ".9em")
+      .attr("text-anchor", "end")
+      .attr("x", "100%")
+      .attr("y", (w, i) => y(i) + (y.bandwidth() / 2))
+
+const timeBoundaryX = x.copy().padding(1-padding).align(0);
+const timeBoundaryMinimapX = minimapX.copy().padding(1-padding).align(0);
+
+svgGraphG.append("g")
+    .selectAll("rect")
+    .data([...Array(simulation.totalDays + 1).keys()])
+    .join("rect")
+      .attr("x", (i) => ((x.step() * i) + graphMarginLeft) - regressionDayShift)
+      .attr("y", "0")
+      .attr("fill", "black")
+      .attr("width", timeBoundaryX.bandwidth())
+      .attr("height", "100%");
+
+
+svgGraphG.append("g")
+    .selectAll("text")
+    .data([...Array(simulation.sprintDayCount).keys()])
+    .join("text")
+      .attr("x", (i) => (x.step() * (1 + i)) + graphMarginLeft - 2)
+      .attr("y", "100%")
+      .attr("font-size", "0.7em")
+      .attr("text-anchor", "end")
+      .text((i) => `End of ${i === simulation.sprintDayCount - 1 ? "Sprint" : `Day ${i + 1}`}`)
+      .attr("alignment-baseline", "text-after-edge");
+
+
+let fadeGDefs = svgGraph.append("defs");
+
+let fadeGradient = fadeGDefs.append("linearGradient")
+      .attr("id", "fadeGradient");
+
+fadeGradient.append("stop").attr("offset", "0").attr("stop-color", "white");
+fadeGradient.append("stop").attr("offset", "1").attr("stop-color", "black");
+
+let dayStartFadeGradient = fadeGDefs.append("linearGradient")
+      .attr("id", "dayStartFadeGradient");
+
+dayStartFadeGradient.append("stop").attr("offset", "0").attr("stop-color", "white");
+dayStartFadeGradient.append("stop").attr("offset", "0.9").attr("stop-color", "white");
+dayStartFadeGradient.append("stop").attr("offset", "1").attr("stop-color", "black");
+
+let pastTimelineFadeMask = fadeGDefs.append("mask").attr("id", "timelineFadeMask");
+pastTimelineFadeMask.append("rect")
+    .attr("x", "-2")
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", `${graphMarginLeft + 2}`)
+    .attr("fill", "url(#fadeGradient)");
+
+svgGraph.append("rect")
+    .attr("x", "-2")
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", `${graphMarginLeft + 2}`)
+    .attr("fill", "white")
+    .attr("mask", "url(#timelineFadeMask)");
+
+svgGraph.append("rect")
+    .attr("x", `${(0 - margin.left) - 1}`)
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", `${margin.left + 1}`)
+    .attr("fill", "white");
+
+
+
+function createTooltip(el) {
+  el
+    .style("position", "absolute")
+    .style("pointer-events", "none")
+    .style("top", 0)
+    .style("opacity", 0)
+    .style("background", "white")
+    .style("border-radius", "5px")
+    .style("box-shadow", "0 0 10px rgba(0,0,0,.25)")
+    .style("padding", "10px")
+    .style("line-height", "1.3")
+    .style("font", "11px sans-serif")
+}
+
+const tooltip = d3.select(document.createElement("div")).call(createTooltip);
+const line = svgGraph.append("line").attr("y1", 0).attr("y2", +svgGraph.attr("height")).attr("stroke", "rgba(0,0,0,0.2)").style("pointer-events","none");
+
+svgGraph.on("mousemove", function(event) {
+    let [x,y] = d3.pointer(event);
+    line.attr("transform", `translate(${Math.max(0, x)} 0)`);
+    [x,y] = d3.pointer(event, svg);
+    y +=20;
+    if(x>+svgGraphWidth/2) x-= 100;
+
+    tooltip
+    .style("left", x + "px")
+    .style("top", y + "px")
+})
+const parent = d3.select("#sprintTimelineWrapper");
+parent.node().appendChild(tooltip.node());
+
+
+svgMinimap.selectAll("svg")
+    .data(workers)
+    .join("svg")
+      .attr("x", 0)
+      .attr("y", (worker, i) => minimapY(i))
+      .selectAll("svg")
+    .data((worker) => worker.schedule.daySchedules.slice(regressionTestDayCount) )
+    .join("svg")
+      .attr("x", (daySchedule, i) => minimapX(i))
+    .selectAll("g")
+    .data((daySchedule) => daySchedule.items)
+    .join("g")
+    .selectAll("rect")
+    .data(event => [event])
+    .join("rect")
+      .attr("x", event => eventMinimapX(event.startTime))
+      .attr("y", 0)
+      .attr("width", event => eventMinimapX(event.duration))
+      .attr("height", minimapY.bandwidth())
+      .attr("fill", event => color(event))
+
+svgMinimap.append("g")
+    .selectAll("rect")
+    .data(workers[0].schedule.daySchedules.concat(null))
+    .join("rect")
+      .attr("x", (daySchedule, i) => minimapX.step() * i)
+      .attr("y", "0")
+      .attr("fill", "black")
+      .attr("width", (daySchedule, i) => timeBoundaryMinimapX.bandwidth())
+      .attr("height", "100%")
+svgMinimap.attr("height", simulation.workers.length * minimapY.bandwidth())
+
+svgMinimap.append("g")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("id", "minimapViewport")
+
+let r = svgMinimap.select("#minimapViewport")
+
+
+r.append("rect")
+    .attr("x", 0-svgWidth)
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", svgWidth)
+    .attr("fill", "grey")
+    .attr("fill-opacity", "0.5")
+r.append("rect")
+    .attr("x",0)
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", minimapX.step())
+    .attr("fill", "grey")
+    .attr("fill-opacity", "0")
+    .attr("class", "opening")
+
+r.append("rect")
+    .attr("x", minimapX.step())
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", svgWidth)
+    .attr("fill", "grey")
+    .attr("fill-opacity", "0.5")
+
+r.node().openingWidth = minimapX.step();
+
+function getSprintDayFromPositionOnMinimap(position) {
+    return parseInt(Math.max(position - minimapX(0), 0) / minimapX.step()) + 1;
+}
+
+function getTimeOfDayPercentageFromPositionOnMinimap(position) {
+    return (Math.max(position - minimapX(0), 0) % minimapX.step()) / minimapX.bandwidth();
+}
+
+function getSprintDayTimeFromPositionOnMinimap(position) {
+    return parseInt(Math.min(simulation.totalSprintMinutes, (getSprintDayFromPositionOnMinimap(position) + getTimeOfDayPercentageFromPositionOnMinimap(position) - 1) * simulation.dayLengthInMinutes));
+}
+
+function getMinimapValuesFromStartCoord(startCoord) {
+    let ratio = (x.range()[1] - (graphMarginLeft + timeBoundaryX.bandwidth())) / minimapX.range()[1];
+    let endCoord = startCoord + r.node().openingWidth;
+    values = {
+        rangeStartCoord: startCoord,
+        rangeEndCoord: endCoord,
+        rangeStartMainGraph: startCoord * ratio,
+        rangeEndMainGraph: endCoord * ratio,
+    }
+    values.rangeStartDayTime = getSprintDayTimeFromPositionOnMinimap(startCoord);
+    values.rangeEndDayTime = getSprintDayTimeFromPositionOnMinimap(endCoord);
+    return values
+}
+
+
+r.node().value = getMinimapValuesFromStartCoord(0)
+
+
+class Synchronizer extends EventTarget {
+    constructor() {
+        super();
+        this._value = null;
+    }
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        this._value = value;
+        this.dispatchEvent(new CustomEvent("input", {detail: value}));
+    }
+}
+
+let synchronizer = new Synchronizer();
+
+
+r.node().handleCoordUpdate = function (event) {
+    let openingWidth = +this.openingWidth;
+    let halfOpeningWidth = openingWidth / 2;
+    let newX = event.x < halfOpeningWidth ? 0 : Math.min(svgWidth - openingWidth, (event.x - halfOpeningWidth));
+    synchronizer.value = getMinimapValuesFromStartCoord(newX);
+}
+
+
+var drag_handler = d3.drag()
+    .on("drag", function(event) {
+        let rect = d3.select(this);
+        let element = rect.node();
+        element.handleCoordUpdate(event);
+    });
+
+
+drag_handler(r)
+
+
+function clicked(event, d) {
+    console.log(event)
+  if (event.defaultPrevented) return; // dragged
+}
+
+
+synchronizer.addEventListener("input", (event) => r.attr("transform", `translate(${event.target.value.rangeStartCoord},0)`));
+synchronizer.addEventListener("input", (event) => svgGraphG.attr("transform", `translate(-${event.target.value.rangeStartMainGraph},0)`));
+
+
+let dayStartTextBGFadeMask = fadeGDefs.append("mask").attr("id", "dayStartTextBGFadeMask");
+let dayStartTextBGFadeMaskRect = dayStartTextBGFadeMask.append("rect")
+    .attr("x", 0)
+    .attr("y", "0")
+    .attr("fill", "url(#dayStartFadeGradient)");
+
+let dayStartTextBG = svgGraph.append("rect")
+      .attr("x", 0)
+      .attr("y", "0")
+      .attr("fill", "white")
+      .attr("mask", "url(#dayStartTextBGFadeMask)");
+
+let dayStartText = svgGraph.append("text")
+      .attr("x", graphMarginLeft + timeBoundaryX.bandwidth() + 2)
+      .attr("y", "100%")
+      .attr("font-size", "0.7em")
+      .text("Day 1")
+      .attr("alignment-baseline", "text-after-edge");
+
+
+let dayStartLine = svgGraph.append("rect")
+    .attr("x", graphMarginLeft)
+    .attr("y", "0")
+    .attr("fill", "black")
+    .attr("width", timeBoundaryX.bandwidth())
+    .attr("height", "100%");
+
+dayStartText.node().update = function () {
+    let dayNumber = parseInt(synchronizer.value.rangeStartMainGraph / dayWidth) + 1;
+    dayStartText.text(`Day ${parseInt(synchronizer.value.rangeStartDayTime / simulation.dayLengthInMinutes) + 1}`);
+    let bbox = dayStartText.node().getBBox();
+    dayStartTextBG.attr("y", bbox.y + 0.3)
+        .attr("height", bbox.height + 1)
+        .attr("width", graphMarginLeft + timeBoundaryX.bandwidth() + 2 + (bbox.width * 2))
+    dayStartTextBGFadeMaskRect.attr("y", bbox.y + 0.3)
+        .attr("height", bbox.height + 1)
+        .attr("width", graphMarginLeft + timeBoundaryX.bandwidth() + 2 + (bbox.width * 2))
+}
+
+
+synchronizer.addEventListener("input", (event) => dayStartText.node().update());
+
+let buttonDiv = d3.select("div#playStopButtonDiv");
+
+buttonDiv.select("*").remove();
+let playStopButton = buttonDiv.append("button");
+playStopButton.node().reset = function() {
+    playStopButton.text("Play");
+    playStopButton.node().playing = false;
+    playStopButton.node().stop = false;
+}
+playStopButton.node().reset()
+
+
+function playStopGraph() {
+    if (playStopButton.node().playing) {
+        // it should be stopped
+        playStopButton.node().stop = true;
+        return;
+    }
+    // Start playing
+    playStopButton.text("Stop");
+    playStopButton.node().playing = true;
+    // duration
+    let durInMs = 10000
+    let start;
+    // reset graph position
+    r.node().handleCoordUpdate({x: 0});
+
+    function step(timestamp) {
+        if (start === undefined)
+            // hasn't started yet
+            start = timestamp;
+        const elapsed = timestamp - start;
+
+        r.node().handleCoordUpdate({x: Math.min((elapsed / durInMs) * minimapWidth, minimapWidth)});
+
+        if (elapsed <= durInMs && playStopButton.node().stop === false) { // Stop the animation if stop is true
+            window.requestAnimationFrame(step);
+            return;
+        }
+        // stopped playing
+        playStopButton.node().reset()
+    }
+
+    window.requestAnimationFrame(step);
+}
+
+playStopButton.on("click", playStopGraph);
+
+let ticketStacksSvg = d3.select("#ticketStacksSvg");
+let waitingForQaStackView = ticketStacksSvg.append("g")
+    .attr("x", "0").attr("y", "0");
+waitingForQaStackView.append("text").text("Waiting For QA");
+
+let stackGridContainer = d3.select("#ticketStacks");
+
+function generateStackGridContents(simulation){
+    let stackLog = simulation.stackTimelineHashMap[synchronizer.value.rangeEndDayTime - 1];
+    let markup = `
+    <div style="grid-area: 1 / 1 / span 1 / span 1;">
+        <p class="sectionTitle">Waiting for QA (${stackLog.waitingForQa.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.waitingForQa.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+    </div>
+    <div style="grid-area: 1 / 2 / span 1 / span 1;">
+        <p class="sectionTitle">Waiting for Code Review (${stackLog.waitingForCodeReview.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.waitingForCodeReview.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+    </div>
+    <div style="grid-area: 1 / 3 / span 1 / span 1;">
+        <p class="sectionTitle">In Active Development (${stackLog.activeDevelopment.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.activeDevelopment.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+        <p class="sectionTitle">In Code Review (${stackLog.inCodeReview.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.inCodeReview.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+        <p class="sectionTitle">In QA</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.inQa? `<li style="background: ${ticketWorkColors[stackLog.inQa.number % (ticketWorkColors.length - 1)]}">#${stackLog.inQa.number}</li>`: ''}
+        </ul>
+    </div>
+    <div style="grid-area: 1 / 4 / span 1 / span 1;">
+        <p class="sectionTitle">Sent Back/Waiting for Fix (${stackLog.sentBack.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.sentBack.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+    </div>
+    <div style="grid-area: 1 / 5 / span 1 / span 1;">
+        <p class="sectionTitle">Done (${stackLog.sentBack.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.done.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
+        </ul>
+    </div>
+    `;
+    stackGridContainer.html(markup);
+}
+
+synchronizer.addEventListener("input", (event) => generateStackGridContents(simulation));
+
+
+function generateDataSetSelect() {
+    let dataSetIdentifiers = ["all", ...Array(simulation.workers.length).keys()]
+    let dataSelector = d3.select("#dataSetSelection");
+
+    dataSelector
+        .selectAll('option')
+        .data(dataSetIdentifiers)
+        .join("option")
+            .text((d) => d === "all" ? "All workers" : `${simulation.workers[+d].name}`)
+            .attr("value", d => d);
+    return dataSelector;
+}
+
+let dataSelector = generateDataSetSelect();
+
+let timeChartMargin = {left: 50, right: 50, top: 10, bottom: 30};
+
+let timeChartGraphHeight = 200;
+
+let timeChartGraphX = d3.scaleLinear()
+    .domain([0, simulation.totalSprintMinutes])
+    .range([0, minimapWidth - (timeChartMargin.left + timeChartMargin.right) ])
+
+let timeChartGraphXMouseEventTranslator = d3.scaleLinear()
+    .domain([0, Math.round(timeChartGraphX.range()[1]) - 1])
+    .range([0, timeChartGraphX.range()[1] ]);
+
+
+let tickValues = [...Array(simulation.sprintDayCount + 1).keys()].map((dayNum) => dayNum * simulation.dayLengthInMinutes);
+let days = [...Array(simulation.sprintDayCount + 1).keys()].map((dayNum) => dayNum === simulation.sprintDayCount ? `End of Sprint` : `Day ${dayNum + 1}` );
+
+let timeChartGraphBottomAxisCallback = d3.axisBottom(timeChartGraphX)
+    .ticks(simulation.sprintDayCount + 1)
+    .tickValues(tickValues)
+    .tickFormat((d, i) => days[i]);
+
+// used to adjust the scrolled-to minimap position so that it maps onto a width that
+// works for the graphs so that the clipPath rect can be the proper width and reveal
+// only the data for the scrolled-to portion.
+timeChartSynchronizerAdjustRange = d3.scaleLinear()
+    .domain([0, minimapWidth])
+    .range([0, minimapWidth - (timeChartMargin.left + timeChartMargin.right)]);
+
+
+function updateAnnotations(targetedDayTime) {
+    let selectedOption = dataSelector.property("value");
+    let targetedDayTimeAggregateData = simulation.minutesSpentByDayTime[targetedDayTime]
+    let targetMinutes = targetedDayTimeAggregateData.workers[selectedOption];
+    let x0 = timeChartGraphX(targetedDayTime);
+    d3.selectAll("circle.graphAnnotationCircle")
+        .attr("cx", x0)
+        .attr("cy", (d) => d.yScale(targetMinutes[d.dataKey]));
+    d3.selectAll("g.graphAnnotation")
+        .selectAll("text")
+        .data((d) => [[d.yScale(targetMinutes[d.dataKey]), targetedDayTimeAggregateData.prettyDayTime], [d.yScale(targetMinutes[d.dataKey]), `${targetMinutes[d.dataKey]} minutes`]])
+        .join("text")
+        .attr("x", x0)
+        .attr("y", (d) => d[0])
+        .text((d) => d[1])
+        .attr("dy", (d,i) => `-${(i+1) * 1}em`);
+}
+
+function updateAnnotationsToReflectSynchronizer() {
+    let targetedDayTime = synchronizer.value.rangeEndDayTime - 1;
+    updateAnnotations(targetedDayTime);
+}
+
+function addMouseBoxToTimeChartGraph(targetSvg) {
+    targetSvg.append("rect")
+        .attr("opacity", "0")
+        .attr("height", timeChartGraphHeight)
+        .attr("width", timeChartGraphX.range()[1])
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("class", "mouseBox")
+        .attr("clip-path", "url(#timeChartsClipPath)")
+        .on("mouseout", (event) => {
+            updateAnnotationsToReflectSynchronizer()
+        })
+        .on("mousemove", (event) => {
+            let x0 = d3.pointer(event)[0];
+            let targetedDayTime = Math.max(0, Math.round(timeChartGraphX.invert(timeChartGraphXMouseEventTranslator(x0))) -1);
+            let selectedOption = dataSelector.property("value");
+            selectedOption = selectedOption === "all"? selectedOption: +selectedOption;
+            updateAnnotations(targetedDayTime);
+        });
+}
+
+
+function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
+
+    let maxHeight = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length -1].cumulativeMinutes[dataKey];
+
+    let timeChartGraphY = d3.scaleLinear()
+        .domain([0, maxHeight * 1.2])
+        .range([timeChartGraphHeight, 0]);
+
+    var stackedData = d3.stack()
+        .keys([...Array(simulation.workers.length).keys()])
+        .value((d,k,i) => d.workers[k][dataKey])
+        (simulation.minutesSpentByDayTime);
+
+    stackedData.forEach(d => {
+        d.yScale = timeChartGraphY;
+        d.dataKey = dataKey;
+    });
+
+    parentDiv.append("p")
+        .attr("class", "sectionTitle")
+        .text(title);
+    let wrapperSvg = parentDiv.append("svg")
+        .attr("width", "100%")
+        .attr("height", timeChartGraphHeight + timeChartMargin.top + timeChartMargin.bottom )
+        .attr("id", "timeChartsSvg");
+    let graphSvg = wrapperSvg.append("svg")
+        .attr("y", timeChartMargin.top)
+        .attr("x", timeChartMargin.left)
+        .attr("width", "100%")
+        .datum({yScale: timeChartGraphY});
+    let clipPath = graphSvg.append("clipPath")
+        .attr("id", "timeChartsClipPath");
+    clipPath.append("rect")
+        .attr("x", "0")
+        .attr("y", "-10")
+        .attr("height", "100%");
+    clipPath.node().update = function () {
+        d3.select(this).select("rect").attr("width", timeChartSynchronizerAdjustRange(synchronizer.value.rangeEndCoord));
+    }
+    synchronizer.addEventListener("input", (event) => clipPath.node().update());
+    graphSvg.append("g")
+        .attr("class", "chartPaths")
+        .datum({stackedData: stackedData});
+    let xAxis = graphSvg.append("g")
+        .attr("transform", "translate(0," + timeChartGraphHeight + ")")
+        .call(timeChartGraphBottomAxisCallback);
+
+    let yAxis = graphSvg.append("g")
+        .attr("class", "yAxis")
+        .datum({dataKey: dataKey, yScale: timeChartGraphY})
+        .call(d3.axisLeft(timeChartGraphY));
+
+    let focus = graphSvg.append('g')
+        .append('circle')
+        .style("fill", "none")
+        .attr("stroke", "black")
+        .attr('r', 8.5)
+        .attr("class", "graphAnnotationCircle")
+        .datum({dataKey: dataKey, yScale: timeChartGraphY});
+
+    let focusText = graphSvg.append('g')
+        .attr("class", "graphAnnotation")
+        .datum({dataKey: dataKey, yScale: timeChartGraphY});
+
+    addMouseBoxToTimeChartGraph(graphSvg);
+
+}
+
+synchronizer.addEventListener("input", (event) => updateAnnotationsToReflectSynchronizer());
+
+function updateYScalesAndAxesForNewSelectedOption(selectedOption){
+    // data:
+    // {dataKey: dataKey, yScale: timeChartGraphY}
+    let minuteData = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length - 1].workers[selectedOption];
+    d3.selectAll(".yAxis")
+        .each((d) => d.yScale.domain([0, minuteData[d.dataKey] * 1.2]))
+        .transition()
+            .duration(1000)
+            .call((d) => d3.axisLeft(d.yScale));
+}
+
+function updateChartsForSelection() {
+    let selectedOption = dataSelector.property("value");
+    let maxHeight;
+    let minutes = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length - 1];
+    updateYScalesAndAxesForNewSelectedOption(selectedOption);
+    d3.selectAll("g.chartPaths")
+        .selectAll("path")
+        .data(d => d.stackedData)
+        .join("path")
+        .style("fill", (d, i) => simulation.workers[i].color)
+        .attr("clip-path", "url(#timeChartsClipPath)")
+        .transition()
+            .duration(1000)
+            .style("opacity", (d, i) => selectedOption === "all" ? 1 : +selectedOption === i ? 1 : 0)
+            .attr("d", d3.area()
+                .x((d, i) => {
+                    return timeChartGraphX(i)
+                })
+                .y0((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[0] : 0))
+                .y1((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[1]: d.data.workers[selectedOption][workerStackedData.dataKey]))
+            );
+
+}
+dataSelector.node().addEventListener("change", (event) => updateChartsForSelection())
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Meetings", "meeting");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Context Switching", "contextSwitching");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Productive Ticket Work", "productiveTicketWork");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Fixing Ticket Work", "fixingTicketWork");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "CodeReview", "codeReview");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Regression Testing", "regressionTesting");
+generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Nothing", "nothing");
+// productiveTicketWork: worker.getProductiveTicketWorkMinutesAtDayTime(i),
+// fixingTicketWork: worker.getProductiveTicketFixWorkMinutesAtDayTime(i),
+// codeReview: worker.getCodeReviewWorkMinutesAtDayTime(i),
+// // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
+// regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
+// nothing: worker.getNothingMinutesAtDayTime(i)
+updateChartsForSelection();
+
+
+
+r.node().handleCoordUpdate({x: 0});
+
+
+</script>

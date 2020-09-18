@@ -74,6 +74,8 @@ author:
       icon: "fas fa-fw fa-envelope-square"
       url: mailto:chris.t.nejame@gmail.com
 
+include: ["_pages"]
+
 kramdown:
   parse_block_html: true
 
