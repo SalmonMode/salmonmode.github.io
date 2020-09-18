@@ -858,12 +858,6 @@ function generateFixWorkIterationTime(baseWorkIterationTime) {
     return new WorkIteration(minimumWorkTimeInMinutes + Math.round(baseWorkIterationTime.time * workTimePercentage));
 }
 
-// function generateProgrammerWorkIterationTime(maxTimeInHours = 16) {
-//     let maxWorkTimePercentage = Math.min((PD.rgamma(1, 3, 0.1)[0] / 100.0), 1);
-//     let minimumWorkTimeInMinutes = 30;
-//     return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60) + minimumWorkTimeInMinutes);
-// }
-
 function generateCodeReviewWorkIterationTime(maxTimeInHours = 0.5) {
     let maxWorkTimePercentage = Math.min((PD.rgamma(1, 3, 0.1)[0] / 100.0), 1);
     return new WorkIteration(Math.round((maxTimeInHours * maxWorkTimePercentage) * 60));
@@ -1147,7 +1141,6 @@ class Simulation {
         this.workers = [...this.programmers, this.tester];
     }
     simulate() {
-        // let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, 0, 0);
         this.currentDay = 0;
         this.currentTime = 0;
         this.currentDayTime = 0;
@@ -2479,12 +2472,6 @@ generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Fixing Ticke
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "CodeReview", "codeReview");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Regression Testing", "regressionTesting");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Nothing", "nothing");
-// productiveTicketWork: worker.getProductiveTicketWorkMinutesAtDayTime(i),
-// fixingTicketWork: worker.getProductiveTicketFixWorkMinutesAtDayTime(i),
-// codeReview: worker.getCodeReviewWorkMinutesAtDayTime(i),
-// // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
-// regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
-// nothing: worker.getNothingMinutesAtDayTime(i)
 updateChartsForSelection();
 
 
