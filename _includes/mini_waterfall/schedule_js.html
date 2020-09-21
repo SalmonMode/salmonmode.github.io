@@ -60,22 +60,25 @@ class Event {
 class Meeting extends Event {}
 
 class DailyStandup extends Meeting {
+    title = "Daily Standup";
     constructor(owner, day) {
         // the day starts at 0 minutes and ends roughly at 480 minutes, which are
         // analogous to 10 AM, and 6 PM respectively.
-        super(0, 15, owner, day)
+        super(0, 15, owner, day);
     }
 }
 
 class SprintPlanning extends Meeting {
+    title = "Sprint Planning";
     constructor(owner, day) {
         // the day starts at 0 minutes and ends roughly at 480 minutes, which are
         // analogous to 10 AM, and 6 PM respectively.
-        super(0, 120, owner, day)
+        super(0, 120, owner, day);
     }
 }
 
 class SprintRetro extends Meeting {
+    title = "Sprint Retro";
     constructor(owner, day) {
         // the day starts at 0 minutes and ends roughly at 480 minutes, which are
         // analogous to 10 AM, and 6 PM respectively.
@@ -132,6 +135,7 @@ class LunchBreak extends Meeting {
     // worry about context switching between them, and when leading up to a meeting, if
     // the prior Event ended less than or equal to 30 minutes before it, then new work
     // won't be started. These are all true for Lunch as well.
+    title = "Lunch";
     constructor(owner, day) {
         // the day starts at 0 minutes and ends roughly at 480 minutes, which are
         // analogous to 10 AM, and 6 PM respectively.
@@ -142,6 +146,7 @@ class LunchBreak extends Meeting {
 class LunchAndLearn extends LunchBreak {
     // Just like lunch, except treated like a meeting. Can replace any instance of
     // lunch, provided it doesn't conflict.
+    title = "Lunch & Learn";
 }
 
 class ScheduledTicketWork extends Event {
@@ -1167,7 +1172,7 @@ class Simulation {
             }
             this.previousDay = this.currentDay;
             this.previousTime = this.currentTime;
-            this.previousDayTime = this.dayTimeFromDayAndTime(this.previousDay, this.previousTime);
+            this.previousDayTime = this.currentDayTime;
             this.currentDay = Math.floor(this.nextCheckInTime / this.dayLengthInMinutes);
             this.currentTime = this.nextCheckInTime % this.dayLengthInMinutes;
             this.currentDayTime = this.dayTimeFromDayAndTime(this.currentDay, this.currentTime);
@@ -1244,6 +1249,9 @@ class Simulation {
     }
     getNextCheckInTime() {
         let earliestWorker = this.getWorkerWithEarliestUpcomingCheckIn();
+        // if (this.tester.nextWorkIterationCompletionCheckIn === this.currentDayTime && this.tester.schedule.lastTicketWorkedOn === null) {
+        //     console.log()
+        // }
         if (earliestWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime) {
             return earliestWorker.nextWorkIterationCompletionCheckIn;
         } else {
@@ -1526,187 +1534,6 @@ class Simulation {
         return `Day ${day} ${hour}:${minute < 10 ? 0 : ''}${minute}`;
     }
 }
-function simulate(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
-    const programmers = [];
-    for (let i = 0; i < programmerCount; i++) {
-        programmers.push(new Programmer(sprintDayCount, regressionTestDayCount));
-    }
-    const tester = new Tester(sprintDayCount, regressionTestDayCount);
-
-    const workers = [...programmers, tester];
-    workers.forEach((worker, i) => {
-        let mod = i;
-        if (worker instanceof Tester) {
-            mod -= workers.reduce((acc, cur) => acc + (cur instanceof Programmer? 1:0), 0);
-        }
-        worker.name = `${worker.constructor.name} #${mod}`
-    })
-
-    for (let i in workers) {
-        workers[i].color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
-    }
-    for (let p of programmers) {
-        p.clearSchedule();
-    }
-    ticketCount = 100;
-    tester.clearSchedule();
-    let allTickets = [];
-    for (let p of programmers) {
-        ticketCount++;
-        let ticket = ticketFactory(ticketCount, maxInitialProgrammerWorkTimeInHours, maxFullRunTesterWorkTimeInHours, maxQaAutomationTime, averagePassBackCount);
-        p.addTicket(ticket);
-        p.schedule.addWork(ticket);
-        allTickets.push(ticket);
-    }
-    let qaStack = [];
-    let passBackStack = [];
-    let doneStack = [];
-    let unfinishedStack = [];
-    let codeReviewStack = [];
-    let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, 0, 0);
-    let checkInTime = earliestWorker.nextCheckInTime;
-    var day = Math.floor(checkInTime / 480);
-    var time = checkInTime % 480;
-    var previousDay = null;
-    var previousTime = null;
-    let dayTimeAdjustment = regressionTestDayCount * 480;
-    while(day < (sprintDayCount + regressionTestDayCount) && day >= 0 && time <= 480 && time >= 0) {
-        let currentDayTime = (day * 480) + time;
-        if (day >= regressionTestDayCount) {
-            let previousSprintDayTime = Math.max(0, ((previousDay * 480) + previousTime) - dayTimeAdjustment);
-            let currentSprintDayTime = currentDayTime - dayTimeAdjustment;
-            generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack)
-
-        }
-        // process potentially completed work first
-        for (let p of programmers) {
-            if (p.nextWorkIterationCompletionCheckIn !== currentDayTime) {
-                continue;
-            }
-
-            let possiblyFinishedTicket = p.schedule.lastTicketWorkedOn;
-            p.schedule.lastTicketWorkedOn = null;
-            if (possiblyFinishedTicket.needsCodeReview) {
-                codeReviewStack.push(possiblyFinishedTicket);
-            } else {
-                qaStack.push(possiblyFinishedTicket);
-            }
-        }
-        if (tester.nextWorkIterationCompletionCheckIn === currentDayTime) {
-            let possiblyFinishedTicket = tester.schedule.lastTicketWorkedOn;
-            tester.schedule.lastTicketWorkedOn = null;
-            if (possiblyFinishedTicket.testerWorkIterations.length > 0) {
-                // tester must have found a problem, so send it back to programmers
-                passBackStack.push(possiblyFinishedTicket);
-            } else {
-                // no work iterations left, which means the tester didn't find any
-                // issues
-                doneStack.push(possiblyFinishedTicket);
-            }
-        }
-
-        // process handing out new work after all available tickets have been
-        // determined
-        for (let p of programmers) {
-            if (p.nextAvailabilityCheckIn !== currentDayTime) {
-                continue;
-            }
-            // can start new work
-            let ticket = null;
-            if (passBackStack.length > 0 || codeReviewStack.length > 0) {
-                let highestPriorityPassBackTicketIndex = findHighestPriorityPassBackWorkIndexForProgrammer(p, passBackStack);
-                let highestPriorityCodeReviewTicketIndex = findHighestPriorityCodeReviewWorkIndexForProgrammer(p, codeReviewStack);
-                if (highestPriorityPassBackTicketIndex !== null && highestPriorityCodeReviewTicketIndex !== null) {
-                    if (passBackStack[highestPriorityPassBackTicketIndex].priority < codeReviewStack[highestPriorityCodeReviewTicketIndex].priority){
-                        ticket = passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
-                    } else {
-                        ticket = codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
-                    }
-                } else if (highestPriorityPassBackTicketIndex !== null) {
-                    ticket = passBackStack.splice(highestPriorityPassBackTicketIndex, 1)[0];
-                } else if (highestPriorityCodeReviewTicketIndex !== null) {
-                    ticket = codeReviewStack.splice(highestPriorityCodeReviewTicketIndex, 1)[0];
-                }
-            }
-            if (ticket === null) {
-                // no ticket was passed back that the programmer owns, so they
-                // can start on a new ticket
-                ticketCount++;
-                ticket = ticketFactory(ticketCount, maxInitialProgrammerWorkTimeInHours, maxFullRunTesterWorkTimeInHours, maxQaAutomationTime);
-                p.addTicket(ticket);
-                allTickets.push(ticket);
-            }
-            try {
-                p.schedule.addWork(ticket);
-            } catch (err) {
-                if (err instanceof RangeError) {
-                    // ran out of time in the sprint
-                    unfinishedStack.push(ticket);
-                }
-                else {
-                    throw err;
-                }
-            }
-        }
-        if (tester.nextAvailabilityCheckIn === currentDayTime) {
-            // can start new work
-            if (qaStack.length > 0) {
-                let highestPriorityTicketIndex = findHighestPriorityTicketForTester(qaStack);
-                let ticket = qaStack.splice(highestPriorityTicketIndex, 1)[0];
-                tester.addTicket(ticket);
-                try {
-                    tester.schedule.addWork(ticket);
-                } catch (err) {
-                    if (err instanceof RangeError) {
-                        // ran out of time in the sprint
-                        unfinishedStack.push(ticket);
-                    } else {
-                        throw err;
-                    }
-                }
-            }
-        }
-        let earliestWorker = getWorkerWithEarliestUpcomingCheckIn(workers, day, time);
-        let checkInTime;
-        if (earliestWorker.nextWorkIterationCompletionCheckIn > ((day * 480) + time)) {
-            checkInTime = earliestWorker.nextWorkIterationCompletionCheckIn;
-        } else {
-            checkInTime = earliestWorker.nextAvailabilityCheckIn;
-        }
-        if (checkInTime < 0) {
-            // no more check-ins for this sprint, so set both values to -1 to exit the
-            // loop. Add stack log entries from this time to the end of the sprint
-            // because whatever the stacks are now will be what they are at the end of
-            // the sprint.
-            previousDay = day;
-            previousTime = time;
-            let previousSprintDayTime = Math.max(0, ((previousDay * 480) + previousTime) - dayTimeAdjustment);
-            let endSprintDayTime = 480 * sprintDayCount;
-            generateStackLogEntry(endSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack)
-            day = -1;
-            time = -1;
-            // continue rather than returning so any post processing can occur.
-            continue;
-        }
-        let newDay = Math.floor(checkInTime / 480);
-        let newTime = checkInTime % 480;
-        if (newDay === previousDay && newTime === previousTime) {
-            throw Error("DayTime did not progress");
-        }
-        previousDay = day;
-        previousTime = time;
-        day = newDay;
-        time = newTime;
-    }
-    unfinishedStack.concat([...qaStack, ...passBackStack]);
-    let averageProgrammerWorkPerTicketIteration = allTickets.map(ticket => ticket.initialProgrammerWorkIterationTime).reduce((total, next) => total + next) / allTickets.length;
-    let averageTesterWorkPerTicketIteration = allTickets.map(ticket => ticket.initialTesterWorkIterationTime).reduce((total, next) => total + next) / allTickets.length;
-    console.log("average programmer work time on first iteration")
-    console.log(averageProgrammerWorkPerTicketIteration);
-    console.log("average tester work time on first iteration")
-    console.log(averageTesterWorkPerTicketIteration);
-    return workers;
-}
 
 
 
@@ -1726,7 +1553,10 @@ function simulate(sprintDayCount = 10, regressionTestDayCount = 2, programmerCou
 
 
 var t0 = performance.now()
+let simulation;
+// for (let i = 0; i < 1000; i++) {
 let simulation = new Simulation();
+// }
 let workers = simulation.workers;
 var t1 = performance.now()
 console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
@@ -1767,12 +1597,12 @@ function getTooltipContent(event) {
     } else if(event instanceof Meeting) {
         return `<b>Meeting</b>
         <br/>
-        <b style="color:${event.color.darker()}">${event.constructor.name}</b>
+        <b style="color:${event.color.darker()}">${event.title}</b>
         <br/>
         ${eventTimeSpan}
         `
     }
-    return `<b>${event.constructor.name}</b>
+    return `<b>${event.title}</b>
     <br/>
     ${eventTimeSpan}
     `
@@ -1862,7 +1692,11 @@ svgGraphG.selectAll("svg")
         })
       .on("mouseleave", function(event, target) {
         d3.select(this).select("rect").attr("fill", target.color)
+        // set opacity to 0 so it is no longer visible and set position to 0,0
+        // so that getBoundingClientRect reflects natural width for next positioning.
         tooltip.style("opacity", 0)
+            .style("left", 0 + "px")
+            .style("top", 0 + "px")
       })
     .selectAll("rect")
     .data(event => [event])
@@ -1966,19 +1800,27 @@ function createTooltip(el) {
     .style("font", "11px sans-serif")
 }
 
+
+let tooltipX = d3.scaleLinear()
+    .domain([0, svgGraphWidth])
+    .range([margin.left, svgGraphWidth + margin.left]);
+
 const tooltip = d3.select(document.createElement("div")).call(createTooltip);
 const line = svgGraph.append("line").attr("y1", 0).attr("y2", +svgGraph.attr("height")).attr("stroke", "rgba(0,0,0,0.2)").style("pointer-events","none");
 
 svgGraph.on("mousemove", function(event) {
     let [x,y] = d3.pointer(event);
     line.attr("transform", `translate(${Math.max(0, x)} 0)`);
-    [x,y] = d3.pointer(event, svg);
     y +=20;
-    if(x>+svgGraphWidth/2) x-= 100;
+    // update the range so that the tooltip is limited to only the space that its
+    // natural width would allow it to fit within, and so that it can have a clean
+    // transition as the mouse move.
+    tooltipX.range([margin.left, (svgGraphWidth + margin.left) - tooltip.node().getBoundingClientRect().width])
+    x = tooltipX(x);
 
     tooltip
-    .style("left", x + "px")
-    .style("top", y + "px")
+        .style("left", x + "px")
+        .style("top", y + "px");
 })
 const parent = d3.select("#sprintTimelineWrapper");
 parent.node().appendChild(tooltip.node());
@@ -2044,9 +1886,17 @@ r.append("rect")
     .attr("x", minimapX.step())
     .attr("y", "0")
     .attr("height", "100%")
-    .attr("width", svgWidth)
+    .attr("width", "100%")
     .attr("fill", "grey")
     .attr("fill-opacity", "0.5")
+
+// add mouse event interceptor
+let minimapMouseBox = svgMinimap.append("rect")
+    .attr("x", 0)
+    .attr("y", "0")
+    .attr("height", "100%")
+    .attr("width", "100%")
+    .attr("opacity", "0")
 
 r.node().openingWidth = minimapX.step();
 
@@ -2096,7 +1946,6 @@ class Synchronizer extends EventTarget {
 
 let synchronizer = new Synchronizer();
 
-
 r.node().handleCoordUpdate = function (event) {
     let openingWidth = +this.openingWidth;
     let halfOpeningWidth = openingWidth / 2;
@@ -2104,27 +1953,20 @@ r.node().handleCoordUpdate = function (event) {
     synchronizer.value = getMinimapValuesFromStartCoord(newX);
 }
 
-
 var drag_handler = d3.drag()
-    .on("drag", function(event) {
-        let rect = d3.select(this);
-        let element = rect.node();
-        element.handleCoordUpdate(event);
-    });
+.on("drag", function(event) {
+    r.node().handleCoordUpdate(event);
+});
 
+drag_handler(minimapMouseBox)
 
-drag_handler(r)
-
-
-function clicked(event, d) {
-    console.log(event)
-  if (event.defaultPrevented) return; // dragged
-}
-
+minimapMouseBox.on("click", function(event) {
+    let coords = d3.pointer(event, this)
+    r.node().handleCoordUpdate({x: coords[0], y: coords[1]});
+});
 
 synchronizer.addEventListener("input", (event) => r.attr("transform", `translate(${event.target.value.rangeStartCoord},0)`));
 synchronizer.addEventListener("input", (event) => svgGraphG.attr("transform", `translate(-${event.target.value.rangeStartMainGraph},0)`));
-
 
 let dayStartTextBGFadeMask = fadeGDefs.append("mask").attr("id", "dayStartTextBGFadeMask");
 let dayStartTextBGFadeMaskRect = dayStartTextBGFadeMask.append("rect")
@@ -2434,11 +2276,11 @@ function updateYScalesAndAxesForNewSelectedOption(selectedOption){
     // data:
     // {dataKey: dataKey, yScale: timeChartGraphY}
     let minuteData = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length - 1].workers[selectedOption];
-    d3.selectAll(".yAxis")
+    d3.selectAll(".yAxis").datum(d => d).join("g")
         .each((d) => d.yScale.domain([0, minuteData[d.dataKey] * 1.2]))
-        .transition()
-            .duration(1000)
-            .call((d) => d3.axisLeft(d.yScale));
+            .transition()
+                .duration(1000)
+                .each(function (d) { d3.axisLeft().scale(d.yScale)(d3.select(this))});
 }
 
 function updateChartsForSelection() {
@@ -2462,6 +2304,7 @@ function updateChartsForSelection() {
                 .y0((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[0] : 0))
                 .y1((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[1]: d.data.workers[selectedOption][workerStackedData.dataKey]))
             );
+    updateAnnotationsToReflectSynchronizer()
 
 }
 dataSelector.node().addEventListener("change", (event) => updateChartsForSelection())
@@ -2472,11 +2315,14 @@ generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Fixing Ticke
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "CodeReview", "codeReview");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Regression Testing", "regressionTesting");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Nothing", "nothing");
-updateChartsForSelection();
 
 
 
 r.node().handleCoordUpdate({x: 0});
 
+// Update charts after triggering coordinate/synchronizer update, because the charts
+// will need the synchronizer to have data for them to use, and it starts off without
+// any.
+updateChartsForSelection();
 
 </script>
