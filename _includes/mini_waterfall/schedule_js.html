@@ -1275,6 +1275,8 @@ class Simulation {
         // been handled, or, in the case of the tester, they are waiting for work to
         // become available.
         return this.workers.reduce((eWorker, nWorker) => {
+            // eWorker: Probable worker with earliest check-in
+            // nWorker: The next worker in the iteration.
             if (eWorker.nextCheckInTime < 0) {
                 // The eWorker is either the first worker, or the worker returned by the
                 // previous iteration through this reduce function. A worker will only have
@@ -1553,7 +1555,7 @@ class Simulation {
 
 
 var t0 = performance.now()
-let simulation;
+// let simulation;
 // for (let i = 0; i < 1000; i++) {
 let simulation = new Simulation();
 // }
