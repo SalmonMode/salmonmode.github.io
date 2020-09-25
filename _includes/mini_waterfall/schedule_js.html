@@ -86,7 +86,9 @@ class SprintRetro extends Meeting {
     }
 }
 
-class RegressionTesting extends Event {}
+class RegressionTesting extends Event {
+    title = "Regression Testing";
+}
 
 class MorningRegressionTesting extends RegressionTesting {
     constructor(owner, day) {
@@ -119,9 +121,11 @@ class NothingEvent extends Event {
     // easier, and is placed in a schedule when it's determined that no work can be done
     // because it will take too long to switch contexts and get anything productive
     // done.
+    title = "Nothing";
 }
 
 class ContextSwitchEvent extends Event {
+    title = "Context Switching";
     constructor(startTime, duration, ticket, firstIteration = true, lastIteration = true, owner, day){
         super(startTime, duration, owner, day);
         this.ticket = ticket;
@@ -420,7 +424,6 @@ class Schedule {
             this.findEarliestAvailableDayForWorkIndex()
             this.dayOfNextWorkIterationCompletion = this.earliestAvailableDayForWorkIndex;
             if (this.earliestAvailableDayForWorkIndex === -1) {
-                queue.unshift(workIteration);
                 throw RangeError("Not enough time left in the sprint to finish this ticket");
             }
             let schedule = this.earliestAvailableDayScheduleForWork;
@@ -1071,7 +1074,7 @@ class StackLogEntry {
     }
 }
 
-function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, programmers, tester, codeReviewStack, qaStack, passBackStack, doneStack){
+function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, programmers, testers, codeReviewStack, qaStack, passBackStack, doneStack){
     let activeDevelopment = [...programmers.reduce((tickets, programmer) => {
         if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations < programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
             tickets.push(programmer.schedule.lastTicketWorkedOn);
@@ -1086,7 +1089,12 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
         return tickets;
     }, [])];
     let waitingForQa = qaStack.slice();
-    let inQa = tester.schedule.lastTicketWorkedOn;
+    let inQa = [...testers.reduce((tickets, tester) => {
+        if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.testerWorkIterations < tester.schedule.lastTicketWorkedOn.testerCodeReviewWorkIterations) {
+            tickets.push(tester.schedule.lastTicketWorkedOn);
+        }
+        return tickets;
+    }, [])];
     let sentBack = passBackStack.slice();
     let done = doneStack.slice();
     let logEntry = new StackLogEntry(previousSprintDayTime, currentSprintDayTime, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done);
@@ -1143,7 +1151,8 @@ class Simulation {
         this.tester = new Tester(this.sprintDayCount, this.regressionTestDayCount);
         this.tester.name = `${Tester.name} #${1}`;
         this.tester.color = workerIdentifierColors[this.programmerCount % (workerIdentifierColors.length - 1)];
-        this.workers = [...this.programmers, this.tester];
+        this.testers = [this.tester];
+        this.workers = [...this.programmers, ...this.testers];
     }
     simulate() {
         this.currentDay = 0;
@@ -1156,16 +1165,25 @@ class Simulation {
         this.previousDay = null;
         this.previousTime = null;
         this.previousDayTime = null;
-        // let dayTimeAdjustment = regressionTestDayCount * this.dayLengthInMinutes;
         while(this.currentDayTime <= this.simulationEndDayTime && this.currentDayTime >= 0) {
             // process potentially completed work first
+            if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
+                throw new Error();
+            }
             this.processProgrammerCompletedWork();
             this.processTesterCompletedWork();
+            if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
+                throw new Error();
+            }
 
             // process handing out new work after all available tickets have been
             // determined
             this.handOutNewProgrammerWork();
+            this.backfillTesterScheduleForTimeTheySpentDoingNothing();
             this.handOutNewTesterWork();
+            if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
+                throw new Error();
+            }
             this.nextCheckInTime = this.getNextCheckInTime();
             if (this.nextCheckInTime === this.currentDayTime) {
                 throw Error("DayTime would not progress");
@@ -1216,7 +1234,7 @@ class Simulation {
         let waitingForCodeReview = this.codeReviewStack.slice();
         let inCodeReview = this.getTicketsCurrentlyInCodeReview();
         let waitingForQa = this.qaStack.slice();
-        let inQa = this.tester.schedule.lastTicketWorkedOn;
+        let inQa = this.getTicketsCurrentlyInQa();
         let sentBack = this.passBackStack.slice();
         let done = this.doneStack.slice();
         let logEntry = new StackLogEntry(adjustedStartDayTime, adjustedEndDayTime, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done);
@@ -1247,11 +1265,19 @@ class Simulation {
             return tickets;
         }, [])];
     }
+    getTicketsCurrentlyInQa() {
+        // Iterates over the programmers and grabs all of the tickets that they're
+        // working on. Tickets being code reviewed are not considered for this, as they
+        // are tracked elsewhere.
+        return [...this.testers.reduce((tickets, tester) => {
+            if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.testerWorkIterations < tester.schedule.lastTicketWorkedOn.testerCodeReviewWorkIterations) {
+                tickets.push(tester.schedule.lastTicketWorkedOn);
+            }
+            return tickets;
+        }, [])];
+    }
     getNextCheckInTime() {
         let earliestWorker = this.getWorkerWithEarliestUpcomingCheckIn();
-        // if (this.tester.nextWorkIterationCompletionCheckIn === this.currentDayTime && this.tester.schedule.lastTicketWorkedOn === null) {
-        //     console.log()
-        // }
         if (earliestWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime) {
             return earliestWorker.nextWorkIterationCompletionCheckIn;
         } else {
@@ -1277,38 +1303,23 @@ class Simulation {
         return this.workers.reduce((eWorker, nWorker) => {
             // eWorker: Probable worker with earliest check-in
             // nWorker: The next worker in the iteration.
-            if (eWorker.nextCheckInTime < 0) {
-                // The eWorker is either the first worker, or the worker returned by the
-                // previous iteration through this reduce function. A worker will only have
-                // a negative check-in time if they don't have a check-in time left in this
-                // sprint. If this is the case for eWorker, then return the next worker in
-                // line. Either the last worker will be returned even though they have a
-                // negative check-in time, which would mean that no more check-ins can
-                // happen this sprint, or a worker that still has a check-in in this sprint
-                // will be found.
-                return nWorker;
-            }
-            else if (nWorker.nextCheckInTime < 0) {
-                // If eWorker has a non-negative check-in time, and the next worker has a
-                // negative check-in time, the next worker should be disregarded to make
-                // sure that the eWorker would be recognized as having a check-in for this
-                // sprint.
-                return eWorker;
-            }
             // both workers have a check-in time this sprint, so determine which is earlier,
             // provided both have relevant check-ins coming up.
-            else if (eWorker.nextAvailabilityCheckIn <= this.currentDayTime && eWorker.nextWorkIterationCompletionCheckIn <= this.currentDayTime) {
+            if (eWorker.nextAvailabilityCheckIn <= this.currentDayTime) {
                 // Both of the eWorker's check-ins are in the past, or were just performed.
                 // Even if the next nWorker has no check-ins coming up, there will
                 // eventually be an nWorker that does, because it would be impossible for
                 // all workers to have check-ins in the past if not all had a -1 check-in.
                 return nWorker;
             }
-            else if (nWorker.nextAvailabilityCheckIn <= this.currentDayTime && nWorker.nextWorkIterationCompletionCheckIn <= this.currentDayTime) {
+            else if (nWorker.nextAvailabilityCheckIn <= this.currentDayTime) {
                 // If eWorker check-ins are not entirely in the past, but nWorker's are,
                 // then eWorker moves because it's the only relevant worker in this
                 // comparison.
                 return eWorker;
+            }
+            if (eWorker.nextAvailabilityCheckIn < eWorker.nextWorkIterationCompletionCheckIn) {
+                throw new Error("No.")
             }
             // Both have check-ins coming up. Find each of their earliest upcoming check-ins
             // and compare them to determine which worker moves forward.
@@ -1360,17 +1371,19 @@ class Simulation {
         }
     }
     processTesterCompletedWork() {
-        if (this.tester.nextWorkIterationCompletionCheckIn === this.currentDayTime) {
-            let possiblyFinishedTicket = this.tester.schedule.lastTicketWorkedOn;
-            this.tester.schedule.lastTicketWorkedOn = null;
-            if (possiblyFinishedTicket.testerWorkIterations.length > 0) {
-                // tester must have found a problem, so send it back to programmers
-                this.passBackStack.push(possiblyFinishedTicket);
-                possiblyFinishedTicket.firstIteration = false;
-            } else {
-                // no work iterations left, which means the tester didn't find any
-                // issues
-                this.doneStack.push(possiblyFinishedTicket);
+        for (let t of this.testers) {
+            if (t.nextWorkIterationCompletionCheckIn === this.currentDayTime) {
+                let possiblyFinishedTicket = t.schedule.lastTicketWorkedOn;
+                t.schedule.lastTicketWorkedOn = null;
+                if (possiblyFinishedTicket.testerWorkIterations.length > 0) {
+                    // tester must have found a problem, so send it back to programmers
+                    this.passBackStack.push(possiblyFinishedTicket);
+                    possiblyFinishedTicket.firstIteration = false;
+                } else {
+                    // no work iterations left, which means the tester didn't find any
+                    // issues
+                    this.doneStack.push(possiblyFinishedTicket);
+                }
             }
         }
     }
@@ -1414,6 +1427,7 @@ class Simulation {
                 // code review, so they can start on a new ticket
                 this.ticketCount++;
                 ticket = ticketFactory(this.ticketCount, this.maxInitialProgrammerWorkTimeInHours, this.maxFullRunTesterWorkTimeInHours, this.maxQaAutomationTime);
+                ticket.workStartDayTime = this.currentDayTime;
                 p.addTicket(ticket);
                 this.tickets.push(ticket);
             }
@@ -1462,32 +1476,67 @@ class Simulation {
         }, null);
     }
     handOutNewTesterWork() {
-        if (this.tester.nextAvailabilityCheckIn === this.currentDayTime) {
-            // can start new work
-            if (this.qaStack.length > 0) {
-                let highestPriorityTicketIndex = this.getHighestPriorityTicketForTester();
-                let ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
-                this.tester.addTicket(ticket);
-                try {
-                    this.tester.schedule.addWork(ticket);
-                } catch (err) {
-                    if (err instanceof RangeError) {
-                        // ran out of time in the sprint
-                        this.unfinishedStack.push(ticket);
-                    } else {
-                        throw err;
+        for (let t of this.testers){
+            if (t.nextAvailabilityCheckIn <= this.currentDayTime) {
+                // can start new work
+                let ticket;
+                if (this.qaStack.length > 0) {
+                    let highestPriorityTicketIndex = this.getHighestPriorityTicketIndexForTester(t);
+                    ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
+                    t.addTicket(ticket);
+                    try {
+                        t.schedule.addWork(ticket);
+                    } catch (err) {
+                        if (err instanceof RangeError) {
+                            // ran out of time in the sprint
+                            this.unfinishedStack.push(ticket);
+                        } else {
+                            throw err;
+                        }
                     }
                 }
             }
         }
     }
-    getHighestPriorityTicketForTester() {
-        return this.qaStack.reduce((highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
-            if (!highestPriorityTicketIndex) {
-                return currentTicketIndex;
+    backfillTesterScheduleForTimeTheySpentDoingNothing() {
+        // necessary to avoid logic issues towards the end of the sprint where next
+        // available time is determined.
+        for (let t of this.testers) {
+            while (t.nextAvailabilityCheckIn < this.currentDayTime && t.nextAvailabilityCheckIn > 0) {
+                let day = parseInt(t.nextAvailabilityCheckIn/this.dayLengthInMinutes);
+                let schedule = t.schedule.daySchedules[day];
+                let availableEndTime;
+                if (schedule.lastMeetingIndexBeforeAvailability === schedule.items.length - 1) {
+                    availableEndTime = this.dayLengthInMinutes;
+                } else {
+                    availableEndTime = schedule.items[schedule.lastMeetingIndexBeforeAvailability + 1].startTime;
+                }
+                let availabilityCheckInTime = t.nextAvailabilityCheckIn % this.dayLengthInMinutes;
+                let availableTimeDelta = availableEndTime - availabilityCheckInTime;
+                let duration = availableTimeDelta;
+                let timeSinceLastRelevantTime = this.currentDayTime - t.nextAvailabilityCheckIn
+                if (timeSinceLastRelevantTime < availableTimeDelta) {
+                    duration = timeSinceLastRelevantTime;
+                }
+                if (duration < 0) {
+                    throw new Error()
+                }
+                schedule.scheduleMeeting(new NothingEvent(availabilityCheckInTime, duration, t, day));
+                // force this value to update before doing check on next loop iteration
+                t.nextAvailabilityCheckIn;
             }
-            if (currentTicket.priority < this.qaStack[highestPriorityTicketIndex].priority) {
-                return currentTicketIndex;
+        }
+    }
+    getHighestPriorityTicketIndexForTester(tester) {
+        let ownedTickets = tester.tickets.map((ticket) => ticket.number);
+        return this.qaStack.reduce((highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
+            if (ownedTickets.includes(currentTicket.number)){
+                if (!highestPriorityTicketIndex) {
+                    return currentTicketIndex;
+                }
+                if (currentTicket.priority < this.qaStack[highestPriorityTicketIndex].priority) {
+                    return currentTicketIndex;
+                }
             }
             return highestPriorityTicketIndex;
         }, null);
@@ -1555,10 +1604,10 @@ class Simulation {
 
 
 var t0 = performance.now()
-// let simulation;
-// for (let i = 0; i < 1000; i++) {
-let simulation = new Simulation();
-// }
+let simulation;
+for (let i = 0; i < 1000; i++) {
+    simulation = new Simulation();
+}
 let workers = simulation.workers;
 var t1 = performance.now()
 console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
@@ -2093,7 +2142,7 @@ function generateStackGridContents(simulation){
         </ul>
         <p class="sectionTitle">In QA</p>
         <ul style="list-style-type: none;">
-            ${stackLog.inQa? `<li style="background: ${ticketWorkColors[stackLog.inQa.number % (ticketWorkColors.length - 1)]}">#${stackLog.inQa.number}</li>`: ''}
+            ${stackLog.inQa.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
         </ul>
     </div>
     <div style="grid-area: 1 / 4 / span 1 / span 1;">
