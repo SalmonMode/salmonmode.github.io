@@ -1090,7 +1090,7 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
     }, [])];
     let waitingForQa = qaStack.slice();
     let inQa = [...testers.reduce((tickets, tester) => {
-        if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.testerWorkIterations < tester.schedule.lastTicketWorkedOn.testerCodeReviewWorkIterations) {
+        if (tester.schedule.lastTicketWorkedOn) {
             tickets.push(tester.schedule.lastTicketWorkedOn);
         }
         return tickets;
@@ -1107,7 +1107,7 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
 
 
 class Simulation {
-    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 1, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
         this.dayLengthInMinutes = 480;
         this.dayStartHour = 10;
         this.sprintDayCount = sprintDayCount;
@@ -1122,6 +1122,7 @@ class Simulation {
         // so this is used to get the dayTime of events relative to the full sprint.
         this.dayTimeAdjustment = regressionTestDayCount * this.dayLengthInMinutes;
         this.programmerCount = programmerCount;
+        this.testerCount = testerCount;
         this.maxInitialProgrammerWorkTimeInHours = maxInitialProgrammerWorkTimeInHours;
         this.maxFullRunTesterWorkTimeInHours = maxFullRunTesterWorkTimeInHours;
         this.maxQaAutomationTime = maxQaAutomationTime;
@@ -1148,10 +1149,17 @@ class Simulation {
             prog.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
             this.programmers.push(prog);
         }
-        this.tester = new Tester(this.sprintDayCount, this.regressionTestDayCount);
-        this.tester.name = `${Tester.name} #${1}`;
-        this.tester.color = workerIdentifierColors[this.programmerCount % (workerIdentifierColors.length - 1)];
-        this.testers = [this.tester];
+        this.testers = [];
+        for (let i = this.programmerCount; i < this.testerCount + this.programmerCount; i++) {
+            let t = new Tester(this.sprintDayCount, this.regressionTestDayCount);
+            t.name = `${Tester.name} #${i + 1}`;
+            t.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
+            this.testers.push(t);
+        }
+        // this.tester = new Tester(this.sprintDayCount, this.regressionTestDayCount);
+        // this.tester.name = `${Tester.name} #${1}`;
+        // this.tester.color = workerIdentifierColors[this.programmerCount % (workerIdentifierColors.length - 1)];
+        // this.testers = [this.tester];
         this.workers = [...this.programmers, ...this.testers];
     }
     simulate() {
@@ -1270,7 +1278,7 @@ class Simulation {
         // working on. Tickets being code reviewed are not considered for this, as they
         // are tracked elsewhere.
         return [...this.testers.reduce((tickets, tester) => {
-            if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.testerWorkIterations < tester.schedule.lastTicketWorkedOn.testerCodeReviewWorkIterations) {
+            if (tester.schedule.lastTicketWorkedOn) {
                 tickets.push(tester.schedule.lastTicketWorkedOn);
             }
             return tickets;
