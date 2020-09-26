@@ -1180,9 +1180,6 @@ class Simulation {
             if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
                 throw new Error();
             }
-            if (this.currentDayTime > this.dayLengthInMinutes * this.sprintDayCount) {
-                console.log("here")
-            }
             this.processProgrammerCompletedWork();
             this.processTesterCompletedWork();
             if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
@@ -2170,7 +2167,7 @@ function generateStackGridContents(simulation){
         </ul>
     </div>
     <div style="grid-area: 1 / 5 / span 1 / span 1;">
-        <p class="sectionTitle">Done (${stackLog.sentBack.length})</p>
+        <p class="sectionTitle">Done (${stackLog.done.length})</p>
         <ul style="list-style-type: none;">
             ${stackLog.done.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
         </ul>
@@ -2346,13 +2343,24 @@ function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
         .datum({dataKey: dataKey, yScale: timeChartGraphY});
 
     addMouseBoxToTimeChartGraph(graphSvg);
-
 }
-function generateStackChartGraphForDataType(parentDiv, title, dataKey) {
-    // not affected by worker selection
 
-    let data = simulation.stackTimelineHashMap.map((entry) => entry[dataKey].length);
-    let maxHeight = Math.max(...data);
+function generateStackChartGraphForDataType(parentDiv, title) {
+    // not affected by worker selection
+    let keys = [
+        // "activeDevelopment",
+        "waitingForCodeReview",
+        // "inCodeReview",
+        "waitingForQa",
+        // "inQa",
+        "sentBack",
+        "done"
+    ];
+    let dataTicketCounts = [];
+    keys.forEach(k => dataTicketCounts.push({dataKey: k, ticketCounts: []}));
+    simulation.stackTimelineHashMap.forEach(entry => keys.forEach((k, i) => dataTicketCounts[i].ticketCounts.push(entry[k].length)));
+    dataTicketCounts.forEach((v, i) => v.color = workerIdentifierColors[Math.abs((i % (workerIdentifierColors.length - 1) - (workerIdentifierColors.length - 1)))]);
+    let maxHeight = dataTicketCounts.reduce((highest, d) => Math.max(highest, ...d.ticketCounts), 0);
 
     let timeChartGraphY = d3.scaleLinear()
         .domain([0, maxHeight * 1.2])
@@ -2382,14 +2390,16 @@ function generateStackChartGraphForDataType(parentDiv, title, dataKey) {
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
 
     graphSvg.append("g")
-        .append("path")
-        .datum(data)
-        .attr("d", d3.line()
+        .selectAll("path")
+        .data(dataTicketCounts)
+        .join("path")
+        .attr("d", data => d3.line()
           .x((d, i) => timeChartGraphX(i))
           .y((d) => timeChartGraphY(d))
+          (data.ticketCounts)
         )
-        .attr("stroke", workerIdentifierColors[workerIdentifierColors.length - 1])
-        .style("stroke-width", 4)
+        .attr("stroke", d => d.color)
+        .style("stroke-width", 2)
         .style("fill", "none")
         .attr("clip-path", "url(#timeChartsClipPath)")
         .attr("class", "stackGraphPath")
@@ -2399,20 +2409,22 @@ function generateStackChartGraphForDataType(parentDiv, title, dataKey) {
 
     let yAxis = graphSvg.append("g")
         .attr("class", "yAxisStack")
-        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true})
+        .datum({ticketCounts: dataTicketCounts, yScale: timeChartGraphY, isStackGraph: true})
         .call(d3.axisLeft(timeChartGraphY));
 
-    let focus = graphSvg.append('g')
-        .append('circle')
+    let focus = graphSvg.append("g")
+        .selectAll('circle.graphAnnotationCircle')
+        .data(dataTicketCounts)
+        .join('circle')
         .style("fill", "none")
         .attr("stroke", "black")
         .attr('r', 8.5)
         .attr("class", "graphAnnotationCircle")
-        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true});
+        .datum(data => { return {ticketCounts: data.ticketCounts, yScale: timeChartGraphY, isStackGraph: true}});
 
-    let focusText = graphSvg.append('g')
-        .attr("class", "graphAnnotation")
-        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true});
+    // let focusText = graphSvg.append('g')
+    //     .attr("class", "graphAnnotation")
+    //     .datum({ticketCounts: dataTicketCounts, yScale: timeChartGraphY, isStackGraph: true});
 
     addMouseBoxToTimeChartGraph(graphSvg);
 
@@ -2462,7 +2474,7 @@ generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Fixing Ticke
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "CodeReview", "codeReview");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Regression Testing", "regressionTesting");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Nothing", "nothing");
-generateStackChartGraphForDataType(d3.select("#timeChartsWrapper"), "Waiting For QA", "waitingForQa");
+generateStackChartGraphForDataType(d3.select("#timeChartsWrapper"), "Tickets in Stasis");
 
 
 
