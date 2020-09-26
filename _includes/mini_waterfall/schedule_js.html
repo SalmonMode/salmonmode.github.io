@@ -1180,6 +1180,9 @@ class Simulation {
             if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
                 throw new Error();
             }
+            if (this.currentDayTime > this.dayLengthInMinutes * this.sprintDayCount) {
+                console.log("here")
+            }
             this.processProgrammerCompletedWork();
             this.processTesterCompletedWork();
             if (this.getNextCheckInTime() > 0 && this.getNextCheckInTime() < this.currentDayTime) {
@@ -1239,7 +1242,7 @@ class Simulation {
         // take the stacks at the moment of this function being called, and create a
         // series of stack log entries for each minute in the given dayTime range
         let adjustedStartDayTime = Math.max(0, dayTimeRangeStart - this.dayTimeAdjustment);
-        let adjustedEndDayTime = Math.max(0, dayTimeRangeEnd - this.dayTimeAdjustment);
+        let adjustedEndDayTime = Math.min(Math.max(0, dayTimeRangeEnd - this.dayTimeAdjustment), this.totalSprintMinutes);
         let activeDevelopment = this.getTicketsCurrentlyInActiveDevelopment();
         let waitingForCodeReview = this.codeReviewStack.slice();
         let inCodeReview = this.getTicketsCurrentlyInCodeReview();
@@ -1248,7 +1251,7 @@ class Simulation {
         let sentBack = this.passBackStack.slice();
         let done = this.doneStack.slice();
         let logEntry = new StackLogEntry(adjustedStartDayTime, adjustedEndDayTime, activeDevelopment, waitingForCodeReview, inCodeReview, waitingForQa, inQa, sentBack, done);
-        for (let i = 0; i < adjustedEndDayTime - adjustedStartDayTime; i++) {
+        for (let i = adjustedStartDayTime; i < adjustedEndDayTime; i++) {
             this.stackTimelineHashMap.push(logEntry);
         }
         this.stackTimelineSets.push(logEntry);
@@ -1412,7 +1415,7 @@ class Simulation {
         // planned work for the sprint, or work that was pulled into the sprint from the
         // backlog. Either way, a programmer should always have work available to do.
         for (let p of this.programmers) {
-            if (p.nextAvailabilityCheckIn !== this.currentDayTime) {
+            if (p.nextAvailabilityCheckIn !== this.currentDayTime || p.nextAvailabilityCheckIn < 0) {
                 continue;
             }
             // can start new work
@@ -1487,6 +1490,10 @@ class Simulation {
     }
     handOutNewTesterWork() {
         for (let t of this.testers){
+            if (t.nextAvailabilityCheckIn < 0){
+                // can't accept new work
+                continue;
+            }
             if (t.nextAvailabilityCheckIn <= this.currentDayTime) {
                 // can start new work
                 let ticket;
