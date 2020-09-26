@@ -375,7 +375,7 @@ class Schedule {
     }
 
     get earliestAvailableDayScheduleForWork() {
-        this.findEarliestAvailableDayForWorkIndex();
+        // this.findEarliestAvailableDayForWorkIndex();
         if (this.earliestAvailableDayForWorkIndex === -1) {
             return null;
         }
@@ -383,6 +383,7 @@ class Schedule {
     }
 
     get earliestAvailableTimeForWork() {
+        // this.findEarliestAvailableDayForWorkIndex();
         if (this.earliestAvailableDayForWorkIndex === -1) {
             return -1;
         }
@@ -757,6 +758,7 @@ class Worker {
         // If needed, the day can be found again by dividing by 480 and then rounding
         // down.
         let earliestDay = this.schedule.earliestAvailableDayForWorkIndex;
+        this.schedule.findEarliestAvailableDayForWorkIndex();
         let earliestTime = this.schedule.earliestAvailableTimeForWork;
         earliestTime += earliestDay * 480;
         return earliestTime;
@@ -1107,7 +1109,7 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
 
 
 class Simulation {
-    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 1, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 2, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
         this.dayLengthInMinutes = 480;
         this.dayStartHour = 10;
         this.sprintDayCount = sprintDayCount;
@@ -1152,7 +1154,7 @@ class Simulation {
         this.testers = [];
         for (let i = this.programmerCount; i < this.testerCount + this.programmerCount; i++) {
             let t = new Tester(this.sprintDayCount, this.regressionTestDayCount);
-            t.name = `${Tester.name} #${i + 1}`;
+            t.name = `${Tester.name} #${i + 1 - this.programmerCount}`;
             t.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
             this.testers.push(t);
         }
@@ -1256,7 +1258,7 @@ class Simulation {
         // working on. Tickets being code reviewed are not considered for this, as they
         // are tracked elsewhere.
         return [...this.programmers.reduce((tickets, programmer) => {
-            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations < programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations.length < programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations.length) {
                 tickets.push(programmer.schedule.lastTicketWorkedOn);
             }
             return tickets;
@@ -1267,7 +1269,7 @@ class Simulation {
         // working on. Tickets being code reviewed are not considered for this, as they
         // are tracked elsewhere.
         return [...this.programmers.reduce((tickets, programmer) => {
-            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations === programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations) {
+            if (programmer.schedule.lastTicketWorkedOn && programmer.schedule.lastTicketWorkedOn.programmerWorkIterations.length === programmer.schedule.lastTicketWorkedOn.programmerCodeReviewWorkIterations.length) {
                 tickets.push(programmer.schedule.lastTicketWorkedOn);
             }
             return tickets;
@@ -1551,9 +1553,9 @@ class Simulation {
     }
     aggregateMinutesSpent() {
         // Example for getting time spent context switching at minute 321
-        // worker 0: this.minutesSpentByDayTime[321].workers[0].contextSwitching
-        // all together: this.minutesSpentByDayTime[321].cumulativeMinutes.contextSwitching
-        this.minutesSpentByDayTime = [];
+        // worker 0: this.workerDataForDayTime[321].workers[0].contextSwitching
+        // all together: this.workerDataForDayTime[321].cumulativeMinutes.contextSwitching
+        this.workerDataForDayTime = [];
 
         for (let i = 0; i < this.totalSprintMinutes; i++) {
             let dataForWorkersAtThisDayTime = [];
@@ -1579,9 +1581,10 @@ class Simulation {
             });
             dataForWorkersAtThisDayTime["all"] = cumulativeMinutesForDayTime;
 
-            this.minutesSpentByDayTime.push({
+            this.workerDataForDayTime.push({
                 workers: dataForWorkersAtThisDayTime,
                 cumulativeMinutes: cumulativeMinutesForDayTime,
+                logEntry: this.stackTimelineHashMap[i],
                 prettyDayTime: this.getPrettyFormattedDayTime(i)
             });
         }
@@ -1613,7 +1616,7 @@ class Simulation {
 
 var t0 = performance.now()
 let simulation;
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 10; i++) {
     simulation = new Simulation();
 }
 let workers = simulation.workers;
@@ -2148,7 +2151,7 @@ function generateStackGridContents(simulation){
         <ul style="list-style-type: none;">
             ${stackLog.inCodeReview.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
         </ul>
-        <p class="sectionTitle">In QA</p>
+        <p class="sectionTitle">In QA (${stackLog.inQa.length})</p>
         <ul style="list-style-type: none;">
             ${stackLog.inQa.map((ticket) => `<li style="background: ${ticketWorkColors[ticket.number % (ticketWorkColors.length - 1)]}">#${ticket.number}</li>`).join("")}
         </ul>
@@ -2218,15 +2221,27 @@ timeChartSynchronizerAdjustRange = d3.scaleLinear()
 
 function updateAnnotations(targetedDayTime) {
     let selectedOption = dataSelector.property("value");
-    let targetedDayTimeAggregateData = simulation.minutesSpentByDayTime[targetedDayTime]
+    let targetedDayTimeAggregateData = simulation.workerDataForDayTime[targetedDayTime];
+    let targetStackData = targetedDayTimeAggregateData.logEntry;
     let targetMinutes = targetedDayTimeAggregateData.workers[selectedOption];
     let x0 = timeChartGraphX(targetedDayTime);
     d3.selectAll("circle.graphAnnotationCircle")
         .attr("cx", x0)
-        .attr("cy", (d) => d.yScale(targetMinutes[d.dataKey]));
+        .attr("cy", (d) => d.isStackGraph ? d.yScale(d.ticketCounts[targetedDayTime]) : d.yScale(targetMinutes[d.dataKey]));
     d3.selectAll("g.graphAnnotation")
         .selectAll("text")
-        .data((d) => [[d.yScale(targetMinutes[d.dataKey]), targetedDayTimeAggregateData.prettyDayTime], [d.yScale(targetMinutes[d.dataKey]), `${targetMinutes[d.dataKey]} minutes`]])
+        .data((d) => {
+            if (d.isStackGraph) {
+                return [
+                    [d.yScale(d.ticketCounts[targetedDayTime]), targetedDayTimeAggregateData.prettyDayTime],
+                    [d.yScale(d.ticketCounts[targetedDayTime]), `${d.ticketCounts[targetedDayTime]} tickets`]
+                ];
+            }
+            return [
+                [d.yScale(targetMinutes[d.dataKey]), targetedDayTimeAggregateData.prettyDayTime],
+                [d.yScale(targetMinutes[d.dataKey]), `${targetMinutes[d.dataKey]} minutes`]
+            ];
+        })
         .join("text")
         .attr("x", x0)
         .attr("y", (d) => d[0])
@@ -2254,8 +2269,6 @@ function addMouseBoxToTimeChartGraph(targetSvg) {
         .on("mousemove", (event) => {
             let x0 = d3.pointer(event)[0];
             let targetedDayTime = Math.max(0, Math.round(timeChartGraphX.invert(timeChartGraphXMouseEventTranslator(x0))) -1);
-            let selectedOption = dataSelector.property("value");
-            selectedOption = selectedOption === "all"? selectedOption: +selectedOption;
             updateAnnotations(targetedDayTime);
         });
 }
@@ -2263,7 +2276,7 @@ function addMouseBoxToTimeChartGraph(targetSvg) {
 
 function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
 
-    let maxHeight = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length -1].cumulativeMinutes[dataKey];
+    let maxHeight = simulation.workerDataForDayTime[simulation.workerDataForDayTime.length -1].cumulativeMinutes[dataKey];
 
     let timeChartGraphY = d3.scaleLinear()
         .domain([0, maxHeight * 1.2])
@@ -2272,7 +2285,7 @@ function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
     var stackedData = d3.stack()
         .keys([...Array(simulation.workers.length).keys()])
         .value((d,k,i) => d.workers[k][dataKey])
-        (simulation.minutesSpentByDayTime);
+        (simulation.workerDataForDayTime);
 
     stackedData.forEach(d => {
         d.yScale = timeChartGraphY;
@@ -2328,13 +2341,92 @@ function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
     addMouseBoxToTimeChartGraph(graphSvg);
 
 }
+function generateStackChartGraphForDataType(parentDiv, title, dataKey) {
+    // not affected by worker selection
+
+    let data = simulation.stackTimelineHashMap.map((entry) => entry[dataKey].length);
+    let maxHeight = Math.max(...data);
+
+    let timeChartGraphY = d3.scaleLinear()
+        .domain([0, maxHeight * 1.2])
+        .range([timeChartGraphHeight, 0]);
+
+    // var stackedData = d3.stack()
+    //     .keys([...Array(simulation.workers.length).keys()])
+    //     .value((d,k,i) => d.workers[k][dataKey])
+    //     (simulation.workerDataForDayTime);
+
+    // stackedData.forEach(d => {
+    //     d.yScale = timeChartGraphY;
+    //     d.dataKey = dataKey;
+    // });
+
+    parentDiv.append("p")
+        .attr("class", "sectionTitle")
+        .text(title);
+    let wrapperSvg = parentDiv.append("svg")
+        .attr("width", "100%")
+        .attr("height", timeChartGraphHeight + timeChartMargin.top + timeChartMargin.bottom )
+        .attr("id", "timeChartsSvg");
+    let graphSvg = wrapperSvg.append("svg")
+        .attr("y", timeChartMargin.top)
+        .attr("x", timeChartMargin.left)
+        .attr("width", "100%")
+        .datum({yScale: timeChartGraphY});
+    let clipPath = graphSvg.append("clipPath")
+        .attr("id", "timeChartsClipPath");
+    clipPath.append("rect")
+        .attr("x", "0")
+        .attr("y", "-10")
+        .attr("height", "100%");
+    clipPath.node().update = function () {
+        d3.select(this).select("rect").attr("width", timeChartSynchronizerAdjustRange(synchronizer.value.rangeEndCoord));
+    }
+    synchronizer.addEventListener("input", (event) => clipPath.node().update());
+
+    graphSvg.append("g")
+        .append("path")
+        .datum(data)
+        .attr("d", d3.line()
+          .x((d, i) => timeChartGraphX(i))
+          .y((d) => timeChartGraphY(d))
+        )
+        .attr("stroke", workerIdentifierColors[workerIdentifierColors.length - 1])
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .attr("clip-path", "url(#timeChartsClipPath)")
+        .attr("class", "stackGraphPath")
+    let xAxis = graphSvg.append("g")
+        .attr("transform", "translate(0," + timeChartGraphHeight + ")")
+        .call(timeChartGraphBottomAxisCallback);
+
+    let yAxis = graphSvg.append("g")
+        .attr("class", "yAxisStack")
+        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true})
+        .call(d3.axisLeft(timeChartGraphY));
+
+    let focus = graphSvg.append('g')
+        .append('circle')
+        .style("fill", "none")
+        .attr("stroke", "black")
+        .attr('r', 8.5)
+        .attr("class", "graphAnnotationCircle")
+        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true});
+
+    let focusText = graphSvg.append('g')
+        .attr("class", "graphAnnotation")
+        .datum({ticketCounts: data, yScale: timeChartGraphY, isStackGraph: true});
+
+    addMouseBoxToTimeChartGraph(graphSvg);
+
+}
 
 synchronizer.addEventListener("input", (event) => updateAnnotationsToReflectSynchronizer());
 
 function updateYScalesAndAxesForNewSelectedOption(selectedOption){
     // data:
     // {dataKey: dataKey, yScale: timeChartGraphY}
-    let minuteData = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length - 1].workers[selectedOption];
+    let minuteData = simulation.workerDataForDayTime[simulation.workerDataForDayTime.length - 1].workers[selectedOption];
     d3.selectAll(".yAxis").datum(d => d).join("g")
         .each((d) => d.yScale.domain([0, minuteData[d.dataKey] * 1.2]))
             .transition()
@@ -2342,10 +2434,10 @@ function updateYScalesAndAxesForNewSelectedOption(selectedOption){
                 .each(function (d) { d3.axisLeft().scale(d.yScale)(d3.select(this))});
 }
 
-function updateChartsForSelection() {
+function updateMinuteChartsForSelection() {
     let selectedOption = dataSelector.property("value");
     let maxHeight;
-    let minutes = simulation.minutesSpentByDayTime[simulation.minutesSpentByDayTime.length - 1];
+    let minutes = simulation.workerDataForDayTime[simulation.workerDataForDayTime.length - 1];
     updateYScalesAndAxesForNewSelectedOption(selectedOption);
     d3.selectAll("g.chartPaths")
         .selectAll("path")
@@ -2363,10 +2455,9 @@ function updateChartsForSelection() {
                 .y0((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[0] : 0))
                 .y1((d, i, workerStackedData) => workerStackedData.yScale(selectedOption === "all" ? d[1]: d.data.workers[selectedOption][workerStackedData.dataKey]))
             );
-    updateAnnotationsToReflectSynchronizer()
-
+    updateAnnotationsToReflectSynchronizer();
 }
-dataSelector.node().addEventListener("change", (event) => updateChartsForSelection())
+dataSelector.node().addEventListener("change", (event) => updateMinuteChartsForSelection())
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Meetings", "meeting");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Context Switching", "contextSwitching");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Productive Ticket Work", "productiveTicketWork");
@@ -2374,6 +2465,7 @@ generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Fixing Ticke
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "CodeReview", "codeReview");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Regression Testing", "regressionTesting");
 generateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "Nothing", "nothing");
+generateStackChartGraphForDataType(d3.select("#timeChartsWrapper"), "Waiting For QA", "waitingForQa");
 
 
 
@@ -2382,6 +2474,6 @@ r.node().handleCoordUpdate({x: 0});
 // Update charts after triggering coordinate/synchronizer update, because the charts
 // will need the synchronizer to have data for them to use, and it starts off without
 // any.
-updateChartsForSelection();
+updateMinuteChartsForSelection();
 
 </script>

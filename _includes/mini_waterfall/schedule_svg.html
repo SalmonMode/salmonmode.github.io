@@ -31,14 +31,20 @@
         position: -webkit-sticky;
         position: sticky;
         top: 10px;
+        background-color: #f8f9fa!important;
+        display: inline-block;
+    }
+    #dataSetSelectWrapper * {
+        display: inline-block;
+        margin: 0;
     }
 
 </style>
 <div id='sprintTimelineWrapper'><svg width="100%" height="300" id="sprintTimeline"></svg></div>
 <div id='sprintTimelineMinimapWrapper'><svg width="100%" height="75" id="sprintTimelineMinimap"></svg></div>
-<div id="playStopButtonDiv"></div>
 <div id="timeCharts">
 <div id="dataSetSelectWrapper">
+<div id="playStopButtonDiv"></div>
 <select name="dataSetSelection" id="dataSetSelection"></select>
 </div>
 <div id="timeChartsWrapper">
