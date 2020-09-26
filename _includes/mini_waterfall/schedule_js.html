@@ -2351,16 +2351,6 @@ function generateStackChartGraphForDataType(parentDiv, title, dataKey) {
         .domain([0, maxHeight * 1.2])
         .range([timeChartGraphHeight, 0]);
 
-    // var stackedData = d3.stack()
-    //     .keys([...Array(simulation.workers.length).keys()])
-    //     .value((d,k,i) => d.workers[k][dataKey])
-    //     (simulation.workerDataForDayTime);
-
-    // stackedData.forEach(d => {
-    //     d.yScale = timeChartGraphY;
-    //     d.dataKey = dataKey;
-    // });
-
     parentDiv.append("p")
         .attr("class", "sectionTitle")
         .text(title);
