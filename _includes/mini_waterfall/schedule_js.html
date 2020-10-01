@@ -1109,7 +1109,7 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
 
 
 class Simulation {
-    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 2, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
         this.dayLengthInMinutes = 480;
         this.dayStartHour = 10;
         this.sprintDayCount = sprintDayCount;
@@ -2399,7 +2399,7 @@ function generateStackChartGraphForDataType(parentDiv, title) {
           (data.ticketCounts)
         )
         .attr("stroke", d => d.color)
-        .style("stroke-width", 2)
+        .style("stroke-width", 3)
         .style("fill", "none")
         .attr("clip-path", "url(#timeChartsClipPath)")
         .attr("class", "stackGraphPath")
