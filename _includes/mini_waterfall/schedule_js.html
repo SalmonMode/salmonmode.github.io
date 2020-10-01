@@ -1109,7 +1109,7 @@ function generateStackLogEntry(currentSprintDayTime, previousSprintDayTime, prog
 
 
 class Simulation {
-    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 5, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 1, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
         this.dayLengthInMinutes = 480;
         this.dayStartHour = 10;
         this.sprintDayCount = sprintDayCount;
