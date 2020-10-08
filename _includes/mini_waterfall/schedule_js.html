@@ -2232,6 +2232,8 @@ function updateAnnotations(targetedDayTime) {
         .attr("y", (d) => d[0])
         .text((d) => d[1])
         .attr("dy", (d,i) => `-${(i+1) * 1}em`);
+    d3.selectAll("text.graphLegend")
+        .text((d, i) => `${d.title}: ${d.ticketCounts[targetedDayTime]}`);
 }
 
 function updateAnnotationsToReflectSynchronizer() {
@@ -2329,14 +2331,20 @@ function generateTimeChartGraphForDataType(parentDiv, title, dataKey) {
 function generateStackChartGraphForDataType(parentDiv, title) {
     // not affected by worker selection
     let keys = [
+        "waitingForQa",
+        "done",
         // "activeDevelopment",
         "waitingForCodeReview",
         // "inCodeReview",
-        "waitingForQa",
         // "inQa",
-        "sentBack",
-        "done"
+        "sentBack"
     ];
+    let titles = {
+        waitingForQa: 'Waiting for QA',
+        done: 'Done',
+        waitingForCodeReview: 'Waiting for Code Review',
+        sentBack: 'Waiting for Fix',
+    }
     let dataTicketCounts = [];
     keys.forEach(k => dataTicketCounts.push({dataKey: k, ticketCounts: []}));
     simulation.stackTimelineHashMap.forEach(entry => keys.forEach((k, i) => dataTicketCounts[i].ticketCounts.push(entry[k].length)));
@@ -2402,6 +2410,34 @@ function generateStackChartGraphForDataType(parentDiv, title) {
         .attr('r', 8.5)
         .attr("class", "graphAnnotationCircle")
         .datum(data => { return {ticketCounts: data.ticketCounts, yScale: timeChartGraphY, isStackGraph: true}});
+
+    keyY = d3.scaleBand()
+        .domain([...Array(keys.length).keys()])
+        .range([0, keys.length*20])
+        .padding(0.01);
+
+    let keySvgs = graphSvg.append("g")
+        .selectAll("svg")
+        .data(dataTicketCounts)
+        .join("svg")
+            .attr("x", 10)
+            .attr("y", (key, i) => keyY(i));
+
+    keySvgs.each(d => d)
+        .append('rect')
+            .attr('x', '0')
+            .attr('y', '0')
+            .attr('height', 15)
+            .attr('width', 15)
+            .attr('fill', d => d.color);
+
+    keySvgs.each(d => d)
+        .append('text')
+            .attr('class', 'graphLegend')
+            .attr('x', 20)
+            .attr('y', '0')
+            .text((d, i) => titles[keys[i]])
+            .datum((data, i) => { return {ticketCounts: data.ticketCounts, title: titles[keys[i]], key: keys[i]}});
 
     addMouseBoxToTimeChartGraph(graphSvg);
 
