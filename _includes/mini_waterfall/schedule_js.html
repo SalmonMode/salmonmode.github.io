@@ -1780,7 +1780,6 @@ svgGraphG.append("g")
       .attr("width", timeBoundaryX.bandwidth())
       .attr("height", "100%");
 
-
 svgGraphG.append("g")
     .selectAll("text")
     .data([...Array(simulation.totalDays).keys()])
@@ -1792,6 +1791,31 @@ svgGraphG.append("g")
       .text((i) => `End of ${i === simulation.totalDays - 1 ? "Sprint" : `Day ${i + 1}`}`)
       .attr("alignment-baseline", "text-after-edge");
 
+// draw regression test grey out for previous sprint
+svgGraphG.append("g")
+    .selectAll("rect")
+    .data([...Array(simulation.regressionTestDayCount).keys()])
+    .join("rect")
+        .attr("x", (i) => x(i))
+        .attr("y", (i) => y(simulation.programmerCount))
+        .attr("width", (i) => x.bandwidth())
+        .attr("height", (i) => y.bandwidth() + (y.step() * (simulation.testerCount - 1)))
+        .attr('fill', 'grey')
+        .attr('opacity', '70%')
+        .attr('pointer-events', 'none');
+
+// draw programmer work grey out for next sprint
+svgGraphG.append("g")
+    .selectAll("rect")
+    .data([...Array(simulation.regressionTestDayCount).keys()])
+    .join("rect")
+        .attr("x", (i) => x(i + simulation.sprintDayCount))
+        .attr("y", (i) => y(0))
+        .attr("width", (i) => x.bandwidth())
+        .attr("height", (i) => y.bandwidth() + (y.step() * (simulation.programmerCount - 1)))
+        .attr('fill', 'grey')
+        .attr('opacity', '70%')
+        .attr('pointer-events', 'none');
 
 let fadeGDefs = svgGraph.append("defs");
 
@@ -1904,6 +1928,32 @@ svgMinimap.append("g")
       .attr("width", (daySchedule, i) => timeBoundaryMinimapX.bandwidth())
       .attr("height", "100%")
 svgMinimap.attr("height", simulation.workers.length * minimapY.bandwidth())
+
+// draw regression test grey out for previous sprint
+svgMinimap.append("g")
+    .selectAll("rect")
+    .data([...Array(simulation.regressionTestDayCount).keys()])
+    .join("rect")
+        .attr("x", (i) => minimapX(i))
+        .attr("y", (i) => minimapY(simulation.programmerCount))
+        .attr("width", (i) => minimapX.bandwidth())
+        .attr("height", (i) => minimapY.bandwidth() + (minimapY.step() * (simulation.testerCount - 1)))
+        .attr('fill', 'grey')
+        .attr('opacity', '70%')
+        .attr('pointer-events', 'none');
+
+// draw programmer work grey out for next sprint
+svgMinimap.append("g")
+    .selectAll("rect")
+    .data([...Array(simulation.regressionTestDayCount).keys()])
+    .join("rect")
+        .attr("x", (i) => minimapX(i + simulation.sprintDayCount))
+        .attr("y", (i) => minimapY(0))
+        .attr("width", (i) => minimapX.bandwidth())
+        .attr("height", (i) => minimapY.bandwidth() + (minimapY.step() * (simulation.programmerCount - 1)))
+        .attr('fill', 'grey')
+        .attr('opacity', '70%')
+        .attr('pointer-events', 'none');
 
 svgMinimap.append("g")
     .attr("x", 0)
