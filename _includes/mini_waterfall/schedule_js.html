@@ -41,8 +41,6 @@ let workerIdentifierColors = [
 
 class Event {
     constructor(startTime, duration, owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
         this.startTime = startTime;
         this.duration = duration;
         this.endTime = startTime + duration;
@@ -62,8 +60,6 @@ class Meeting extends Event {}
 class DailyStandup extends Meeting {
     title = "Daily Standup";
     constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
         super(0, 15, owner, day);
     }
 }
@@ -71,8 +67,6 @@ class DailyStandup extends Meeting {
 class SprintPlanning extends Meeting {
     title = "Sprint Planning";
     constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
         super(0, 120, owner, day);
     }
 }
@@ -80,8 +74,6 @@ class SprintPlanning extends Meeting {
 class SprintRetro extends Meeting {
     title = "Sprint Retro";
     constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
         super(420, 60, owner, day);
     }
 }
@@ -91,27 +83,21 @@ class RegressionTesting extends Event {
 }
 
 class MorningRegressionTesting extends RegressionTesting {
-    constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
-        super(15, 105, owner, day);
+    constructor(lunchTime, owner, day) {
+        super(15, lunchTime - 15 , owner, day);
     }
 }
 
 class AfternoonRegressionTesting extends RegressionTesting {
-    constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
-        super(180, 300, owner, day);
+    constructor(lunchTime, owner, day) {
+        super(lunchTime + 60, 480 - (lunchTime + 60), owner, day);
     }
 }
 
 class AfternoonFinalDayRegressionTesting extends RegressionTesting {
     // Shorter than normal, because of the sprint retro
-    constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
-        super(180, 240, owner, day);
+    constructor(lunchTime, owner, day) {
+        super(lunchTime + 60, 420 - (lunchTime + 60), owner, day);
     }
 }
 
@@ -140,10 +126,8 @@ class LunchBreak extends Meeting {
     // the prior Event ended less than or equal to 30 minutes before it, then new work
     // won't be started. These are all true for Lunch as well.
     title = "Lunch";
-    constructor(owner, day) {
-        // the day starts at 0 minutes and ends roughly at 480 minutes, which are
-        // analogous to 10 AM, and 6 PM respectively.
-        super(120, 60, owner, day);
+    constructor(lunchTime, owner, day) {
+        super(lunchTime, 60, owner, day);
     }
 }
 
@@ -187,13 +171,13 @@ class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
 class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
 
 class DaySchedule {
-    constructor(owner, day) {
+    constructor(lunchTime, owner, day) {
         this.owner = owner;
         this.day = day;
         this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
         this.items = [];
         this.lastMeetingIndexBeforeAvailability = null;
-        let lunch = new LunchBreak(this.owner, this.day);
+        let lunch = new LunchBreak(lunchTime, this.owner, this.day);
         this.scheduleMeeting(lunch);
     }
 
@@ -328,7 +312,7 @@ class NoAvailableTimeSlotsError extends Error {
 }
 
 class Schedule {
-    constructor(sprintDayCount, regressionTestDayCount, owner) {
+    constructor(sprintDayCount, regressionTestDayCount, lunchTime, owner) {
         // The "first" ${regressionTestDayCount} days of the sprint are actually
         // the last days of the previous sprint when the tester is doing the
         // regression tests, and it is assumed that the programmers are getting
@@ -345,7 +329,7 @@ class Schedule {
         this.sprintDayCount = sprintDayCount;
         this.regressionTestDayCount = regressionTestDayCount;
         for (let i = 0; i < (this.sprintDayCount + this.regressionTestDayCount); i++) {
-            let schedule = new DaySchedule(this.owner, i);
+            let schedule = new DaySchedule(lunchTime, this.owner, i);
             if (i === regressionTestDayCount) {
                 // first actual day of sprint, so sprint planning
                 schedule.scheduleMeeting(new SprintPlanning(this.owner, i));
@@ -504,29 +488,29 @@ class ProgrammerSchedule extends Schedule {
 }
 
 class QaSchedule extends Schedule {
-    constructor(sprintDayCount, regressionTestDayCount, owner) {
-        super(sprintDayCount, regressionTestDayCount, owner);
+    constructor(sprintDayCount, regressionTestDayCount, lunchTime, owner) {
+        super(sprintDayCount, regressionTestDayCount, lunchTime, owner);
         for (let i = 0; i < regressionTestDayCount; i++) {
             let previousSprintDaySchedule = this.daySchedules[i];
             let currentSprintI = this.daySchedules.length - (regressionTestDayCount - i);
             let currentSprintDaySchedule = this.daySchedules[currentSprintI];
             // regression tests from previous sprint
-            previousSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(this.owner, i));
+            previousSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(lunchTime, this.owner, i));
             // regression tests for current sprint
-            currentSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(this.owner, currentSprintI));
+            currentSprintDaySchedule.scheduleMeeting(new MorningRegressionTesting(lunchTime, this.owner, currentSprintI));
             if (i === (regressionTestDayCount - 1)) {
                 // final day of sprint where afternoon regression tests will be
                 // shorter because of the sprint retro
 
                 // regression tests from previous sprint
-                previousSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(this.owner, i));
+                previousSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(lunchTime, this.owner, i));
                 // regression tests for current sprint
-                currentSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(this.owner, currentSprintI));
+                currentSprintDaySchedule.scheduleMeeting(new AfternoonFinalDayRegressionTesting(lunchTime, this.owner, currentSprintI));
             } else {
                 // regression tests from previous sprint
-                previousSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(this.owner, i));
+                previousSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(lunchTime, this.owner, i));
                 // regression tests for current sprint
-                currentSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(this.owner, currentSprintI));
+                currentSprintDaySchedule.scheduleMeeting(new AfternoonRegressionTesting(lunchTime, this.owner, currentSprintI));
             }
         }
         this.findEarliestAvailableDayForWorkIndex();
@@ -537,10 +521,11 @@ class QaSchedule extends Schedule {
 }
 
 class Worker {
-    constructor(sprintDayCount, regressionTestDayCount) {
+    constructor(sprintDayCount, regressionTestDayCount, lunchTime) {
         this.tickets = [];
         this.sprintDayCount = sprintDayCount
         this.regressionTestDayCount = regressionTestDayCount
+        this.lunchTime = lunchTime;
 
         // These arrays track the minutes in the dayTime format (e.g. 1455 for day 4 at
         // 10AM), which will be useful for determining how much time was spent on
@@ -786,13 +771,13 @@ class Worker {
 
 class Programmer extends Worker {
     initializeSchedule() {
-        this.schedule = new ProgrammerSchedule(this.sprintDayCount, this.regressionTestDayCount, this);
+        this.schedule = new ProgrammerSchedule(this.sprintDayCount, this.regressionTestDayCount, this.lunchTime, this);
     }
 }
 
 class Tester extends Worker {
     initializeSchedule() {
-        this.schedule = new QaSchedule(this.sprintDayCount, this.regressionTestDayCount, this);
+        this.schedule = new QaSchedule(this.sprintDayCount, this.regressionTestDayCount, this.lunchTime, this);
     }
 }
 
@@ -1108,9 +1093,11 @@ function generateStackLogEntry(currentDayTime, previousDayTime, programmers, tes
 
 
 class Simulation {
-    constructor(sprintDayCount = 10, regressionTestDayCount = 2, programmerCount = 5, testerCount = 1, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
+    constructor(sprintDayCount = 10, regressionTestDayCount = 2, dayStartTime = 10, programmerCount = 5, testerCount = 1, maxInitialProgrammerWorkTimeInHours = 16, maxFullRunTesterWorkTimeInHours = 8, maxQaAutomationTime = 8, averagePassBackCount = 1) {
         this.dayLengthInMinutes = 480;
         this.dayStartHour = 10;
+        this.dayStartTime = dayStartTime;
+        this.lunchTime = (12 - this.dayStartTime) * 60;
         this.sprintDayCount = sprintDayCount;
         this.regressionTestDayCount = regressionTestDayCount;
         this.totalDays = this.sprintDayCount + this.regressionTestDayCount;
@@ -1146,14 +1133,14 @@ class Simulation {
     prepareWorkers() {
         this.programmers = [];
         for (let i = 0; i < this.programmerCount; i++) {
-            let prog = new Programmer(this.sprintDayCount, this.regressionTestDayCount);
+            let prog = new Programmer(this.sprintDayCount, this.regressionTestDayCount, this.lunchTime);
             prog.name = `${Programmer.name} #${i + 1}`;
             prog.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
             this.programmers.push(prog);
         }
         this.testers = [];
         for (let i = this.programmerCount; i < this.testerCount + this.programmerCount; i++) {
-            let t = new Tester(this.sprintDayCount, this.regressionTestDayCount);
+            let t = new Tester(this.sprintDayCount, this.regressionTestDayCount, this.lunchTime);
             t.name = `${Tester.name} #${i + 1 - this.programmerCount}`;
             t.color = workerIdentifierColors[i % (workerIdentifierColors.length - 1)];
             this.testers.push(t);
