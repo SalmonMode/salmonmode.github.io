@@ -1118,7 +1118,8 @@ class Simulation {
         this.averagePassBackCount = averagePassBackCount;
         this.prepareWorkers();
         this.tickets = [];
-         // start the number off higher than 0 to make it more interesting
+        this.sprintTickets = [];
+        // start the number off higher than 0 to make it more interesting
         this.ticketCount = 100;
         this.qaStack = [];
         this.passBackStack = [];
@@ -1410,6 +1411,9 @@ class Simulation {
                 ticket.workStartDayTime = this.currentDayTime;
                 p.addTicket(ticket);
                 this.tickets.push(ticket);
+                if (this.currentDay < this.sprintDayCount) {
+                    this.sprintTickets.push(ticket);
+                }
             }
             try {
                 p.schedule.addWork(ticket);
