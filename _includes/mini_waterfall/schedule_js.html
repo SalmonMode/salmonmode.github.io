@@ -41,15 +41,19 @@
   ];
 
   class Event {
-    constructor(startTime, duration, owner, day) {
+    constructor(startTime, duration, owner, day, title = null) {
       this.startTime = startTime;
       this.duration = duration;
       this.endTime = startTime + duration;
       this.owner = owner;
       this.day = day;
-      this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
+      // this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
       this.rawStartDayTime = this.day * 480 + this.startTime;
       this.rawEndDayTime = this.rawStartDayTime + this.duration;
+      this.title = title || this.title;
+    }
+    get sprintDay() {
+      return this.day - this.owner.regressionTestDayCount + 1;
     }
     get color() {
       return d3.color(color(this));
@@ -360,7 +364,13 @@
   }
 
   class Schedule {
-    constructor(sprintDayCount, regressionTestDayCount, lunchTime, owner) {
+    constructor(
+      sprintDayCount,
+      regressionTestDayCount,
+      lunchTime,
+      customEventsByDay,
+      owner
+    ) {
       // The "first" ${regressionTestDayCount} days of the sprint are actually
       // the last days of the previous sprint when the tester is doing the
       // regression tests, and it is assumed that the programmers are getting
@@ -376,12 +386,18 @@
       this.daySchedules = [];
       this.sprintDayCount = sprintDayCount;
       this.regressionTestDayCount = regressionTestDayCount;
+      this.customEventsByDay = customEventsByDay;
       for (
         let i = 0;
         i < this.sprintDayCount + this.regressionTestDayCount;
         i++
       ) {
+        const customEvents = this.customEventsByDay[i];
         let schedule = new DaySchedule(lunchTime, this.owner, i);
+        for (const event of customEvents) {
+          event.owner = this.owner;
+          schedule.scheduleMeeting(event);
+        }
         if (i === regressionTestDayCount) {
           // first actual day of sprint, so sprint planning
           schedule.scheduleMeeting(new SprintPlanning(this.owner, i));
@@ -584,52 +600,87 @@
   }
 
   class QaSchedule extends Schedule {
-    constructor(sprintDayCount, regressionTestDayCount, lunchTime, owner) {
-      super(sprintDayCount, regressionTestDayCount, lunchTime, owner);
+    constructor(
+      sprintDayCount,
+      regressionTestDayCount,
+      lunchTime,
+      customEventsByDay,
+      owner
+    ) {
+      super(
+        sprintDayCount,
+        regressionTestDayCount,
+        lunchTime,
+        customEventsByDay,
+        owner
+      );
       for (let i = 0; i < regressionTestDayCount; i++) {
         let previousSprintDaySchedule = this.daySchedules[i];
         let currentSprintI =
           this.daySchedules.length - (regressionTestDayCount - i);
         let currentSprintDaySchedule = this.daySchedules[currentSprintI];
         // regression tests from previous sprint
-        previousSprintDaySchedule.scheduleMeeting(
-          new MorningRegressionTesting(lunchTime, this.owner, i)
-        );
-        // regression tests for current sprint
-        currentSprintDaySchedule.scheduleMeeting(
-          new MorningRegressionTesting(lunchTime, this.owner, currentSprintI)
-        );
-        if (i === regressionTestDayCount - 1) {
-          // final day of sprint where afternoon regression tests will be
-          // shorter because of the sprint retro
-
-          // regression tests from previous sprint
+        while (previousSprintDaySchedule.earliestAvailableTimeForWork > -1) {
+          let startTime =
+            previousSprintDaySchedule.earliestAvailableTimeForWork;
+          let duration =
+            previousSprintDaySchedule.nextAvailableWorkBlockMaxDuration;
           previousSprintDaySchedule.scheduleMeeting(
-            new AfternoonFinalDayRegressionTesting(lunchTime, this.owner, i)
+            new RegressionTesting(startTime, duration, this.owner, i)
           );
-          // regression tests for current sprint
+        }
+        while (currentSprintDaySchedule.earliestAvailableTimeForWork > -1) {
+          let startTime = currentSprintDaySchedule.earliestAvailableTimeForWork;
+          let duration =
+            currentSprintDaySchedule.nextAvailableWorkBlockMaxDuration;
           currentSprintDaySchedule.scheduleMeeting(
-            new AfternoonFinalDayRegressionTesting(
-              lunchTime,
-              this.owner,
-              currentSprintI
-            )
-          );
-        } else {
-          // regression tests from previous sprint
-          previousSprintDaySchedule.scheduleMeeting(
-            new AfternoonRegressionTesting(lunchTime, this.owner, i)
-          );
-          // regression tests for current sprint
-          currentSprintDaySchedule.scheduleMeeting(
-            new AfternoonRegressionTesting(
-              lunchTime,
+            new RegressionTesting(
+              startTime,
+              duration,
               this.owner,
               currentSprintI
             )
           );
         }
       }
+      //   previousSprintDaySchedule.scheduleMeeting(
+      //     new MorningRegressionTesting(lunchTime, this.owner, i)
+      //   );
+      //   // regression tests for current sprint
+      //   currentSprintDaySchedule.scheduleMeeting(
+      //     new MorningRegressionTesting(lunchTime, this.owner, currentSprintI)
+      //   );
+      //   if (i === regressionTestDayCount - 1) {
+      //     // final day of sprint where afternoon regression tests will be
+      //     // shorter because of the sprint retro
+
+      //     // regression tests from previous sprint
+      //     previousSprintDaySchedule.scheduleMeeting(
+      //       new AfternoonFinalDayRegressionTesting(lunchTime, this.owner, i)
+      //     );
+      //     // regression tests for current sprint
+      //     currentSprintDaySchedule.scheduleMeeting(
+      //       new AfternoonFinalDayRegressionTesting(
+      //         lunchTime,
+      //         this.owner,
+      //         currentSprintI
+      //       )
+      //     );
+      //   } else {
+      //     // regression tests from previous sprint
+      //     previousSprintDaySchedule.scheduleMeeting(
+      //       new AfternoonRegressionTesting(lunchTime, this.owner, i)
+      //     );
+      //     // regression tests for current sprint
+      //     currentSprintDaySchedule.scheduleMeeting(
+      //       new AfternoonRegressionTesting(
+      //         lunchTime,
+      //         this.owner,
+      //         currentSprintI
+      //       )
+      //     );
+      //   }
+      // }
       this.findEarliestAvailableDayForWorkIndex();
     }
     getWorkIterationQueueFromTicket(ticket) {
@@ -638,11 +689,17 @@
   }
 
   class Worker {
-    constructor(sprintDayCount, regressionTestDayCount, lunchTime) {
+    constructor(
+      sprintDayCount,
+      regressionTestDayCount,
+      lunchTime,
+      customEventsByDay
+    ) {
       this.tickets = [];
       this.sprintDayCount = sprintDayCount;
       this.regressionTestDayCount = regressionTestDayCount;
       this.lunchTime = lunchTime;
+      this.customEventsByDay = customEventsByDay;
 
       // These arrays track the minutes in the dayTime format (e.g. 1455 for day 4 at
       // 10AM), which will be useful for determining how much time was spent on
@@ -912,6 +969,7 @@
         this.sprintDayCount,
         this.regressionTestDayCount,
         this.lunchTime,
+        this.customEventsByDay,
         this
       );
     }
@@ -923,6 +981,7 @@
         this.sprintDayCount,
         this.regressionTestDayCount,
         this.lunchTime,
+        this.customEventsByDay,
         this
       );
     }
@@ -1367,7 +1426,7 @@
   }
 
   class Simulation {
-    constructor(
+    constructor({
       sprintDayCount = 10,
       regressionTestDayCount = 2,
       dayStartTime = 10,
@@ -1376,8 +1435,9 @@
       maxInitialProgrammerWorkTimeInHours = 16,
       maxFullRunTesterWorkTimeInHours = 8,
       maxQaAutomationTime = 8,
-      averagePassBackCount = 1
-    ) {
+      averagePassBackCount = 1,
+      customEventsByDay = null,
+    }) {
       this.dayLengthInMinutes = 480;
       this.dayStartHour = 10;
       this.dayStartTime = dayStartTime;
@@ -1405,7 +1465,13 @@
       this.maxFullRunTesterWorkTimeInHours = maxFullRunTesterWorkTimeInHours;
       this.maxQaAutomationTime = maxQaAutomationTime;
       this.averagePassBackCount = averagePassBackCount;
-      this.prepareWorkers();
+      if (customEventsByDay === null) {
+        // One array for each worker, each containing one array for each day of the sprint
+        customEventsByDay = [
+          ...Array(programmerCount + testerCount).keys(),
+        ].map(() => [...Array(this.totalDays).keys()].map(() => []));
+      }
+      this.prepareWorkers(customEventsByDay);
       this.tickets = [];
       this.sprintTickets = [];
       // start the number off higher than 0 to make it more interesting
@@ -1420,13 +1486,14 @@
       this.simulate();
       this.aggregateMinutesSpent();
     }
-    prepareWorkers() {
+    prepareWorkers(customEventsByDay) {
       this.programmers = [];
       for (let i = 0; i < this.programmerCount; i++) {
         let prog = new Programmer(
           this.sprintDayCount,
           this.regressionTestDayCount,
-          this.lunchTime
+          this.lunchTime,
+          customEventsByDay.shift()
         );
         prog.name = `${Programmer.name} #${i + 1}`;
         prog.color =
@@ -1442,7 +1509,8 @@
         let t = new Tester(
           this.sprintDayCount,
           this.regressionTestDayCount,
-          this.lunchTime
+          this.lunchTime,
+          customEventsByDay.shift()
         );
         t.name = `${Tester.name} #${i + 1 - this.programmerCount}`;
         t.color =
@@ -2021,9 +2089,17 @@
 
   var t0 = performance.now();
   let simulation;
-  for (let i = 0; i < 10; i++) {
-    simulation = new Simulation();
-  }
+  // for (let i = 0; i < 10; i++) {
+  //   simulation = new Simulation();
+  // }
+  // simulation = new Simulation({
+  //   customEventsByDay: [
+  //     [[new Meeting(15, 60, null, 0, 'Something')], [], [], [], [], [], [], [], [], [], [], []],
+  //     ...[...Array(4).keys()].map(() => [...Array(12).keys()].map(() => [])),
+  //     [[new Meeting(15, 60, null, 0, 'Something')], [], [], [], [], [], [], [], [], [], [], []]
+  //   ],
+  // });
+  simulation = new Simulation();
   let workers = simulation.workers;
   var t1 = performance.now();
   console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
