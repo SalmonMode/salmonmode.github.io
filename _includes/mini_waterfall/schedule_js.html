@@ -2172,7 +2172,6 @@
   var t1 = performance.now();
   console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
 
-
   class Synchronizer extends EventTarget {
     constructor() {
       super();
@@ -2191,15 +2190,15 @@
 
   function createTooltip(el) {
     el.style("position", "absolute")
-    .style("pointer-events", "none")
-    .style("top", 0)
-    .style("opacity", 0)
-    .style("background", "white")
-    .style("border-radius", "5px")
-    .style("box-shadow", "0 0 10px rgba(0,0,0,.25)")
-    .style("padding", "10px")
-    .style("line-height", "1.3")
-    .style("font", "11px sans-serif");
+      .style("pointer-events", "none")
+      .style("top", 0)
+      .style("opacity", 0)
+      .style("background", "white")
+      .style("border-radius", "5px")
+      .style("box-shadow", "0 0 10px rgba(0,0,0,.25)")
+      .style("padding", "10px")
+      .style("line-height", "1.3")
+      .style("font", "11px sans-serif");
   }
   const height = 400;
   const margin = { top: 0, right: 10, bottom: 15, left: 125 };
@@ -2207,7 +2206,8 @@
   const svg = d3.select("svg#sprintTimeline");
 
   const svgWidth = +svg.style("width").replace("px", "");
-  const svgGraph = svg.selectAll("svg.graph")
+  const svgGraph = svg
+    .selectAll("svg.graph")
     .data([{}])
     .join("svg")
     .attr("x", margin.left)
@@ -2281,27 +2281,23 @@
 
   const workerScheduleHeightOnGraph = 20;
 
-  const svgGraphG = svgGraph.append('g')
-    .attr("class", "svgGraphG");
+  const svgGraphG = svgGraph.append("g").attr("class", "svgGraphG");
 
   const dayBoundaryLabelsG = svgGraphG
     .append("g")
-    .attr('class', 'dayBoundaryLabels');
+    .attr("class", "dayBoundaryLabels");
 
-  const workerLabelsSvg = svg.append("svg")
+  const workerLabelsSvg = svg
+    .append("svg")
     .attr("width", margin.left - 10)
     .attr("class", "workerLabels");
 
   const minimapWidth = +svgMinimap.style("width").replace("px", "");
 
-  const dayBoundariesG = svgGraphG
-    .append("g")
-    .attr('class', 'dayBoundaries');
+  const dayBoundariesG = svgGraphG.append("g").attr("class", "dayBoundaries");
 
-  const workerTimelineGreyOutG = svgGraphG
-    .append("g");
-  const programmerWorkGreyOutG = svgGraphG
-    .append("g");
+  const workerTimelineGreyOutG = svgGraphG.append("g");
+  const programmerWorkGreyOutG = svgGraphG.append("g");
 
   const fadeGDefs = svgGraph.append("defs");
 
@@ -2364,7 +2360,9 @@
 
   const tooltip = d3.select(document.createElement("div")).call(createTooltip);
 
-  const svgMinimapWorkersG = svgMinimap.append('g').attr('attr', 'minimapWorkers');
+  const svgMinimapWorkersG = svgMinimap
+    .append("g")
+    .attr("attr", "minimapWorkers");
 
   const minimapViewportG = svgMinimap
     .append("g")
@@ -2372,11 +2370,10 @@
     .attr("y", 0)
     .attr("id", "minimapViewport");
 
-
   const minimapTimeBoundaryG = svgMinimap
     .append("g")
-    .attr('class', 'minimapTimeBoundary');
-  const workerMinimapTimelineGreyOutG = svgMinimap.append('g');
+    .attr("class", "minimapTimeBoundary");
+  const workerMinimapTimelineGreyOutG = svgMinimap.append("g");
   // add mouse event interceptor
   const minimapMouseBox = svgMinimap
     .append("rect")
@@ -2398,7 +2395,10 @@
   });
 
   synchronizer.addEventListener("input", (event) =>
-    minimapViewportG.attr("transform", `translate(${event.target.value.rangeStartCoord},0)`)
+    minimapViewportG.attr(
+      "transform",
+      `translate(${event.target.value.rangeStartCoord},0)`
+    )
   );
   synchronizer.addEventListener("input", (event) =>
     svgGraphG.attr(
@@ -2632,7 +2632,8 @@
     .domain([0, minimapWidth])
     .range([0, minimapWidth - (timeChartMargin.left + timeChartMargin.right)]);
 
-  const timeChartGraphXEndRange = minimapWidth - (timeChartMargin.left + timeChartMargin.right);
+  const timeChartGraphXEndRange =
+    minimapWidth - (timeChartMargin.left + timeChartMargin.right);
 
   function addMouseBoxToTimeChartGraph(targetSvg, dataKey) {
     const mouseBox = targetSvg
@@ -2653,12 +2654,16 @@
         const targetedDayTime = Math.max(
           0,
           Math.round(
-            mouseBox.node().timeChartGraphX.invert(mouseBox.node().timeChartGraphXMouseEventTranslator(x0))
+            mouseBox
+              .node()
+              .timeChartGraphX.invert(
+                mouseBox.node().timeChartGraphXMouseEventTranslator(x0)
+              )
           ) - 1
         );
         mouseBox.node().updateAnnotations(targetedDayTime);
       });
-      return mouseBox;
+    return mouseBox;
   }
 
   // set up base charts without data
@@ -2670,14 +2675,16 @@
       .attr("width", "100%")
       .attr("class", "timeChartsSvg")
       .attr("id", `${dataKey}TimeChartSvg`);
-    const graphSvg = wrapperSvg.append("svg")
-      .attr('class', 'timeChartGraph')
+    const graphSvg = wrapperSvg
+      .append("svg")
+      .attr("class", "timeChartGraph")
       .attr("y", timeChartMargin.top)
       .attr("x", timeChartMargin.left)
-      .attr("width", "100%")
+      .attr("width", "100%");
 
-    const clipPath = graphSvg.append("clipPath")
-      .attr("id", `${dataKey}TimeChartsClipPath`)
+    const clipPath = graphSvg
+      .append("clipPath")
+      .attr("id", `${dataKey}TimeChartsClipPath`);
 
     clipPath
       .append("rect")
@@ -2685,23 +2692,17 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    graphSvg
-      .append("g")
-      .attr("class", "chartPaths");
-    graphSvg
-      .append("g")
-      .attr("class", "yAxis");
+    graphSvg.append("g").attr("class", "chartPaths");
+    graphSvg.append("g").attr("class", "yAxis");
     const focus = graphSvg
       .append("g")
-      .attr('class', 'focusCircleG')
+      .attr("class", "focusCircleG")
       .append("circle")
       .style("fill", "none")
       .attr("stroke", "black")
       .attr("r", 8.5)
       .attr("class", "graphAnnotationCircle");
-    graphSvg
-      .append("g")
-      .attr("class", "graphAnnotation");
+    graphSvg.append("g").attr("class", "graphAnnotation");
     addMouseBoxToTimeChartGraph(graphSvg, dataKey);
   }
   function initializeStackChartGraphForDataType(parentDiv, title) {
@@ -2717,52 +2718,48 @@
       "sentBack",
     ];
     const colors = keys.map(
-        (v, i) =>
-          workerIdentifierColors[
-              Math.abs(
-                (i % (workerIdentifierColors.length - 1)) -
-                  (workerIdentifierColors.length - 1)
-              )
-            ]
-      );
+      (v, i) =>
+        workerIdentifierColors[
+          Math.abs(
+            (i % (workerIdentifierColors.length - 1)) -
+              (workerIdentifierColors.length - 1)
+          )
+        ]
+    );
 
     const wrapperSvg = parentDiv
       .append("svg")
       .attr("width", "100%")
       .attr("class", "timeChartsSvg")
-      .attr('id', `ticketStatisTimeChartSvg`);
+      .attr("id", `ticketStatisTimeChartSvg`);
 
     const graphSvg = wrapperSvg
       .append("svg")
       .attr("y", timeChartMargin.top)
       .attr("x", timeChartMargin.left)
       .attr("width", "100%")
-      .attr('class', 'timeChartGraph');
-    const clipPath = graphSvg.append("clipPath").attr("id", `ticketStasisTimeChartsClipPath`);
+      .attr("class", "timeChartGraph");
+    const clipPath = graphSvg
+      .append("clipPath")
+      .attr("id", `ticketStasisTimeChartsClipPath`);
     clipPath
       .append("rect")
       .attr("x", "0")
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const pathsG = graphSvg
-      .append("g")
-      .attr('class', 'pathsG');
+    const pathsG = graphSvg.append("g").attr("class", "pathsG");
     const xAxis = graphSvg
       .append("g")
-      .attr('class', 'xAxis')
+      .attr("class", "xAxis")
       .attr("transform", "translate(0," + timeChartGraphHeight + ")");
-    const yAxis = graphSvg
-      .append("g")
-      .attr("class", "yAxisStack");
+    const yAxis = graphSvg.append("g").attr("class", "yAxisStack");
     const keyY = d3
       .scaleBand()
       .domain([...Array(keys.length).keys()])
       .range([0, keys.length * 20])
       .padding(0.01);
-    const keySvgsG = graphSvg
-      .append('g')
-      .attr('class', 'keysSvgs');
+    const keySvgsG = graphSvg.append("g").attr("class", "keysSvgs");
     const keySvgs = keySvgsG
       .selectAll("svg")
       .data(colors)
@@ -2777,7 +2774,7 @@
       .attr("y", "0")
       .attr("height", 15)
       .attr("width", 15)
-      .attr('fill', d => d);
+      .attr("fill", (d) => d);
 
     keySvgs
       .each((d) => d)
@@ -2785,13 +2782,9 @@
       .attr("class", "graphLegend")
       .attr("x", 20)
       .attr("y", "0");
-    const focus = graphSvg
-      .append("g")
-      .attr('class', 'focusCirclesG');
-    graphSvg
-      .append("g")
-      .attr("class", "graphAnnotation");
-    addMouseBoxToTimeChartGraph(graphSvg, 'ticketStasis');
+    const focus = graphSvg.append("g").attr("class", "focusCirclesG");
+    graphSvg.append("g").attr("class", "graphAnnotation");
+    addMouseBoxToTimeChartGraph(graphSvg, "ticketStasis");
   }
 
   initializeTimeChartGraphForDataType(
@@ -2830,23 +2823,28 @@
     "nothing"
   );
   initializeStackChartGraphForDataType(
-      d3.select("#timeChartsWrapper"),
-      "Tickets in Stasis"
-    );
+    d3.select("#timeChartsWrapper"),
+    "Tickets in Stasis"
+  );
 
-  function renderSimulation(simulation){
+  function renderSimulation(simulation) {
     const x = d3
       .scaleBand()
       .domain([...Array(simulation.totalDays).keys()].map((i) => i))
-      .range([graphMarginLeft, dayWidth * simulation.totalDays + graphMarginLeft])
+      .range([
+        graphMarginLeft,
+        dayWidth * simulation.totalDays + graphMarginLeft,
+      ])
       .padding(padding);
 
-      let fullGraphWidth = workableSpace * simulation.totalDays;
-      let graphToMinimapRatio = svgWidth / fullGraphWidth;
+    let fullGraphWidth = workableSpace * simulation.totalDays;
+    let graphToMinimapRatio = svgWidth / fullGraphWidth;
 
     svgGraph.attr(
       "height",
-      workerScheduleHeightOnGraph * simulation.workers.length + margin.top + margin.bottom
+      workerScheduleHeightOnGraph * simulation.workers.length +
+        margin.top +
+        margin.bottom
     );
     svg.attr("height", +svgGraph.attr("height") + margin.top + margin.bottom);
 
@@ -2882,13 +2880,13 @@
       .selectAll("svg.workerSchedules")
       .data(simulation.workers)
       .join("svg")
-      .attr('class', 'workerSchedules')
+      .attr("class", "workerSchedules")
       .attr("x", 0)
       .attr("y", (worker, i) => y(i))
       .selectAll("svg.workerDaySchedule")
       .data((worker) => worker.schedule.daySchedules)
       .join("svg")
-      .attr('class', 'workerDaySchedule')
+      .attr("class", "workerDaySchedule")
       .attr("x", (daySchedule, i) => x(i))
       .selectAll("g")
       .data((daySchedule) => daySchedule.items)
@@ -2915,7 +2913,8 @@
       .attr("height", y.bandwidth())
       .attr("fill", (event) => color(event));
 
-    workerLabelsSvg.selectAll("text")
+    workerLabelsSvg
+      .selectAll("text")
       .data(simulation.workers)
       .join("text")
       .text((worker) => worker.name)
@@ -2934,7 +2933,8 @@
       .padding(1 - padding)
       .align(0);
 
-    dayBoundariesG.selectAll("rect")
+    dayBoundariesG
+      .selectAll("rect")
       .data([...Array(simulation.totalDays + 1).keys()])
       .join("rect")
       .attr("x", (i) => x.step() * i + graphMarginLeft)
@@ -2943,7 +2943,8 @@
       .attr("width", timeBoundaryX.bandwidth())
       .attr("height", "100%");
 
-    dayBoundaryLabelsG.selectAll("text")
+    dayBoundaryLabelsG
+      .selectAll("text")
       .data([...Array(simulation.totalDays).keys()])
       .join("text")
       .attr("x", (i) => x.step() * (1 + i) + graphMarginLeft - 2)
@@ -2957,10 +2958,11 @@
       .attr("alignment-baseline", "text-after-edge");
 
     // draw regression test grey out for previous sprint
-    workerTimelineGreyOutG.selectAll("rect.regressionTestGreyOut")
+    workerTimelineGreyOutG
+      .selectAll("rect.regressionTestGreyOut")
       .data([...Array(simulation.regressionTestDayCount).keys()])
       .join("rect")
-      .attr('class', 'regressionTestGreyOut')
+      .attr("class", "regressionTestGreyOut")
       .attr("x", (i) => x(i))
       .attr("y", (i) => y(simulation.programmerCount))
       .attr("width", (i) => x.bandwidth())
@@ -2977,7 +2979,7 @@
       .selectAll("rect.programmerNextSprintGreyOut")
       .data([...Array(simulation.regressionTestDayCount).keys()])
       .join("rect")
-      .attr('class', 'programmerNextSprintGreyOut')
+      .attr("class", "programmerNextSprintGreyOut")
       .attr("x", (i) => x(i + simulation.sprintDayCount))
       .attr("y", (i) => y(0))
       .attr("width", (i) => x.bandwidth())
@@ -3019,13 +3021,13 @@
       .selectAll("svg.worker")
       .data(simulation.workers)
       .join("svg")
-      .attr('class', 'worker')
+      .attr("class", "worker")
       .attr("x", 0)
       .attr("y", (worker, i) => minimapY(i))
       .selectAll("svg.daySchedules")
       .data((worker) => worker.schedule.daySchedules)
       .join("svg")
-      .attr('class', 'daySchedules')
+      .attr("class", "daySchedules")
       .attr("x", (daySchedule, i) => minimapX(i))
       .selectAll("g")
       .data((daySchedule) => daySchedule.items)
@@ -3055,7 +3057,7 @@
       .selectAll("rect.regressionTestGreyOut")
       .data([...Array(simulation.regressionTestDayCount).keys()])
       .join("rect")
-      .attr('class', 'regressionTestGreyOut')
+      .attr("class", "regressionTestGreyOut")
       .attr("x", (i) => minimapX(i))
       .attr("y", (i) => minimapY(simulation.programmerCount))
       .attr("width", (i) => minimapX.bandwidth())
@@ -3073,7 +3075,7 @@
       .selectAll("rect.programmerNextSprintGreyOut")
       .data([...Array(simulation.regressionTestDayCount).keys()])
       .join("rect")
-      .attr('class', 'programmerNextSprintGreyOut')
+      .attr("class", "programmerNextSprintGreyOut")
       .attr("x", (i) => minimapX(i + simulation.sprintDayCount))
       .attr("y", (i) => minimapY(0))
       .attr("width", (i) => minimapX.bandwidth())
@@ -3089,25 +3091,28 @@
 
     // draw viewport slider
     const viewportData = [
-      {x: 0 - svgWidth, width: '100%', opacity: '0.5', class: ''},
-      {x: 0, width: minimapX.step(), opacity: '0', class: 'opening'},
-      {x: minimapX.step(), width: '100%', opacity: '0.5', class: ''},
-    ]
-    minimapViewportG.selectAll('rect')
+      { x: 0 - svgWidth, width: "100%", opacity: "0.5", class: "" },
+      { x: 0, width: minimapX.step(), opacity: "0", class: "opening" },
+      { x: minimapX.step(), width: "100%", opacity: "0.5", class: "" },
+    ];
+    minimapViewportG
+      .selectAll("rect")
       .data(viewportData)
-      .join('rect')
+      .join("rect")
       .attr("x", (d) => d.x)
       .attr("y", "0")
       .attr("height", "100%")
       .attr("width", (d) => d.width)
       .attr("fill", "grey")
       .attr("fill-opacity", (d) => d.opacity)
-      .attr('class', (d) => d.class);
+      .attr("class", (d) => d.class);
 
     minimapViewportG.node().openingWidth = minimapX.step();
 
     function getSprintDayFromPositionOnMinimap(position) {
-      return parseInt(Math.max(position - minimapX(0), 0) / minimapX.step()) + 1;
+      return (
+        parseInt(Math.max(position - minimapX(0), 0) / minimapX.step()) + 1
+      );
     }
 
     function getTimeOfDayPercentageFromPositionOnMinimap(position) {
@@ -3188,7 +3193,6 @@
           graphMarginLeft + timeBoundaryX.bandwidth() + 2 + bbox.width * 2
         );
     };
-
 
     synchronizer.addEventListener("input", (event) =>
       generateStackGridContents(simulation)
@@ -3282,11 +3286,9 @@
         .attr("y", (d) => d[0])
         .text((d) => d[1])
         .attr("dy", (d, i) => `-${(i + 1) * 1}em`);
-      d3.selectAll("text.graphLegend").text(
-        (d, i) => {
-          return `${d.title}: ${d.ticketCounts[targetedDayTime]}`;
-        }
-      );
+      d3.selectAll("text.graphLegend").text((d, i) => {
+        return `${d.title}: ${d.ticketCounts[targetedDayTime]}`;
+      });
     }
 
     function updateAnnotationsToReflectSynchronizer() {
@@ -3317,17 +3319,15 @@
         d.dataKey = dataKey;
       });
 
-      const wrapperSvg = parentDiv
-        .select(`svg#${dataKey}TimeChartSvg`);
+      const wrapperSvg = parentDiv.select(`svg#${dataKey}TimeChartSvg`);
 
       wrapperSvg.attr(
-          "height",
-          timeChartGraphHeight + timeChartMargin.top + timeChartMargin.bottom
-        );
-      const graphSvg = wrapperSvg
-        .select("svg.timeChartGraph");
+        "height",
+        timeChartGraphHeight + timeChartMargin.top + timeChartMargin.bottom
+      );
+      const graphSvg = wrapperSvg.select("svg.timeChartGraph");
       graphSvg.datum({ yScale: timeChartGraphY });
-      const clipPath = graphSvg.select('clipPath')
+      const clipPath = graphSvg.select("clipPath");
       clipPath.node().update = function () {
         d3.select(this)
           .select("rect")
@@ -3337,28 +3337,28 @@
           );
       };
 
-      graphSvg
-        .select("g.chartPaths")
-        .datum({ stackedData: stackedData });
+      graphSvg.select("g.chartPaths").datum({ stackedData: stackedData });
       const xAxis = graphSvg
         .append("g")
-        .attr('class', 'xAxis')
+        .attr("class", "xAxis")
         .attr("transform", "translate(0," + timeChartGraphHeight + ")");
-      graphSvg.select('g.xAxis')
-        .call(timeChartGraphBottomAxisCallback);
+      graphSvg.select("g.xAxis").call(timeChartGraphBottomAxisCallback);
 
-      graphSvg.select('g.yAxis')
+      graphSvg
+        .select("g.yAxis")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY })
         .call(d3.axisLeft(timeChartGraphY));
 
-      graphSvg.select('g.focusCircleG').select('circle')
+      graphSvg
+        .select("g.focusCircleG")
+        .select("circle")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY });
 
       graphSvg
-        .select('g.graphAnnotation')
+        .select("g.graphAnnotation")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY });
 
-      const mouseBox = graphSvg.select('rect.mouseBox');
+      const mouseBox = graphSvg.select("rect.mouseBox");
       mouseBox.node().timeChartGraphX = timeChartGraphX;
       mouseBox.node().updateAnnotations = updateAnnotations;
       mouseBox.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
@@ -3410,8 +3410,8 @@
         .scaleLinear()
         .domain([0, maxHeight * 1.2])
         .range([timeChartGraphHeight, 0]);
-      const wrapperSvg = parentDiv.select('svg#ticketStatisTimeChartSvg');
-      const graphSvg = wrapperSvg.select('svg.timeChartGraph');
+      const wrapperSvg = parentDiv.select("svg#ticketStatisTimeChartSvg");
+      const graphSvg = wrapperSvg.select("svg.timeChartGraph");
 
       wrapperSvg.attr(
         "height",
@@ -3419,7 +3419,7 @@
       );
 
       graphSvg.datum({ yScale: timeChartGraphY });
-      const clipPath = graphSvg.select('clipPath')
+      const clipPath = graphSvg.select("clipPath");
       clipPath.node().update = function () {
         d3.select(this)
           .select("rect")
@@ -3429,8 +3429,9 @@
           );
       };
 
-      const pathsG = graphSvg.select('g.pathsG');
-      pathsG.selectAll("path")
+      const pathsG = graphSvg.select("g.pathsG");
+      pathsG
+        .selectAll("path")
         .data(dataTicketCounts)
         .join("path")
         .attr("d", (data) =>
@@ -3445,20 +3446,20 @@
         .attr("clip-path", `url(#ticketStasisTimeChartsClipPath)`)
         .attr("class", "stackGraphPath");
 
-      const xAxis = graphSvg.select('g.xAxis');
+      const xAxis = graphSvg.select("g.xAxis");
       xAxis.call(timeChartGraphBottomAxisCallback);
 
-      const yAxis = graphSvg.select('g.yAxisStack');
+      const yAxis = graphSvg.select("g.yAxisStack");
 
-      yAxis.datum({
+      yAxis
+        .datum({
           ticketCounts: dataTicketCounts,
           yScale: timeChartGraphY,
           isStackGraph: true,
         })
         .call(d3.axisLeft(timeChartGraphY));
 
-      const focus = graphSvg
-        .select("g.focusCirclesG");
+      const focus = graphSvg.select("g.focusCirclesG");
       focus
         .selectAll("circle.graphAnnotationCircle")
         .data(dataTicketCounts)
@@ -3475,11 +3476,8 @@
           };
         });
 
-      // graphSvg.select('g.focusCircleG').select('circle')
-      //   .datum({ dataKey: dataKey, yScale: timeChartGraphY });
-
       graphSvg
-        .select('g.graphAnnotation')
+        .select("g.graphAnnotation")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY });
 
       const keyY = d3
@@ -3487,7 +3485,7 @@
         .domain([...Array(keys.length).keys()])
         .range([0, keys.length * 20])
         .padding(0.01);
-      const keySvgsG = graphSvg.select('g.keysSvgs');
+      const keySvgsG = graphSvg.select("g.keysSvgs");
       const keySvgs = keySvgsG
         .selectAll("svg")
         .data(dataTicketCounts)
@@ -3509,7 +3507,7 @@
             key: keys[i],
           };
         });
-      const mouseBox = graphSvg.select('rect.mouseBox');
+      const mouseBox = graphSvg.select("rect.mouseBox");
       mouseBox.node().timeChartGraphX = timeChartGraphX;
       mouseBox.node().updateAnnotations = updateAnnotations;
       mouseBox.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
@@ -3581,10 +3579,7 @@
       .node()
       .addEventListener("change", (event) => updateMinuteChartsForSelection());
 
-    updateTimeChartGraphForDataType(
-      d3.select("#timeChartsWrapper"),
-      "meeting"
-    );
+    updateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "meeting");
     updateTimeChartGraphForDataType(
       d3.select("#timeChartsWrapper"),
       "contextSwitching"
@@ -3605,10 +3600,7 @@
       d3.select("#timeChartsWrapper"),
       "regressionTesting"
     );
-    updateTimeChartGraphForDataType(
-      d3.select("#timeChartsWrapper"),
-      "nothing"
-    );
+    updateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "nothing");
     updateStackChartGraphForDataType(
       d3.select("#timeChartsWrapper"),
       "Tickets in Stasis"
@@ -3631,15 +3623,17 @@
       dayStartTime: form.dayStartTime.valueAsNumber,
       programmerCount: form.programmerCount.valueAsNumber,
       testerCount: form.testerCount.valueAsNumber,
-      maxInitialProgrammerWorkTimeInHours: form.maxInitialProgrammerWorkTimeInHours.valueAsNumber,
-      maxFullRunTesterWorkTimeInHours: form.maxFullRunTesterWorkTimeInHours.valueAsNumber,
+      maxInitialProgrammerWorkTimeInHours:
+        form.maxInitialProgrammerWorkTimeInHours.valueAsNumber,
+      maxFullRunTesterWorkTimeInHours:
+        form.maxFullRunTesterWorkTimeInHours.valueAsNumber,
       maxQaAutomationTime: form.maxQaAutomationTime.valueAsNumber,
       averagePassBackCount: form.averagePassBackCount.valueAsNumber,
       // customEventsByDay: form.customEventsByDay.valueAsNumber
-      customEventsByDay: null
+      customEventsByDay: null,
     });
     renderSimulation(simulation);
   }
-  form.addEventListener('submit', handleCustomSimulationSubmit);
+  form.addEventListener("submit", handleCustomSimulationSubmit);
   renderSimulation(sim);
 </script>
