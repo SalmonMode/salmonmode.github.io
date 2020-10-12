@@ -42,8 +42,30 @@
         alignment-baseline: before-edge;
         font-size: 0.7em;
     }
-
 </style>
+<div id='generationFormWrapper'>
+<form id='generationForm'>
+<label for='sprintDayCount'>Number of days in sprint (min 5):</label>
+<input id='sprintDayCount' name='sprintDayCount' type='number' min='5' value='10'>
+<label for='regressionTestDayCount'>Number of days reserved for regression testing:</label>
+<input id='regressionTestDayCount' name='regressionTestDayCount' type='number' value='2'>
+<label for='dayStartTime'>Hour the day starts at (min 8):</label>
+<input id='dayStartTime' name='dayStartTime' type='number' min='8' value='10'>
+<label for='programmerCount'>Number of programmers (min 1):</label>
+<input id='programmerCount' name='programmerCount' type='number' min='1' value='5'>
+<label for='testerCount'>Number of testers (min 1):</label>
+<input id='testerCount' name='testerCount' type='number' min='1' value='1'>
+<label for='maxInitialProgrammerWorkTimeInHours'>Peek potential programming work iteration time per ticket (in hours, min 1):</label>
+<input id='maxInitialProgrammerWorkTimeInHours' name='maxInitialProgrammerWorkTimeInHours' type='number' min='1' value='16'>
+<label for='maxFullRunTesterWorkTimeInHours'>Peek potential tester work iteration time per ticket (in hours, min 1):</label>
+<input id='maxFullRunTesterWorkTimeInHours' name='maxFullRunTesterWorkTimeInHours' type='number' min='1' value='8'>
+<label for='maxQaAutomationTime'>Peek potential test automation work iteration time per ticket (in hours, min 1):</label>
+<input id='maxQaAutomationTime' name='maxQaAutomationTime' type='number' min='1' value='8'>
+<label for='averagePassBackCount'>Average amount of times a ticket is passed back to programmers by testers (min 0):</label>
+<input id='averagePassBackCount' name='averagePassBackCount' type='number' min='0' value='1'>
+<button type="submit">Go</button>
+</form>
+</div>
 <div id='sprintTimelineWrapper'><svg width="100%" height="300" id="sprintTimeline"></svg></div>
 <div id='sprintTimelineMinimapWrapper'><svg width="100%" height="75" id="sprintTimelineMinimap"></svg></div>
 <div id="timeCharts">
@@ -52,7 +74,6 @@
 <select name="dataSetSelection" id="dataSetSelection"></select>
 </div>
 <div id="timeChartsWrapper">
-<!-- <svg id="timeChartsSvg" width="100%"></svg> -->
 </div>
 </div>
 <div id="ticketStacks"></div>
