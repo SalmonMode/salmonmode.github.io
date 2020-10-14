@@ -23,7 +23,7 @@ I have a feeling they think Scrum is a recipe for success that will help their d
 
 It's a noble effort to seek out changes that could help development team(s) move faster and more effectively. But, unfortunately, a process change to Scrum is not going to do that on its own.
 
-Agile requires a _cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). Part of that discipline is making sure that quality is never sacrificed, particularly [internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) (ISQ).
+Agile requires a _systemic and cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). Part of that discipline is making sure that quality is never sacrificed, particularly [internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) (ISQ).
 
 ## In Agile, _programmers_ write the checks
 
@@ -35,6 +35,8 @@ If not, but it was enough to at least get your attention, you might be wondering
 
 I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to provide those that _aren't_ in QA with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA. I also want to help others identify where their potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems.
 
+I know this isn't a QA versus programmer issue, that the core issue negatively affects programmers, too, and I know that having the programmers write the checks, by itself, won't actually solve the core issue. I'll be addressing the core issue, and explaining, at least at a surface level, how to solve it down below. I'm primarily focusing on the impact on QA here, because, as someone who comes from both camps, I see it disproportionately impacting QA far more than any other group, and on a much deeper level than making them work overtime every sprint.
+
 **Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the checks as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
 {: .notice--info}
 
@@ -43,6 +45,20 @@ I wanted to explore this a bit more than that Atlassian article, and provide som
 > Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.
 
 There's many reasons, but the big hitters (IMO) revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
+
+## Understanding the ask
+
+I recently heard [a mantra that a team was using](https://youtu.be/1XSxrqveWDg?t=1856), and it stuck with me.
+
+> If you don't know how you'll test something, then you have no right to start development.
+
+I've heard programmers many times say something like "that's a skillset we don't have", or "that requires a different mindset".
+
+Yes it is, and no it doesn't.
+
+The automated checks that are being asked of them to write are the ones that testers are doing manually. But the reality is that coming up with all these checks should be the easiest part of development. If a programmer couldn't do this, I wouldn't want them working on the code, because it means they don't actually understand what the ticket is asking for, and that's a massive problem.
+
+The programmer should be asking questions if they don't fully understand the ticket. Ideally, the tickets would be fleshed out enough before they see it so that they wouldn't have to ask questions (the person asking for changes should be making it absolutely clear what they're asking for).
 
 ### Accumulation of manual checks
 
@@ -110,6 +126,8 @@ It becomes almost impossible to hold them accountable for poor external software
 Internal software quality is something they _are_ accountable to, but they can always brush it off to get by, and lack of it is not something that management can easily identify. So as long as they can get _something_ done that roughly meets the acceptance criteria of a ticket, they can point to someone else (or _something_, e.g. the code itself), since they can say they did their part. They might point at QA to say they should have caught it, or at whoever wrote the ticket for not being explicit enough, or the code base because it has poor internal quality (e.g. "our product is complex, and so is our code").
 
 It's not that they don't care. It's just that they don't have the knowledge and the experience to understand the implications of this, they are highly motivated to move on to the next ticket, and there's a belief that QA will find any and all problems anyway. They may even believe that passing everything off to QA for the checking is what it means to care about QA.
+
+Alternatively, it might be that the programmers are being pressured by management to not maintain ISQ, because management doesn't understand why it's so important, and they think it's a way to get things done sooner. The programmers may be fully aware of the problems, but feel they either can't do something about it, or don't know how.
 
 # Disregard for QA
 
@@ -252,7 +270,7 @@ They will need help to understand that their pace won't be changing (and more li
 
 They'll need to know that they are always free and encouraged to speak out if they feel they won't be able to identify all the ways they'd need to verify functionality (as this usually means the ticket is too vague).
 
-But most importantly, they _need_ to understand that _if_ you choose to take risks by setting tight deadlines or by telling them to throw ISQ out the window for a brief period, that _you_ are the one that'll be paying the price if/when things go wrong, not them.
+But most importantly, they _need_ to understand that _if_ you choose to take risks by setting tight deadlines or by telling them to throw ISQ out the window for a brief period, that _you_ are the one that'll be paying the price if/when things go wrong, not them, and that more time will be alotted to repair the damage to ISQ.
 
 ### Testers
 
