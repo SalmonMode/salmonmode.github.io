@@ -25,7 +25,7 @@ It's a noble effort to seek out changes that could help development team(s) move
 
 Agile requires a _cultural_ change and takes [discipline](https://youtu.be/ecIWPzGEbFc?t=3817). Part of that discipline is making sure that quality is never sacrificed, particularly [internal software quality](https://twitter.com/GeePawHill/status/1292450480426188802) (ISQ).
 
-## In Agile, _programmers_ write the tests
+## In Agile, _programmers_ write the checks
 
 I know I may be losing some of you already, so as a transparent appeal to authority, [here's the same message from Atlassian](https://www.atlassian.com/agile/software-development/testing) (the folks behind Jira, Confluence, Trello, and Bitbucket).
 
@@ -35,18 +35,18 @@ If not, but it was enough to at least get your attention, you might be wondering
 
 I wanted to explore this a bit more than that Atlassian article, and provide some alternate takes as well as some cultural impacts I've seen in places that follow "mini-waterfall" (i.e. waterfall, but in Scrum). I want to provide those that _aren't_ in QA with some insight into not just how these issues can affect the quality of the product, but also how they affect the _people_ in QA. I also want to help others identify where their potential frustrations may be coming from, help them articulate the source of the problem to others, as well as provide a solution to anyone experiencing these problems.
 
-**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the tests as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
+**Note:** To be clear, this is not an argument in support of TDD or TFD. While I believe those can contribute to overall productivity, this is only meant to highlight and explain the requirement that programmers must write the checks as they make their changes (not necessarily _before_, as per TDD/TFD), before they check them in for code review.
 {: .notice--info}
 
-## Why programmers write the tests
+## Why programmers write the checks
 
 > Agile processes promote sustainable development. The sponsors, developers, and users should be able to maintain a constant pace indefinitely.
 
 There's many reasons, but the big hitters (IMO) revolve around **sustainability**, and there's many perspectives to view the issue, so here's a collection of them. Hopefully one or two will hit home. I may also add more to this later.
 
-### Accumulation of manual tests
+### Accumulation of manual checks
 
-Hopefully we can at least agree that, unless the tests are automated, the manual checking work for QA will quickly become unsustainable. If not, I'll defer to that Atlassian article above.
+Hopefully we can at least agree that, unless the checks are automated, the manual checking work for QA will quickly become unsustainable. If not, I'll defer to that Atlassian article above.
 
 ### The math doesn't add up
 
@@ -54,7 +54,7 @@ Example scenario:
 - a dev team consists of 1 tester and 5 programmers
 - the tester checks all the changes made by the programmers when they pass their tickets to the tester for QA (after going through code review, of course)
 - the sitting cycle is 2 weeks long
-- the last 2 days of the sprint are reserved for the testers to do regression tests and for programmers to fix those bugs (if any are found)
+- the last 2 days of the sprint are reserved for the testers to do regression checks and for programmers to fix those bugs (if any are found)
 - if the programmers aren't fixing any bugs during those last 2 days, they'll continue to work on tickets for the next sprint.
 
 This probably sounds somewhat familiar.
@@ -71,21 +71,21 @@ Expecting 50 hours _might_ be reasonable, but don't forget about the daily stand
 
 Since there's only 8 days available for that type of work, that means there needs to be _at least_ 6-7 hours of free time available every one of those 8 days.
 
-Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to. I've personally worked with systems where developers would _regularly_ make 10-20 line changes in a couple hours and then say those changes required a full regression test run because everything was so tightly coupled to the parts they changed.
+Of course, this is just an example, but it's a realistic scenario that I'm sure many testers can relate to. I've personally worked with systems where developers would _regularly_ make 10-20 line changes in a couple hours and then say those changes required a full regression check run because everything was so tightly coupled to the parts they changed.
 
 This sort of system is _primed_ to make QA a bottleneck, and it's very easy for the development to slow down and for quality to be compromised because of it. You _could_ put more QA folks on each team, but that doesn't entirely eliminate the problem.
 
-If programmers are writing those sorts of tests up front, then the bottleneck is eliminated completely, and QA's time is freed up so they can add much more value to the team.
+If programmers are writing those sorts of checks up front, then the bottleneck is eliminated completely, and QA's time is freed up so they can add much more value to the team.
 
-### Test suite execution time
+### Check suite execution time
 
-If the tester is the one writing the tests, they'll likely be writing them at the end-to-end level. That level is _extremely_ expensive to run at, and each test will require a significant amount of time, especially if a browser is involved. Every test added that runs at that level will add a _considerable_ amount of time to the test suite execution time. The tests need to done at lower levels where possible so they only add a negligible amount of time, otherwise, it'll grow out of control very quickly.
+If the tester is the one writing the checls, they'll likely be writing them at the end-to-end level. That level is _extremely_ expensive to run at, and each check will require a significant amount of time, especially if a browser is involved. Every check added that runs at that level will add a _considerable_ amount of time to the check suite execution time. The checks need to done at lower levels where possible so they only add a negligible amount of time, otherwise, it'll grow out of control very quickly.
 
 ### Wasted work
 
-Context switching has a cost, and it's an expensive one. The more times a ticket changes hands, the more times someone had to switch contexts. It's less costly to have the programmer write their own tests, because there's less context switching, especially since there's no chance of a ticket being bounced back and forth between "in progress", "code review", and "QA".
+Context switching has a cost, and it's an expensive one. The more times a ticket changes hands, the more times someone had to switch contexts. It's less costly to have the programmer write their own checks, because there's less context switching, especially since there's no chance of a ticket being bounced back and forth between "in progress", "code review", and "QA".
 
-To add to this, testers aren't likely to write their tests at the unit/component level where most could be. Instead, they're likely to write them at a level that goes through the API or browser. Not only is this significantly more expensive in and of itself, but those tests are far more likely to have to change based on unrelated implementation (e.g. the structure of the DOM could change slightly, requiring now locators to be defined).
+To add to this, testers aren't likely to write their checks at the unit/component level where most could be. Instead, they're likely to write them at a level that goes through the API or browser. Not only is this significantly more expensive in and of itself, but those checks are far more likely to have to change based on unrelated implementation (e.g. the structure of the DOM could change slightly, requiring now locators to be defined).
 
 This all translates to wasted work, i.e. the energy that went into it could have definitely gone into something that would yield a higher ROI.
 
@@ -99,11 +99,11 @@ When tech debt is consciously added by sacrificing ISQ in an attempt to get some
 
 Maintaining ISQ is essential for moving forward at a sustainable pace, and [is well worth the investment](https://martinfowler.com/articles/is-quality-worth-cost.html).
 
-Having the programmer write the tests helps them identify problematic areas of the code that need attention, and keeps them mindful of ISQ. The most cost-effective way to have those tests implemented while also maintaining ISQ, is to have the programmer write them (and not just the happy path tests) as they make their changes.
+Having the programmer write the checks helps them identify problematic areas of the code that need attention, and keeps them mindful of ISQ. The most cost-effective way to have those checks implemented while also maintaining ISQ, is to have the programmer write them (and not just the happy path checks) as they make their changes.
 
 # Disregard for quality (both internal and external)
 
-Programmers have no actual reason to be concerned with quality, either external or internal, if they aren't the ones writing the tests.
+Programmers have no actual reason to be concerned with quality, either external or internal, if they aren't the ones writing the checks.
 
 It becomes almost impossible to hold them accountable for poor external software quality (e.g. bugs), because they can always say ["why didn't we catch this in QA?"](https://www.developsense.com/blog/2020/08/why-didnt-we-catch-this-in-qa/), which has its own problems.
 
@@ -123,7 +123,7 @@ This isn't healthy, nor is it practical.
 
 This isn't to say that QA wasn't considered initially. They probably were. It's likely that this issue just wasn't forseen because it's how it's been done in waterfall for decades, so there wasn't any reason to believe the process should be any different in that regard.
 
-But be aware that this is often their reality, and is what's being asked of them when the programmers aren't writing the tests.
+But be aware that this is often their reality, and is what's being asked of them when the programmers aren't writing the checks.
 
 # Toxic culture
 
@@ -157,19 +157,15 @@ But I'm sure some reading this are looking for more testing-related activities f
 
 ## Risk assessment
 
-One of a testers main roles (maybe even _the_ main role) is to inform Product about risks (and possible costs), so that _Product_ can make the call on quality. It's not a tester's place to dictate what is quality and what isn't, but rather to inform on things they feel are a _potential threat_ to quality. This usually includes things about the product itself, but can really be anything. Their goal is to make sure Product is aware of the risks (and potential costs) so that they can be the responsible party and make the necessary business decisions, because it's _Product's_ risk to take, and _their_ price to pay, not testers or programmers.
+One of a testers main roles (maybe even _the_ main role) is to inform Product (meaning whomever is in charge of the direction the team moves in) about risks (and possible costs), so that _Product_ can make the call on quality. It's not a tester's place to dictate what is quality and what isn't, but rather to inform on things they feel are a _potential threat_ to quality. This usually includes things about the product itself, but can really be anything. Their goal is to make sure Product is aware of the risks (and potential costs) so that they can be the responsible party and make the necessary business decisions, because it's _Product's_ risk to take, and _their_ price to pay, not testers or programmers.
 
-If you're a manager or a product owner reading this, and a tester sent you this blog post, then they've done exactly that. They're making you aware of the risks in play, what the costs are, and asking you how you would like to proceed.
-
-But keep in mind, asking them to work overtime or to skip writing the automated checks is _not_ a form of you paying the price. They'd still be paying the price for the risks that you took.
+Keep in mind, having to crunch or having the engineers skip writing the autoamted checks is _not_ Product paying the price of their risks. Nor is it a demonstration of loyalty. It's the engineers and testers paying the price when it wasn't their risks to take.
 
 ### Exploratory testing
 
 [There is a difference between "checking" and "testing"](https://www.developsense.com/blog/2009/08/testing-vs-checking/), and I've taken care to only refer to "testing" where appropriate (i.e. "tests", "checks", and "checking" are different than "testing").
 
-Emergent behaviors exist in areas and in ways we didn't originally account for. They exist at the boundaries between the things we've planned for, which is why they're called "_edge_ cases". While exploratory testing is partially about learning, it's this learning that provides new test cases to cover when we find something that goes wrong, or something we feel could be better.
-
-This is the tester's bread and butter.
+Emergent behaviors exist in areas and in ways we didn't originally account for. They exist at the boundaries between the things we've planned for, which is why they're called "_edge_ cases". While exploratory testing is partially about learning, it's this learning that provides new check cases to cover when we find something that goes wrong, or something we feel could be better.
 
 ### General product critiques
 
@@ -183,23 +179,15 @@ The tester could really try to tax the system in order to see how it handles it.
 
 Even though the tester may not be a security expert, they can still try to find areas that are concerning in regards to security. Maybe they try to access parts of the product they shouldn't be able to reach without authenticating.
 
-### Ticket vetting
-
-The tester can go over the backlog of upcoming tickets and figure out if any questions need to be answered before scoring, or look at the test cases provided on the ticket (if documenting them there is part of the team's process) and see if any need to be added/adjusted/removed.
-
 ### Metrics
 
 The tester can look for ways to improve team throughput and internal software quality by gathering metrics and looking at the process itself. They can look at things like cyclomatic complexity throughout the code base, or even use tools to see what parts of the code are associated with the most defects to see where the code needs attention before it becomes (more of) a problem.
 
 ### Programmer collaboration
 
-If a programmer needs help determining the test cases for a ticket, or possibly needs help tracking down a supposed bug, they can work directly with the tester to get it done.
+If a programmer needs help determining the check cases for a ticket, or possibly needs help tracking down a supposed bug, they can work directly with the tester to get it done.
 
 They can also work with the programmers to help build up their testing mentality/skills, helping them to understand the value in only involving one thing per test and how to control for things they don't want to involve.
-
-### Documentation
-
-This one's pretty self-explanatory.
 
 ### Code review
 
@@ -207,7 +195,7 @@ In Agile, everyone should constantly be striving to improve themselves. Some tes
 
 This of course requires that there should be a culture where asking even the most repetitive and inane questions is not discouraged. We should all take pride in helping to build each other up, and not criticize someone for asking a question that we feel the answer to is obvious.
 
-Plus, it's a great opportunity for the tester to see if there's any automated tests that were missed and should be added (e.g. "Do we have a test for this that covers X, and if not, why?"), or if the added tests actually test something meaningful.
+Plus, it's a great opportunity for the tester to see if there's any automated checks that were missed and should be added (e.g. "Do we have a check for this that covers X, and if not, why?"), or if the added checks actually check something meaningful.
 
 ### Atlassian's approach
 
@@ -225,29 +213,58 @@ Remember that, in Agile, teams are _self-organizing_ and need to be _trusted_ to
 
 # A note to management
 
-> Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
+Your expectations of the team, how you work, and how you believe the development process works, fundamentally need to change if switching to Agile is going to work.
 
-Your expectations and how you work fundamentally need to change if switching to Agile is going to work.
+## To product managers
+
+You _cannot_ expect to have fixed cost, fixed time, and fixed scope. Something _has_ to be variable. This isn't a factory line, or a construction site, and there _are_ unknowns, so something will have to give eventually.
+
+I recommend scope, because setting dates for things is a normal part of business operations, we want to keep costs low, and scope is the easiest to regulate when you start off knowing that you'll have to regulate it.
+
+Operate as if having the team work overtime, or having the programmers not write the automated checks, are completely off the negotiating table.
+
+In a pinch, you _can_ ask them to cut out the automated checks, but understand that:
+1. it isn't the tester's responsibility to verify functionality for those changes and a lack of regression as a result of them, 
+2. it's _very_ likely that some expensive bugs will make it through and this is neither the programmers' nor testers' fault, and that
+3. the cost for this is that the programmers will have to spend _more_ than the amount of time you "saved" cleaning up right after that deadline if you ever want to have predictable and _you_ will be on the hook for any bugs that pop up as a result because _you_ chose to take the risks involved.
+
+Plan things so that you can take things out if you need to in order to make deadlines.
+
+Work _daily_ with engineers and testers to make sure you always know if something will need to be cut out, and what actually _can_ be cut out (and sometimes, what can be brought _in_).
+
+Work with the testers to find out about the risks that exist and what the costs of those risks are.
+
+If a tester sent you this blog post, then they've done exactly that. They're making you aware of the risks in play, what the costs are, and asking you how you would like to proceed.
+
+If you weren't aware of the risks you were taking, or who was paying their prices, that's entirely understandable. But continuing to operate this way is not just ineffective and costly, it's also _extremely_ harmful to the people on your team. 
+
+## To other managers
+
+> Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
 Your goals will be to facilitate the team and the individuals in it. You'll need to not just avoid being an obstacle for them, but also to eliminate obstacles and build team members up where you can.
 
 Leading up to and during this change is probably where your role will be the most important of any member on a team.
 
-Many will fear this change, and you will need to assuage those fears. A cultural change is needed, and you will need to drive that change.
+Many will likely fear this change, and you will need to assuage those fears by making sure they understand they will _not_ be paying the price for risks that you choose to take.
 
-## Programmers
+## Regarding programmers
 
 Programmers may be concerned about having a larger work load, being less productive, or suddenly being responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
 
-They will need help to understand that their pace won't be changing, that they will only be expected to move as fast as **maintaining quality** allows them to, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well (often through code review).
+They will need help to understand that their pace won't be changing (and more likely will be _slowing down_), that they will only be expected to move as fast as **maintaining quality** allows them to, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well, yourself included.
+
+They'll need to know that they are always free and encouraged to speak out if they feel they won't be able to identify all the ways they'd need to verify functionality (as this usually means the ticket is too vague).
+
+But most importantly, they _need_ to understand that _if_ you choose to take risks by setting tight deadlines or by telling them to throw ISQ out the window for a brief period, that _you_ are the one that'll be paying the price if/when things go wrong, not them.
 
 ## Testers
 
 Testers may be nervous because they won't have a defined series of testing stages to fall back on to know whether or not they are performing well. There's not always going to be tickets or strict processes to guide what they do each day. They may be also be concerned that they don't have the skills to cut it, or that they can't point to the number of tickets they've QA'd to show they're being productive.
 
-You can guide them in this transition, help them work with the team to find areas they can provide value, or point them to resources that can help build up their skills/knowledge.
+You can guide them in this transition by helping them understand the areas/metrics/functionality that you're most concerned with, and what the costs might be from things that threaten those things. If they know what you care about and why, they'll understand how to consider risks.
 
-You will need to reassure them that how many bugs they find isn't a concern, because the focus is on _preventing_ bugs in the first place, not _detecting_ them (although detecting them is still valuable). If they're concerned about their abilities, you will need to _actively_ help find them ways to build up their skills. There's many books out there (_Agile Testing_ by Lisa Crispin and Janet Gregory is a great start), mentor programs (which can even be offered internally), communities (e.g. The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite)), etc.
+You will need to reassure them that how many bugs they find isn't how they'll be evaluated, because the focus is on _preventing_ bugs in the first place, not _detecting_ them (although detecting them is still valuable). If they're concerned about their abilities, you will need to _actively_ help find them ways to build up their skills. There's many course (e.g. [RST](https://rapid-software-testing.com/)) and books out there (_Agile Testing_ by Lisa Crispin and Janet Gregory is a great start), mentor programs (which can even be offered internally), communities (e.g. The Ministry of Testing [website](https://www.ministryoftesting.com/) and [slack](https://www.ministryoftesting.com/slack_invite)), etc.
 
 ## Be _active_
 
@@ -281,4 +298,4 @@ This is not about having the developers do the general "testing", but that is a 
 
 This is just about having the developers write the tests (i.e. "checks" by how they're defined [here](https://www.developsense.com/blog/2009/08/testing-vs-checking/)) for their tickets as part of their development process (i.e. before it goes to code review).
 
-No transition is really necessary, but some programmers may feel uncomfortable having to come up with those tests on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those tests, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
+No transition is really necessary, but some programmers may feel uncomfortable having to come up with those checks on their own. If this is the case, then they can always reach out to the tester so they can work together, both in coming up with those checks, and actually writing them out. But eventually, they should be comfortable with testers not being their safety net.
