@@ -155,11 +155,19 @@ Anyone can do anything on an Agile team. So long as the tester (or any other tea
 
 But I'm sure some reading this are looking for more testing-related activities for the testers to be doing all day. So here's a sampling of things.
 
+## Risk assessment
+
+One of a testers main roles (maybe even _the_ main role) is to inform Product about risks (and possible costs), so that _Product_ can make the call on quality. It's not a tester's place to dictate what is quality and what isn't, but rather to inform on things they feel are a _potential threat_ to quality. This usually includes things about the product itself, but can really be anything. Their goal is to make sure Product is aware of the risks (and potential costs) so that they can be the responsible party and make the necessary business decisions, because it's _Product's_ risk to take, and _their_ price to pay, not testers or programmers.
+
+If you're a manager or a product owner reading this, and a tester sent you this blog post, then they've done exactly that. They're making you aware of the risks in play, what the costs are, and asking you how you would like to proceed.
+
+But keep in mind, asking them to work overtime or to skip writing the automated checks is _not_ a form of you paying the price. They'd still be paying the price for the risks that you took.
+
 ### Exploratory testing
 
 [There is a difference between "checking" and "testing"](https://www.developsense.com/blog/2009/08/testing-vs-checking/), and I've taken care to only refer to "testing" where appropriate (i.e. "tests", "checks", and "checking" are different than "testing").
 
-Emergent behaviors exist in areas and in ways we didn't originally account for. They exist at the boundaries between the things we've planned for, which is why they're called "_edge_ cases". While exploratory testing is partially about learning, it's this learning that provides new test cases to cover when we find something that goes wrong, or something we fell could be better.
+Emergent behaviors exist in areas and in ways we didn't originally account for. They exist at the boundaries between the things we've planned for, which is why they're called "_edge_ cases". While exploratory testing is partially about learning, it's this learning that provides new test cases to cover when we find something that goes wrong, or something we feel could be better.
 
 This is the tester's bread and butter.
 
