@@ -215,8 +215,6 @@ Remember that, in Agile, teams are _self-organizing_ and need to be _trusted_ to
 
 Your expectations of the team, how you work, and how you believe the development process works, fundamentally need to change if switching to Agile is going to work.
 
-## To product managers
-
 You _cannot_ expect to have fixed cost, fixed time, and fixed scope. Something _has_ to be variable. This isn't a factory line, or a construction site, and there _are_ unknowns, so something will have to give eventually.
 
 I recommend scope, because setting dates for things is a normal part of business operations, we want to keep costs low, and scope is the easiest to regulate when you start off knowing that you'll have to regulate it.
@@ -236,9 +234,7 @@ Work with the testers to find out about the risks that exist and what the costs 
 
 If a tester sent you this blog post, then they've done exactly that. They're making you aware of the risks in play, what the costs are, and asking you how you would like to proceed.
 
-If you weren't aware of the risks you were taking, or who was paying their prices, that's entirely understandable. But continuing to operate this way is not just ineffective and costly, it's also _extremely_ harmful to the people on your team. 
-
-## To other managers
+If you weren't aware of the risks you were taking, or who was paying their prices, that's entirely understandable. But continuing to operate this way is not just ineffective and costly, it's also _extremely_ harmful to the people on your team.
 
 > Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.
 
@@ -248,7 +244,7 @@ Leading up to and during this change is probably where your role will be the mos
 
 Many will likely fear this change, and you will need to assuage those fears by making sure they understand they will _not_ be paying the price for risks that you choose to take.
 
-## Regarding programmers
+### Regarding programmers
 
 Programmers may be concerned about having a larger work load, being less productive, or suddenly being responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
 
@@ -258,7 +254,7 @@ They'll need to know that they are always free and encouraged to speak out if th
 
 But most importantly, they _need_ to understand that _if_ you choose to take risks by setting tight deadlines or by telling them to throw ISQ out the window for a brief period, that _you_ are the one that'll be paying the price if/when things go wrong, not them.
 
-## Testers
+### Testers
 
 Testers may be nervous because they won't have a defined series of testing stages to fall back on to know whether or not they are performing well. There's not always going to be tickets or strict processes to guide what they do each day. They may be also be concerned that they don't have the skills to cut it, or that they can't point to the number of tickets they've QA'd to show they're being productive.
 
