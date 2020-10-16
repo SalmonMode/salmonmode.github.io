@@ -193,17 +193,9 @@ Keep in mind, having to crunch or having the engineers skip writing the autoamte
 
 Emergent behaviors exist in areas and in ways we didn't originally account for. They exist at the boundaries between the things we've planned for, which is why they're called "_edge_ cases". While exploratory testing is partially about learning, it's this learning that provides new check cases to cover when we find something that goes wrong, or something we feel could be better.
 
-### General product critiques
-
-While the tester is _not_ a user (and therefore cannot "accept" things on behalf of the user), that doesn't mean they can't identify things that are technically correct, but could probably be better.
-
 ### Performance and load testing
 
 The tester could really try to tax the system in order to see how it handles it. If the tester finds any problems, they can raise them as concerns.
-
-### Security testing
-
-Even though the tester may not be a security expert, they can still try to find areas that are concerning in regards to security. Maybe they try to access parts of the product they shouldn't be able to reach without authenticating.
 
 ### Metrics
 
