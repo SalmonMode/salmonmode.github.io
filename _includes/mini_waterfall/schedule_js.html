@@ -196,7 +196,7 @@
     .attr("width", `${graphMarginLeft + 2}`)
     .attr("fill", "url(#fadeGradient)");
 
-  svgGraph
+  const timelineFadeRect = svgGraph
     .append("rect")
     .attr("x", "-2")
     .attr("y", "0")
@@ -213,10 +213,12 @@
     .attr("width", `${margin.left + 1}`)
     .attr("fill", "white");
 
+  const timelineFadeRectBR = timelineFadeRect.node().getBBox();
+  const tooltipXDomainStart = timelineFadeRectBR.width + timelineFadeRectBR.x;
   const tooltipX = d3
     .scaleLinear()
-    .domain([0, svgGraphWidth])
-    .range([margin.left, svgGraphWidth + margin.left]);
+    .domain([tooltipXDomainStart, svgGraphWidth])
+    .range([margin.left, svgGraphWidth]);
 
   const tooltip = d3.select(document.createElement("div")).call(createTooltip);
 
@@ -399,6 +401,36 @@
                 )
                 .join("")}
           </ul>
+          <p class="sectionTitle">Sent Back/Waiting for Fix (${
+            stackLog.sentBack.length
+          })</p>
+          <ul style="list-style-type: none;">
+              ${stackLog.sentBack
+                .map(
+                  (ticket) =>
+                    `<li style="background: ${
+                      ticketWorkColors[
+                        ticket.number % (ticketWorkColors.length - 1)
+                      ]
+                    }">#${ticket.number}</li>`
+                )
+                .join("")}
+          </ul>
+          <p class="sectionTitle">Waiting to be Automated (${
+            stackLog.waitingForAutomation.length
+          })</p>
+          <ul style="list-style-type: none;">
+              ${stackLog.waitingForAutomation
+                .map(
+                  (ticket) =>
+                    `<li style="background: ${
+                      ticketWorkColors[
+                        ticket.number % (ticketWorkColors.length - 1)
+                      ]
+                    }">#${ticket.number}</li>`
+                )
+                .join("")}
+          </ul>
       </div>
       <div style="grid-area: 1 / 3 / span 1 / span 1;">
           <p class="sectionTitle">In Active Development (${
@@ -444,13 +476,9 @@
                 )
                 .join("")}
           </ul>
-      </div>
-      <div style="grid-area: 1 / 4 / span 1 / span 1;">
-          <p class="sectionTitle">Sent Back/Waiting for Fix (${
-            stackLog.sentBack.length
-          })</p>
+          <p class="sectionTitle">Being Automated (${stackLog.beingAutomated.length})</p>
           <ul style="list-style-type: none;">
-              ${stackLog.sentBack
+              ${stackLog.beingAutomated
                 .map(
                   (ticket) =>
                     `<li style="background: ${
@@ -462,7 +490,20 @@
                 .join("")}
           </ul>
       </div>
-      <div style="grid-area: 1 / 5 / span 1 / span 1;">
+      <div style="grid-area: 1 / 4 / span 1 / span 1;">
+        <p class="sectionTitle">Automated (${stackLog.automated.length})</p>
+        <ul style="list-style-type: none;">
+            ${stackLog.automated
+              .map(
+                (ticket) =>
+                  `<li style="background: ${
+                    ticketWorkColors[
+                      ticket.number % (ticketWorkColors.length - 1)
+                    ]
+                  }">#${ticket.number}</li>`
+              )
+              .join("")}
+        </ul>
           <p class="sectionTitle">Done (${stackLog.done.length})</p>
           <ul style="list-style-type: none;">
               ${stackLog.done
@@ -571,6 +612,8 @@
     const keys = [
       "waitingForQa",
       "done",
+      "waitingForAutomation",
+      "automated",
       // "activeDevelopment",
       "waitingForCodeReview",
       // "inCodeReview",
@@ -591,7 +634,7 @@
       .append("svg")
       .attr("width", "100%")
       .attr("class", "timeChartsSvg")
-      .attr("id", `ticketStatisTimeChartSvg`);
+      .attr("id", `ticketStasisTimeChartSvg`);
 
     const graphSvg = wrapperSvg
       .append("svg")
@@ -664,6 +707,11 @@
   );
   initializeTimeChartGraphForDataType(
     d3.select("#timeChartsWrapper"),
+    "Checking Tickets",
+    "checking"
+  );
+  initializeTimeChartGraphForDataType(
+    d3.select("#timeChartsWrapper"),
     "Fixing Ticket Work",
     "fixingTicketWork"
   );
@@ -681,6 +729,11 @@
     d3.select("#timeChartsWrapper"),
     "Nothing",
     "nothing"
+  );
+  initializeTimeChartGraphForDataType(
+    d3.select("#timeChartsWrapper"),
+    "Automation",
+    "automation"
   );
   initializeStackChartGraphForDataType(
     d3.select("#timeChartsWrapper"),
@@ -857,6 +910,9 @@
       .attr("stroke", "rgba(0,0,0,0.2)")
       .style("pointer-events", "none");
 
+    const parent = d3.select("#sprintTimelineWrapper");
+    const parentPixelWidth = parent.node().getBoundingClientRect().width;
+    const rangePixelStart = margin.left + tooltipX.domain()[0];
     svgGraph.on("mousemove", function (event) {
       let [x, y] = d3.pointer(event);
       line.attr("transform", `translate(${Math.max(0, x)} 0)`);
@@ -865,16 +921,14 @@
       // natural width would allow it to fit within, and so that it can have a clean
       // transition as the mouse move.
       tooltipX.range([
-        margin.left,
-        svgGraphWidth +
-          margin.left -
+        rangePixelStart,
+        parentPixelWidth -
           tooltip.node().getBoundingClientRect().width,
       ]);
       x = tooltipX(x);
 
       tooltip.style("left", x + "px").style("top", y + "px");
     });
-    const parent = d3.select("#sprintTimelineWrapper");
     parent.node().appendChild(tooltip.node());
 
     svgMinimapWorkersG
@@ -1230,6 +1284,8 @@
       const keys = [
         "waitingForQa",
         "done",
+        "waitingForAutomation",
+        "automated",
         // "activeDevelopment",
         "waitingForCodeReview",
         // "inCodeReview",
@@ -1239,6 +1295,8 @@
       const titles = {
         waitingForQa: "Waiting for QA",
         done: "Done",
+        waitingForAutomation: "Waiting for Automation",
+        automated: "Automated",
         waitingForCodeReview: "Waiting for Code Review",
         sentBack: "Waiting for Fix",
       };
@@ -1270,7 +1328,7 @@
         .scaleLinear()
         .domain([0, maxHeight * 1.2])
         .range([timeChartGraphHeight, 0]);
-      const wrapperSvg = parentDiv.select("svg#ticketStatisTimeChartSvg");
+      const wrapperSvg = parentDiv.select("svg#ticketStasisTimeChartSvg");
       const graphSvg = wrapperSvg.select("svg.timeChartGraph");
 
       wrapperSvg.attr(
@@ -1450,6 +1508,10 @@
     );
     updateTimeChartGraphForDataType(
       d3.select("#timeChartsWrapper"),
+      "checking"
+    );
+    updateTimeChartGraphForDataType(
+      d3.select("#timeChartsWrapper"),
       "fixingTicketWork"
     );
     updateTimeChartGraphForDataType(
@@ -1459,6 +1521,14 @@
     updateTimeChartGraphForDataType(
       d3.select("#timeChartsWrapper"),
       "regressionTesting"
+    );
+    updateTimeChartGraphForDataType(
+      d3.select("#timeChartsWrapper"),
+      "nothing"
+    );
+    updateTimeChartGraphForDataType(
+      d3.select("#timeChartsWrapper"),
+      "automation"
     );
     updateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "nothing");
     updateStackChartGraphForDataType(

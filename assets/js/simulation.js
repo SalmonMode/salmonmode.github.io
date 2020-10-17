@@ -130,10 +130,10 @@ class LunchAndLearn extends LunchBreak {
 
 export class ScheduledTicketWork extends Event {
   // ScheduledTicketWork is work for a ticket that either a programmer or tester is
-  // doing. ScheduledTicketWork will always require 20 minutes after any prior event
-  // in order to context switch. If 30 minutes or less would only be available before
-  // the next event, then work on a new ticket won't be scheduled. But if work was
-  // already being done on a ticket, an attempt to schedule some work will be made,
+  // doing. ScheduledTicketWork will always require up to 30 minutes after any prior
+  // event in order to context switch. If 30 minutes or less would only be available
+  // before the next event, then work on a new ticket won't be scheduled. But if work
+  // was already being done on a ticket, an attempt to schedule some work will be made,
   // although it may be only enough to context switch before time runs out.
   constructor(
     startTime,
@@ -158,17 +158,35 @@ class ScheduledNewTicketWork extends ScheduledTicketWork {
   // prior event's end and a Meeting (even Lunch), if that next Meeting starts 30
   // minutes or less after the prior event.
 }
+export class ScheduledTicketProgrammingWork extends ScheduledTicketWork {
+  title = "Programming Work";
+}
+export class ScheduledTicketCheckingWork extends ScheduledTicketWork {
+  title = "Checking";
+}
+export class ScheduledTicketAutomationWork extends ScheduledTicketWork {
+  title = "Automation";
+}
+export class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {
+  title = "Code Review";
+}
+
+class ScheduledNewTicketProgrammingWork extends ScheduledTicketProgrammingWork {}
+class ScheduledNewTicketCheckingWork extends ScheduledTicketCheckingWork {}
+class ScheduledNewTicketAutomationWork extends ScheduledTicketAutomationWork {}
+class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+
+class ScheduledPreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {}
+class ScheduledPreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {}
+class ScheduledPreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {}
+class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
 
 class ScheduledPreviouslyInterruptedTicketWork extends ScheduledTicketWork {
   // Represents follow-up work for a work iteration that was interrupted and context
   // had to be re-acquired.
 }
 
-export class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {}
-
-class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
-
-class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+// class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
 
 class DaySchedule {
   constructor(lunchTime, owner, day) {
@@ -454,6 +472,7 @@ class Schedule {
     let workIteration = queue.shift();
     this.copyOfLastWorkIterationTime = workIteration.time;
     let needsCodeReview = !!ticket.needsCodeReview;
+    let needsAutomation = !!ticket.needsAutomation;
     let firstIteration = ticket.firstIteration;
     let finalIteration = !queue.length;
     while (workIteration.time > 0) {
@@ -489,11 +508,15 @@ class Schedule {
       if (needsCodeReview) {
         scheduledWorkClass = workIteration.started
           ? ScheduledPreviouslyInterruptedTicketCodeReviewWork
-          : ScheduledTicketCodeReviewWork;
+          : ScheduledNewTicketCodeReviewWork;
+      } else if (needsAutomation) {
+        scheduledWorkClass = workIteration.started
+          ? ScheduledPreviouslyInterruptedTicketAutomationWork
+          : ScheduledNewTicketAutomationWork;
       } else {
         scheduledWorkClass = workIteration.started
-          ? ScheduledPreviouslyInterruptedTicketWork
-          : ScheduledNewTicketWork;
+          ? this.scheduledPreviouslyInterruptedTicketWork
+          : this.scheduledNewTicketWork;
       }
       workIteration.started = true;
       if (schedule.nextAvailableWorkBlockMaxDuration >= workIteration.time) {
@@ -538,6 +561,25 @@ class Schedule {
       }
     }
     this.findEarliestAvailableDayForWorkIndex();
+    // Because of how the logic works, the ticket's
+    // 'needsCodeReview'/'needsAutomation' status may be misleading during a
+    // simulation. The ticket's 'needsCodeReview'/'needsAutomation'
+    // status is set to true immediately after the work iteration for that ticket was
+    // scheduled, or set to false immediately after the work iteration for code
+    // review/checking was scheduled. So if a programmer grabbed a ticket to code
+    // review it changes at 001, and it would take them until 030 to finish, the work
+    // would be scheduled when the simulation is at 001, and the 'needsCodeReview'
+    // status of the ticket would be set to false, even though the simulation would
+    // still be at 001. This works similarly for a tester doing checking.
+    //
+    // Because of this, be mindful of the point in the iteration of the
+    // simulation loop that this information is being queried at. For logging
+    // the stack, this is done at the beginning of the iteration before any new
+    // scheduling of work occurs (to better indicate the boundaries of when the
+    // stacks changed). So if a ticket that a programmer was working on at that
+    // moment had 'needsCodeReview' set to false, it would mean that that
+    // programmer was doing code review on that ticket, rather than writing the
+    // code for it.
     if (this.owner instanceof Programmer) {
       // If the Programmer just finished scheduling the changes for this ticket,
       // then the ticket will need to be code reviewed by another programmer. If
@@ -545,31 +587,18 @@ class Schedule {
       // passed to QA. If QA needs to send it back to the original programmer,
       // then it staying set to false will make sure that code review work isn't
       // scheduled by mistake.
-      //
-      // Because of how the logic works, the ticket's 'needsCodeReview' status may
-      // be misleading during a simulation. The ticket's 'needsCodeReview' status
-      // is set to true immediately after the work iteration for that ticket was
-      // scheduled, or set to false immediately after the work iteration for code
-      // review was scheduled. So if a programmer grabbed a ticket to code review
-      // its changes at 001, and it would take them until 030 to finish, the work
-      // would be scheduled when the simulation is at 001, and the
-      // 'needsCodeReview' status of the ticket would be set to false, even though
-      // the simulation would still be at 001.
-      //
-      // Because of this, be mindful of the point in the iteration of the
-      // simulation loop that this information is being queried at. For logging
-      // the stack, this is done at the beginning of the iteration before any new
-      // scheduling of work occurs (to better indicate the boundaries of when the
-      // stacks changed). So if a ticket that a programmer was working on at that
-      // moment had 'needsCodeReview' set to false, it would mean that that
-      // programmer was doing code review on that ticket, rather than writing the
-      // code for it.
       ticket.needsCodeReview = !needsCodeReview;
+    }
+    if (this instanceof QaSchedule && queue.length === 0) {
+      // final check has just been completed
+      ticket.needsAutomation = !needsAutomation;
     }
   }
 }
 
 class ProgrammerSchedule extends Schedule {
+  scheduledNewTicketWork = ScheduledNewTicketProgrammingWork;
+  scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketProgrammingWork;
   getWorkIterationQueueFromTicket(ticket) {
     if (ticket.needsCodeReview) {
       return ticket.programmerCodeReviewWorkIterations;
@@ -579,6 +608,8 @@ class ProgrammerSchedule extends Schedule {
 }
 
 class QaSchedule extends Schedule {
+  scheduledNewTicketWork = ScheduledNewTicketCheckingWork;
+  scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketCheckingWork;
   constructor(
     sprintDayCount,
     regressionTestDayCount,
@@ -619,6 +650,9 @@ class QaSchedule extends Schedule {
     this.findEarliestAvailableDayForWorkIndex();
   }
   getWorkIterationQueueFromTicket(ticket) {
+    if (ticket.needsAutomation) {
+      return ticket.automationWorkIterations;
+    }
     return ticket.testerWorkIterations;
   }
 }
@@ -676,7 +710,9 @@ class Worker {
     // middle of the day. This may not be immediately relevant, but may come in
     // handy if other meetings are implemented.
     this.productivityRecoveryMinutes = [];
+    this.checkingMinutes = [];
     this.regressionTestingMinutes = [];
+    this.automationMinutes = [];
     // Time spent doing nothing because there was no time to get started on anything
     // before a meeting, lunch, or the end of the day came up.
     this.nothingMinutes = [];
@@ -724,8 +760,14 @@ class Worker {
           // TODO
           // this.productivityRecoveryMinutes.push(...eventMinutes);
         }
+        if (event instanceof ScheduledTicketCheckingWork) {
+          this.checkingMinutes.push(...eventMinutes);
+        }
         if (event instanceof RegressionTesting) {
           this.regressionTestingMinutes.push(...eventMinutes);
+        }
+        if (event instanceof ScheduledTicketAutomationWork) {
+          this.automationMinutes.push(...eventMinutes);
         }
         if (event instanceof NothingEvent) {
           this.nothingMinutes.push(...eventMinutes);
@@ -767,6 +809,18 @@ class Worker {
   getRegressionTestingMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(
       this.regressionTestingMinutes,
+      dayTime
+    );
+  }
+  getCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(
+      this.checkingMinutes,
+      dayTime
+    );
+  }
+  getAutomationMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(
+      this.automationMinutes,
       dayTime
     );
   }
@@ -933,7 +987,7 @@ class Ticket {
     programmerWorkIterations,
     programmerCodeReviewWorkIterations,
     testerWorkIterations,
-    automatedTestDevelopmentTime,
+    qaAutomationIteration,
     totalTimesToBeSentBack
   ) {
     // the ticket number used to uniquely identify it
@@ -951,17 +1005,19 @@ class Ticket {
     this.testerWorkIterations = testerWorkIterations;
     // The amount of uninterrupted time it will take the tester to write the
     // high-level automated tests for this ticket
-    this.automatedTestDevelopmentTime = automatedTestDevelopmentTime;
+    this.automationWorkIterations = [qaAutomationIteration];
     // The amount of times this ticket would have to be sent back to the programmer
     // before it would be completed.
     this.totalTimesToBeSentBack = totalTimesToBeSentBack;
     this.initialProgrammerWorkIterationTime = this.programmerWorkIterations[0].time;
     this.initialProgrammerCodeReviewWorkIterationTime = this.programmerCodeReviewWorkIterations[0].time;
     this.initialTesterWorkIterationTime = this.testerWorkIterations[0].time;
+    this.initialTesterAutomationWorkIterationTime = this.automationWorkIterations[0].time;
     // After the programmer has done work on the ticket, it will need code review
     // before being passed off to QA. Only once that work is done (or at least
     // scheduled) is this set to true.
     this.needsCodeReview = false;
+    this.needsAutomation = false;
     // Whether or not any work has begun on this ticket or not. Used to track
     // metrics relating to work that was done in repeated iterations of work for
     // tickets needed. For programmers, this means any work iteration that wasn't
@@ -1027,7 +1083,7 @@ class TicketFactory {
     );
     // QA Automation doesn't require iterations because the person doing it makes sure
     // it's working as expected while doing the work
-    const qaAutomationTime = this.generateQaAutomationIterationTime();
+    const qaAutomationIteration = this.generateQaAutomationWorkIteration();
     const priority = Math.round(Math.random() * 100);
 
     const ticket = new Ticket(
@@ -1036,7 +1092,7 @@ class TicketFactory {
       programmerWorkIterations,
       programmerCodeReviewWorkIterations,
       testerWorkIterations,
-      qaAutomationTime,
+      qaAutomationIteration,
       passBackCount
     );
     this.ticketsMade += 1;
@@ -1121,7 +1177,7 @@ class TicketFactory {
     return sample;
   }
 
-  generateQaAutomationIterationTime() {
+  generateQaAutomationWorkIteration() {
     return this.sampleQaAutomationIterationTime(1)[0];
   }
   sampleQaAutomationIterationTime(sampleCount) {
@@ -1342,8 +1398,11 @@ class StackLogEntry {
     inCodeReview,
     waitingForQa,
     inQa,
+    beingAutomated,
     sentBack,
-    done
+    done,
+    waitingForAutomation,
+    automated
   ) {
     this.dayTimeRangeStart = dayTimeRangeStart;
     this.dayTimeRangeEnd = dayTimeRangeEnd;
@@ -1352,74 +1411,12 @@ class StackLogEntry {
     this.inCodeReview = inCodeReview;
     this.waitingForQa = waitingForQa;
     this.inQa = inQa;
+    this.beingAutomated = beingAutomated;
     this.sentBack = sentBack;
     this.done = done;
+    this.waitingForAutomation = waitingForAutomation;
+    this.automated = automated;
   }
-}
-
-function generateStackLogEntry(
-  currentDayTime,
-  previousDayTime,
-  programmers,
-  testers,
-  codeReviewStack,
-  qaStack,
-  passBackStack,
-  doneStack
-) {
-  let activeDevelopment = [
-    ...programmers.reduce((tickets, programmer) => {
-      if (
-        programmer.schedule.lastTicketWorkedOn &&
-        programmer.schedule.lastTicketWorkedOn.programmerWorkIterations <
-          programmer.schedule.lastTicketWorkedOn
-            .programmerCodeReviewWorkIterations
-      ) {
-        tickets.push(programmer.schedule.lastTicketWorkedOn);
-      }
-      return tickets;
-    }, []),
-  ];
-  let waitingForCodeReview = codeReviewStack.slice();
-  let inCodeReview = [
-    ...programmers.reduce((tickets, programmer) => {
-      if (
-        programmer.schedule.lastTicketWorkedOn &&
-        programmer.schedule.lastTicketWorkedOn.programmerWorkIterations ===
-          programmer.schedule.lastTicketWorkedOn
-            .programmerCodeReviewWorkIterations
-      ) {
-        tickets.push(programmer.schedule.lastTicketWorkedOn);
-      }
-      return tickets;
-    }, []),
-  ];
-  let waitingForQa = qaStack.slice();
-  let inQa = [
-    ...testers.reduce((tickets, tester) => {
-      if (tester.schedule.lastTicketWorkedOn) {
-        tickets.push(tester.schedule.lastTicketWorkedOn);
-      }
-      return tickets;
-    }, []),
-  ];
-  let sentBack = passBackStack.slice();
-  let done = doneStack.slice();
-  let logEntry = new StackLogEntry(
-    previousDayTime,
-    currentDayTime,
-    activeDevelopment,
-    waitingForCodeReview,
-    inCodeReview,
-    waitingForQa,
-    inQa,
-    sentBack,
-    done
-  );
-  for (let i = 0; i < currentDayTime - previousDayTime; i++) {
-    stackTimelineHashMap.push(logEntry);
-  }
-  stackTimelineSets.push(logEntry);
 }
 
 export class Simulation {
@@ -1478,6 +1475,8 @@ export class Simulation {
     this.tickets = [];
     this.sprintTickets = [];
     this.qaStack = [];
+    this.automationStack = [];
+    this.automatedStack = [];
     this.passBackStack = [];
     this.doneStack = [];
     this.unfinishedStack = [];
@@ -1609,7 +1608,10 @@ export class Simulation {
     let waitingForCodeReview = this.codeReviewStack.slice();
     let inCodeReview = this.getTicketsCurrentlyInCodeReview();
     let waitingForQa = this.qaStack.slice();
+    let waitingForAutomation = this.automationStack.slice();
+    let automated = this.automatedStack.slice();
     let inQa = this.getTicketsCurrentlyInQa();
+    let beingAutomated = this.getTicketsCurrentlyBeingAutomated();
     let sentBack = this.passBackStack.slice();
     let done = this.doneStack.slice();
     let logEntry = new StackLogEntry(
@@ -1620,8 +1622,11 @@ export class Simulation {
       inCodeReview,
       waitingForQa,
       inQa,
+      beingAutomated,
       sentBack,
-      done
+      done,
+      waitingForAutomation,
+      automated
     );
     for (let i = dayTimeRangeStart; i < dayTimeRangeEnd; i++) {
       this.stackTimelineHashMap.push(logEntry);
@@ -1648,9 +1653,6 @@ export class Simulation {
     ];
   }
   getTicketsCurrentlyInCodeReview() {
-    // Iterates over the programmers and grabs all of the tickets that they're
-    // working on. Tickets being code reviewed are not considered for this, as they
-    // are tracked elsewhere.
     return [
       ...this.programmers.reduce((tickets, programmer) => {
         if (
@@ -1667,12 +1669,19 @@ export class Simulation {
     ];
   }
   getTicketsCurrentlyInQa() {
-    // Iterates over the programmers and grabs all of the tickets that they're
-    // working on. Tickets being code reviewed are not considered for this, as they
-    // are tracked elsewhere.
     return [
       ...this.testers.reduce((tickets, tester) => {
         if (tester.schedule.lastTicketWorkedOn) {
+          tickets.push(tester.schedule.lastTicketWorkedOn);
+        }
+        return tickets;
+      }, []),
+    ];
+  }
+  getTicketsCurrentlyBeingAutomated() {
+    return [
+      ...this.testers.reduce((tickets, tester) => {
+        if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.automationWorkIterations.length === 0) {
           tickets.push(tester.schedule.lastTicketWorkedOn);
         }
         return tickets;
@@ -1763,7 +1772,6 @@ export class Simulation {
         ? nWorker
         : eWorker;
     });
-    return earliestWorker;
   }
   processProgrammerCompletedWork() {
     for (let p of this.programmers) {
@@ -1788,10 +1796,16 @@ export class Simulation {
           // tester must have found a problem, so send it back to programmers
           this.passBackStack.push(possiblyFinishedTicket);
           possiblyFinishedTicket.firstIteration = false;
-        } else {
+        } else if (!possiblyFinishedTicket.needsAutomation) {
+          // automation was just completed
+          this.automatedStack.push(possiblyFinishedTicket);
+        }
+          else {
           // no work iterations left, which means the tester didn't find any
           // issues
+          // possiblyFinishedTicket.needsAutomation = true;
           this.doneStack.push(possiblyFinishedTicket);
+          this.automationStack.push(possiblyFinishedTicket);
         }
       }
     }
@@ -1899,8 +1913,7 @@ export class Simulation {
     );
   }
   getHighestPriorityCodeReviewWorkIndexForProgrammer(
-    programmer,
-    codeReviewStack
+    programmer
   ) {
     let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
 
@@ -1919,6 +1932,23 @@ export class Simulation {
           }
         }
         return highestPriorityOwnedTicketIndex;
+      },
+      null
+    );
+  }
+  getHighestPriorityAutomationIndex() {
+    return this.automationStack.reduce(
+      (highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
+        if (!highestPriorityTicketIndex) {
+          return currentTicketIndex;
+        }
+        if (
+          currentTicket.priority <
+          this.automationStack[highestPriorityTicketIndex].priority
+        ) {
+          return currentTicketIndex;
+        }
+        return highestPriorityTicketIndex;
       },
       null
     );
@@ -1944,6 +1974,20 @@ export class Simulation {
             if (err instanceof RangeError) {
               // ran out of time in the sprint
               this.unfinishedStack.push(ticket);
+            } else {
+              throw err;
+            }
+          }
+        } else if (this.automationStack.length > 0) {
+          let highestPriorityTicketIndex = this.getHighestPriorityAutomationIndex();
+          ticket = this.automationStack.splice(highestPriorityTicketIndex, 1)[0];
+          t.addTicket(ticket);
+          try {
+            t.schedule.addWork(ticket);
+          } catch (err) {
+            if (err instanceof RangeError) {
+              // ran out of time in the sprint
+              this.automationStack.push(ticket);
             } else {
               throw err;
             }
@@ -2033,7 +2077,9 @@ export class Simulation {
           ),
           codeReview: worker.getCodeReviewWorkMinutesAtDayTime(i),
           // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
+          checking: worker.getCheckingMinutesAtDayTime(i),
           regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
+          automation: worker.getAutomationMinutesAtDayTime(i),
           nothing: worker.getNothingMinutesAtDayTime(i),
         };
         dataForWorkersAtThisDayTime.push(minutes);
