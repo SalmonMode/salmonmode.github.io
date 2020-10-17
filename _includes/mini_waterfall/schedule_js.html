@@ -536,35 +536,27 @@
   const timeChartGraphXEndRange =
     minimapWidth - (timeChartMargin.left + timeChartMargin.right);
 
-  function addMouseBoxToTimeChartGraph(targetSvg, dataKey) {
-    const mouseBox = targetSvg
-      .append("rect")
-      .attr("opacity", "0")
-      .attr("height", timeChartGraphHeight)
-      .attr("width", timeChartGraphXEndRange)
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("class", "mouseBox")
-      .attr("clip-path", `url(#${dataKey}TimeChartsClipPath)`);
-    mouseBox
-      .on("mouseout", (event) => {
-        mouseBox.node().updateAnnotationsToReflectSynchronizer();
+  function addGraphMouseTargetToTimeChartGraph(mouseTarget) {
+    mouseTarget
+      .on("mouseout", function (event) {
+        d3.select(this).node().updateAnnotationsToReflectSynchronizer();
       })
-      .on("mousemove", (event) => {
+      .on("mousemove", function (event) {
+        const self = d3.select(this)
         const x0 = d3.pointer(event)[0];
         const targetedDayTime = Math.max(
           0,
           Math.round(
-            mouseBox
+            self
               .node()
               .timeChartGraphX.invert(
-                mouseBox.node().timeChartGraphXMouseEventTranslator(x0)
+                self.node().timeChartGraphXMouseEventTranslator(x0)
               )
           ) - 1
         );
-        mouseBox.node().updateAnnotations(targetedDayTime);
+        self.node().updateAnnotations(targetedDayTime);
       });
-    return mouseBox;
+    return mouseTarget;
   }
 
   // set up base charts without data
@@ -583,6 +575,8 @@
       .attr("x", timeChartMargin.left)
       .attr("width", "100%");
 
+    graphSvg.append('text').attr('class', 'workerName').attr('x', 10).attr('y', 20);
+
     const clipPath = graphSvg
       .append("clipPath")
       .attr("id", `${dataKey}TimeChartsClipPath`);
@@ -593,7 +587,7 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    graphSvg.append("g").attr("class", "chartPaths");
+    const mouseTarget = graphSvg.append("g").attr("class", "chartPaths");
     graphSvg.append("g").attr("class", "yAxis");
     const focus = graphSvg
       .append("g")
@@ -604,7 +598,7 @@
       .attr("r", 8.5)
       .attr("class", "graphAnnotationCircle");
     graphSvg.append("g").attr("class", "graphAnnotation");
-    addMouseBoxToTimeChartGraph(graphSvg, dataKey);
+    addGraphMouseTargetToTimeChartGraph(mouseTarget);
   }
   function initializeStackChartGraphForDataType(parentDiv, title) {
     // not affected by worker selection
@@ -687,7 +681,16 @@
       .attr("y", "0");
     const focus = graphSvg.append("g").attr("class", "focusCirclesG");
     graphSvg.append("g").attr("class", "graphAnnotation");
-    addMouseBoxToTimeChartGraph(graphSvg, "ticketStasis");
+    const mouseBox = graphSvg
+      .append("rect")
+      .attr("opacity", "0")
+      .attr("height", timeChartGraphHeight)
+      .attr("width", timeChartGraphXEndRange)
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("class", "mouseBox")
+      .attr("clip-path", `url(#ticketStasisTimeChartsClipPath)`);
+    addGraphMouseTargetToTimeChartGraph(mouseBox);
   }
 
   initializeTimeChartGraphForDataType(
@@ -1228,9 +1231,10 @@
         simulation.workerDataForDayTime
       );
 
-      stackedData.forEach((d) => {
+      stackedData.forEach((d, i) => {
         d.yScale = timeChartGraphY;
         d.dataKey = dataKey;
+        d.worker = simulation.workers[i];
       });
 
       const wrapperSvg = parentDiv.select(`svg#${dataKey}TimeChartSvg`);
@@ -1272,11 +1276,11 @@
         .select("g.graphAnnotation")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY });
 
-      const mouseBox = graphSvg.select("rect.mouseBox");
-      mouseBox.node().timeChartGraphX = timeChartGraphX;
-      mouseBox.node().updateAnnotations = updateAnnotations;
-      mouseBox.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
-      mouseBox.node().timeChartGraphXMouseEventTranslator = timeChartGraphXMouseEventTranslator;
+      const mouseTarget = graphSvg.selectAll("g.chartPaths");
+      mouseTarget.node().timeChartGraphX = timeChartGraphX;
+      mouseTarget.node().updateAnnotations = updateAnnotations;
+      mouseTarget.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
+      mouseTarget.node().timeChartGraphXMouseEventTranslator = timeChartGraphXMouseEventTranslator;
     }
 
     function updateStackChartGraphForDataType(parentDiv, dataKey) {
@@ -1425,11 +1429,11 @@
             key: keys[i],
           };
         });
-      const mouseBox = graphSvg.select("rect.mouseBox");
-      mouseBox.node().timeChartGraphX = timeChartGraphX;
-      mouseBox.node().updateAnnotations = updateAnnotations;
-      mouseBox.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
-      mouseBox.node().timeChartGraphXMouseEventTranslator = timeChartGraphXMouseEventTranslator;
+      const mouseTarget = graphSvg.select("rect.mouseBox");
+      mouseTarget.node().timeChartGraphX = timeChartGraphX;
+      mouseTarget.node().updateAnnotations = updateAnnotations;
+      mouseTarget.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
+      mouseTarget.node().timeChartGraphXMouseEventTranslator = timeChartGraphXMouseEventTranslator;
     }
 
     synchronizer.addEventListener("input", (event) =>
@@ -1466,8 +1470,16 @@
         .selectAll("path")
         .data((d) => d.stackedData)
         .join("path")
-        .style("fill", (d, i) => simulation.workers[i].color)
+        .attr("fill", (d) => d.worker.color)
         .attr("clip-path", (d) => `url(#${d.dataKey}TimeChartsClipPath)`)
+        .on('mouseover', function (d, t) {
+          d3.select(`#${t.dataKey}TimeChartSvg`).select('text.workerName').text(`Worker: ${t.worker.name}`);
+          d3.select(this).attr('fill', d3.color(t.worker.color).brighter());
+        })
+        .on('mouseout', function (d, t) {
+          d3.select(`#${t.dataKey}TimeChartSvg`).select('text.workerName').text(``);
+          d3.select(this).attr('fill', t.worker.color);
+        })
         .transition()
         .duration(1000)
         .style("opacity", (d, i) =>
