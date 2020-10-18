@@ -45,28 +45,129 @@
         alignment-baseline: before-edge;
         font-size: 0.7em;
     }
+    form#generationForm {
+        display:flex;
+        align-items: stretch;
+        flex-flow:row wrap;
+        justify-content: space-evenly;
+    }
+    form#generationForm > div {
+        display: flex;
+        width: 200px;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    form#generationForm > div > * {
+        display:block;
+    }
+    label {
+        position: relative;
+    }
+    label [role="tooltip"] {
+        width: 240px;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -120px;
+        display: none;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px 5px;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+    }
+    label:hover [role="tooltip"] {
+        display: block;
+    }
+    [role="tooltip"]::after {
+        content: " ";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: black transparent transparent transparent;
+    }
 </style>
 <div id='generationFormWrapper'>
 <form id='generationForm'>
-<label for='sprintDayCount'>Number of days in sprint (min 5):</label>
+<div>
+<div>
+<label for='sprintDayCount'><span class='mainLabelContent'>Days in sprint (min 5):</span><span role='tooltip'>How many business days are in each sprint.</span></label>
+</div>
+<div>
 <input id='sprintDayCount' name='sprintDayCount' type='number' min='5' value='10'>
-<label for='regressionTestDayCount'>Number of days reserved for regression testing:</label>
-<input id='regressionTestDayCount' name='regressionTestDayCount' type='number' value='2'>
-<label for='dayStartTime'>Hour the day starts at (min 8):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='regressionTestDayCount'><span class='mainLabelContent'>Days for regression testing:</span><span role='tooltip'>How many days per sprint the testers will be doing regression tests, while programmers work on the next sprint.</span></label>
+</div>
+<div>
+<input id='regressionTestDayCount' name='regressionTestDayCount' type='number' value='2' min='0'>
+</div>
+</div>
+<div>
+<div>
+<label for='dayStartTime'><span class='mainLabelContent'>Day start hour (min 8):</span><span role='tooltip'>The hour of the day that work typically begins.</span></label>
+</div>
+<div>
 <input id='dayStartTime' name='dayStartTime' type='number' min='8' value='10'>
-<label for='programmerCount'>Number of programmers (min 1):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='programmerCount'><span class='mainLabelContent'>Programmers (min 1):</span><span role='tooltip'>How many programmers are in this team.</span></label>
+</div>
+<div>
 <input id='programmerCount' name='programmerCount' type='number' min='1' value='5'>
-<label for='testerCount'>Number of testers (min 1):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='testerCount'><span class='mainLabelContent'>Testers (min 1):</span><span role='tooltip'>How many testers are in this team.</span></label>
+</div>
+<div>
 <input id='testerCount' name='testerCount' type='number' min='1' value='1'>
-<label for='maxInitialProgrammerWorkTimeInHours'>Peek potential programming work iteration time per ticket (in hours, min 1):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='maxInitialProgrammerWorkTimeInHours'><span class='mainLabelContent'>Peek programming time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a programmer to finish their first iteration of a ticket's code changes before submitting it to code review.</span></label>
+</div>
+<div>
 <input id='maxInitialProgrammerWorkTimeInHours' name='maxInitialProgrammerWorkTimeInHours' type='number' min='1' value='16'>
-<label for='maxFullRunTesterWorkTimeInHours'>Peek potential tester work iteration time per ticket (in hours, min 1):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='maxFullRunTesterWorkTimeInHours'><span class='mainLabelContent'>Peek check time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a tester to verify all of the functional requirements/acceptance criteria of a ticket.</span></label>
+</div>
+<div>
 <input id='maxFullRunTesterWorkTimeInHours' name='maxFullRunTesterWorkTimeInHours' type='number' min='1' value='8'>
-<label for='maxQaAutomationTime'>Peek potential test automation work iteration time per ticket (in hours, min 1):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='maxQaAutomationTime'><span class='mainLabelContent'>Peek check automation time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a tester to finish automating the checking of all of the functional requirements/acceptance criteria of a ticket.</span></label>
+</div>
+<div>
 <input id='maxQaAutomationTime' name='maxQaAutomationTime' type='number' min='1' value='8'>
-<label for='averagePassBackCount'>Average amount of times a ticket is passed back to programmers by testers (min 0):</label>
+</div>
+</div>
+<div>
+<div>
+<label for='averagePassBackCount'><span class='mainLabelContent'>Average pass back (min 0):</span><span role='tooltip'>On average, the number of times you would expect a tester to send a ticket back to a programmer because of a problem they found with the programmer's code changes.</span></label>
+</div>
+<div>
 <input id='averagePassBackCount' name='averagePassBackCount' type='number' min='0' value='1'>
+</div>
+</div>
+<div>
 <button type="submit">Go</button>
+</div>
 </form>
 </div>
 <div id='sprintTimelineWrapper'><svg width="100%" height="300" id="sprintTimeline"></svg></div>
