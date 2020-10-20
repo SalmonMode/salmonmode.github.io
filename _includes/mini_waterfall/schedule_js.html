@@ -586,7 +586,9 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const mouseTarget = graphSvg.append("g").attr("class", "chartPaths");
+    const mouseTarget = graphSvg.append("g").attr("class", "chartPathsWrapper");
+    const backgroundRectWrapper = mouseTarget.append('g').attr('class', 'backgroundRectWrapper');
+    mouseTarget.append('g').attr('class', 'chartPaths');
     graphSvg.append("g").attr("class", "yAxis");
     const focus = graphSvg
       .append("g")
@@ -597,6 +599,15 @@
       .attr("r", 8.5)
       .attr("class", "graphAnnotationCircle");
     graphSvg.append("g").attr("class", "graphAnnotation");
+    backgroundRectWrapper
+      .append("rect")
+      .attr("opacity", "0")
+      .attr("height", '100%')
+      .attr("width", '100%')
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("class", "mouseBox")
+      .attr("clip-path", `url(#${dataKey}TimeChartsClipPath)`);
     addGraphMouseTargetToTimeChartGraph(mouseTarget);
   }
   function initializeStackChartGraphForDataType(parentDiv, title) {
@@ -644,7 +655,9 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const pathsG = graphSvg.append("g").attr("class", "pathsG");
+    const mouseTarget = graphSvg.append("g").attr("class", "pathsGWrapper");
+    const backgroundRectWrapper = mouseTarget.append("g").attr("class", "backgroundRectWrapper");
+    mouseTarget.append("g").attr("class", "pathsG");
     const xAxis = graphSvg
       .append("g")
       .attr("class", "xAxis")
@@ -680,7 +693,7 @@
       .attr("y", "0");
     const focus = graphSvg.append("g").attr("class", "focusCirclesG");
     graphSvg.append("g").attr("class", "graphAnnotation");
-    const mouseBox = graphSvg
+    backgroundRectWrapper
       .append("rect")
       .attr("opacity", "0")
       .attr("height", timeChartGraphHeight)
@@ -689,7 +702,7 @@
       .attr("y", 0)
       .attr("class", "mouseBox")
       .attr("clip-path", `url(#ticketStasisTimeChartsClipPath)`);
-    addGraphMouseTargetToTimeChartGraph(mouseBox);
+    addGraphMouseTargetToTimeChartGraph(mouseTarget);
   }
 
   initializeTimeChartGraphForDataType(
@@ -1275,7 +1288,7 @@
         .select("g.graphAnnotation")
         .datum({ dataKey: dataKey, yScale: timeChartGraphY });
 
-      const mouseTarget = graphSvg.selectAll("g.chartPaths");
+      const mouseTarget = graphSvg.selectAll("g.chartPathsWrapper");
       mouseTarget.node().timeChartGraphX = timeChartGraphX;
       mouseTarget.node().updateAnnotations = updateAnnotations;
       mouseTarget.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
@@ -1428,7 +1441,7 @@
             key: keys[i],
           };
         });
-      const mouseTarget = graphSvg.select("rect.mouseBox");
+      const mouseTarget = graphSvg.select("g.pathsGWrapper");
       mouseTarget.node().timeChartGraphX = timeChartGraphX;
       mouseTarget.node().updateAnnotations = updateAnnotations;
       mouseTarget.node().updateAnnotationsToReflectSynchronizer = updateAnnotationsToReflectSynchronizer;
