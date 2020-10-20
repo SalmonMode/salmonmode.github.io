@@ -186,7 +186,17 @@ class ScheduledPreviouslyInterruptedTicketWork extends ScheduledTicketWork {
   // had to be re-acquired.
 }
 
-// class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+class AvailableTimeSlot {
+  constructor(nextMeetingIndex, startTime, endTime) {
+    this.nextMeetingIndex = nextMeetingIndex;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.duration = endTime - startTime;
+  }
+  get previousMeetingIndex() {
+    return [null, 0].includes(this.nextMeetingIndex) ? null : this.nextMeetingIndex - 1;
+  }
+}
 
 class DaySchedule {
   constructor(lunchTime, owner, day) {
@@ -195,155 +205,64 @@ class DaySchedule {
     this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
     this.items = [];
     this.lastMeetingIndexBeforeAvailability = null;
+    this.availableTimeSlots = [new AvailableTimeSlot(null, 0, 480)];
     let lunch = new LunchBreak(lunchTime, this.owner, this.day);
     this.scheduleMeeting(lunch);
   }
 
   scheduleMeeting(meeting) {
-    // assumes meetings are set first, and that meetings will never conflict with
-    // lunch
-    if (this.items.length == 0) {
-      this.items.push(meeting);
-      this.lastMeetingIndexBeforeAvailability = 0;
-      this.findLastMeetingIndexBeforeAvailability();
-      return;
+    // assumes meetings are set first and were set in order
+    if (this.availableTimeSlots.length === 0) {
+      throw Error("No available time to schedule meetings");
     }
-    let startingIndex = this.lastMeetingIndexBeforeAvailability;
-    for (
-      let i = this.lastMeetingIndexBeforeAvailability;
-      i < this.items.length;
-      i++
-    ) {
-      let event = this.items[i];
-      if (
-        event.startTime < meeting.endTime &&
-        event.endTime > meeting.startTime
-      ) {
-        // event conflicts
-        throw Error("Meeting conflicts with another meeting");
-      } else if (
-        event.startTime >= meeting.endTime &&
-        (i == 0 || this.items[i - 1].endTime <= meeting.startTime)
-      ) {
-        // meeting can fit here
-        this.items.splice(i, 0, meeting);
-        if (!(meeting instanceof ContextSwitchEvent)) {
-          this.findLastMeetingIndexBeforeAvailability();
-        } else {
-          this.lastMeetingIndexBeforeAvailability = i;
+    const newAvailableTimeSlots = [];
+    // track the number of meetings added so that NothingEvents can also impact the
+    // later AvailableTimeSlot's nextMeetingIndex attribute.
+    let meetingsAdded = 0;
+    let matchingTimeSlotIndex = 0;
+    for (let timeSlotIndex in this.availableTimeSlots) {
+      const timeSlot = this.availableTimeSlots[timeSlotIndex];
+      timeSlot.nextMeetingIndex += meetingsAdded;
+      if (!meetingsAdded && meeting.startTime >= timeSlot.startTime && meeting.endTime <= timeSlot.endTime) {
+        // meeting fits here
+        matchingTimeSlotIndex = timeSlotIndex;
+
+        // Add possible NothingEvent to schedule items, or AvailableTimeSlot to schedule's available time slots.
+        const startTimeDiff = meeting.startTime - timeSlot.startTime;
+        if (startTimeDiff > 0) {
+          if (startTimeDiff <= 30) {
+            // just enough time to do nothing
+            this.items.splice(timeSlot.nextMeetingIndex, 0, new NothingEvent(timeSlot.startTime, startTimeDiff, this.owner, this.day));
+            meetingsAdded += 1;
+          } else {
+            newAvailableTimeSlots.push(new AvailableTimeSlot(timeSlot.nextMeetingIndex, timeSlot.startTime, meeting.startTime));
+          }
         }
-        return;
-      } else {
-        continue;
+
+        // add meeting to schedule items
+        this.items.splice(timeSlot.nextMeetingIndex, 0, meeting);
+        meetingsAdded += 1;
+
+        // Add possible NothingEvent to schedule items, or AvailableTimeSlot to schedule's available time slots.
+        const endTimeDiff = timeSlot.endTime - meeting.endTime;
+        if (endTimeDiff > 0) {
+          const nextMeetingIndex = timeSlot.nextMeetingIndex + meetingsAdded;
+          if (endTimeDiff <= 30 && !(meeting instanceof ContextSwitchEvent)) {
+            // just enough time to do nothing
+            this.items.splice(nextMeetingIndex, 0, new NothingEvent(timeSlot.startTime, endTimeDiff, this.owner, this.day));
+          } else {
+            // still room to do something (or the next thing being scheduled will be the ticket work)
+            newAvailableTimeSlots.push(new AvailableTimeSlot(nextMeetingIndex, meeting.endTime, timeSlot.endTime));
+          }
+        }
       }
     }
-    // meeting will be the last on the schedule
-    this.items.push(meeting);
-    this.findLastMeetingIndexBeforeAvailability();
-    return;
-  }
-
-  findLastMeetingIndexBeforeAvailability() {
-    if (this.lastMeetingIndexBeforeAvailability === -1) {
-      return -1;
+    if (!meetingsAdded) {
+      // event conflicts
+      throw Error("Event conflicts with another event");
     }
-    let event = this.items[this.lastMeetingIndexBeforeAvailability];
-    if (
-      event instanceof ContextSwitchEvent &&
-      (this.lastMeetingIndexBeforeAvailability === this.items.length - 1 ||
-        !(
-          this.items[this.lastMeetingIndexBeforeAvailability + 1] instanceof
-          ScheduledTicketWork
-        ))
-    ) {
-      // If the last meeting before availability is a ContextSwitchEvent, and
-      // there either is no next event, or the next event isn't
-      // ScheduledTicketWork, then it must mean that the schedule is in the
-      // process of adding in a scheduled work event, so nothing should be
-      // changed.
-      return;
-    }
-
-    if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
-      // index is already pointing to last event scheduled for the day
-      let timeUntilEndOfDay = 480 - event.endTime;
-      if (timeUntilEndOfDay > 30) {
-        return;
-      } else if (timeUntilEndOfDay > 0) {
-        // not enough time in the day to do anything, so put in a NothingEvent
-        // and move on to the next day.
-        this.scheduleMeeting(
-          new NothingEvent(
-            event.endTime,
-            timeUntilEndOfDay,
-            this.owner,
-            this.day
-          )
-        );
-      }
-      // no more available slots on this day
-      this.lastMeetingIndexBeforeAvailability = -1;
-      return;
-    }
-    let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1];
-    let timeUntilNextEvent = nextEvent.startTime - event.endTime;
-    if (timeUntilNextEvent > 30) {
-      // There is time to fit more work after this event, so it can be considered
-      // the last meeting before availability
-      return;
-    } else if (timeUntilNextEvent > 0) {
-      // not enough time before the next meeting to do anything, so put in a
-      // NothingEvent and move on to the next event.
-      this.scheduleMeeting(
-        new NothingEvent(
-          event.endTime,
-          timeUntilNextEvent,
-          this.owner,
-          this.day
-        )
-      );
-      return;
-    }
-    // still not sure where the next gap is, so increment to make sure this next
-    // call to this function grabs the next event as it tries again.
-    this.lastMeetingIndexBeforeAvailability += 1;
-    this.findLastMeetingIndexBeforeAvailability();
-  }
-
-  get lastEventBeforeAvailable() {
-    if (this.lastMeetingIndexBeforeAvailability === -1) {
-      return null;
-    }
-    return this.items[this.lastMeetingIndexBeforeAvailability];
-  }
-
-  get hasAvailableTimeSlot() {
-    this.findLastMeetingIndexBeforeAvailability();
-    return this.lastMeetingIndexBeforeAvailability >= 0;
-  }
-
-  get nextAvailableWorkBlockMaxDuration() {
-    if (this.lastMeetingIndexBeforeAvailability === -1) {
-      // no more available blocks for this day
-      return null;
-    }
-    if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
-      // last event in the day
-      return 480 - this.lastEventBeforeAvailable.endTime;
-    }
-    let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1];
-    return nextEvent.startTime - this.lastEventBeforeAvailable.endTime;
-  }
-
-  get earliestAvailableTimeForWork() {
-    if (this.lastEventBeforeAvailable === null) {
-      return -1;
-    }
-    return this.lastEventBeforeAvailable.endTime;
-  }
-
-  isBusyAtTime(time) {
-    return this.earliestAvailableTimeForWork > time;
+    // Merge in newly defined AvailableTimeSlots if applicable.
+    this.availableTimeSlots.splice(matchingTimeSlotIndex, 1, ...newAvailableTimeSlots);
   }
 }
 
@@ -379,7 +298,6 @@ class Schedule {
     // days, even those from the last days of the previous sprint to reflect
     // the impact of this process from a holistic perspective.
     this.owner = owner;
-    this.earliestAvailableDayForWorkIndex = 0;
     this.daySchedules = [];
     this.sprintDayCount = sprintDayCount;
     this.regressionTestDayCount = regressionTestDayCount;
@@ -412,56 +330,22 @@ class Schedule {
     this.dayOfNextWorkIterationCompletion = null;
     this.timeOfNextWorkIterationCompletion = null;
     this.lastTicketWorkedOn = null;
-    this.findEarliestAvailableDayForWorkIndex();
   }
 
-  findEarliestAvailableDayForWorkIndex() {
-    if (this.earliestAvailableDayForWorkIndex === -1) {
-      return;
-    } else if (
-      this.daySchedules[this.earliestAvailableDayForWorkIndex]
-        .hasAvailableTimeSlot
-    ) {
-      return;
-    } else if (
-      this.earliestAvailableDayForWorkIndex >=
-      this.daySchedules.length - 1
-    ) {
-      // no more available time this sprint for this worker
-      this.earliestAvailableDayForWorkIndex = -1;
-      return;
+  get earliestAvailableDayForWorkIndex() {
+    for (let daySchedule of this.daySchedules) {
+      if (daySchedule.availableTimeSlots.length > 0) {
+        return daySchedule.day;
+      }
     }
-    this.earliestAvailableDayForWorkIndex += 1;
-    this.findEarliestAvailableDayForWorkIndex();
+    return -1;
   }
 
   get earliestAvailableDayScheduleForWork() {
-    // this.findEarliestAvailableDayForWorkIndex();
     if (this.earliestAvailableDayForWorkIndex === -1) {
       return null;
     }
     return this.daySchedules[this.earliestAvailableDayForWorkIndex];
-  }
-
-  get earliestAvailableTimeForWork() {
-    if (this.earliestAvailableDayForWorkIndex === -1) {
-      return -1;
-    }
-    return this.earliestAvailableDayScheduleForWork
-      .earliestAvailableTimeForWork;
-  }
-
-  isBusyAtTime(day, time) {
-    let schedule = this.daySchedules[day];
-    return schedule.isBusyAtTime(time);
-  }
-
-  get nextAvailableWorkBlockMaxDuration() {
-    if (this.lastMeetingIndexBeforeAvailability === this.items.length - 1) {
-      return 480 - this.lastEventBeforeAvailable.endTime;
-    }
-    let nextEvent = this.items[this.lastMeetingIndexBeforeAvailability + 1];
-    return nextEvent.startTime - this.lastEventBeforeAvailable.endTime;
   }
 
   addWork(ticket) {
@@ -475,6 +359,7 @@ class Schedule {
     let needsAutomation = !!ticket.needsAutomation;
     let firstIteration = ticket.firstIteration;
     let finalIteration = !queue.length;
+    let lastWorkEvent;
     while (workIteration.time > 0) {
       // work has a potential of being completed on the currently considered day,
       // but if it isn't, this.earliestAvailableDayForWorkIndex will be updated to
@@ -483,9 +368,9 @@ class Schedule {
       // will repeat until eventually it is correct because
       // this.earliestAvailableDayForWorkIndex will have been the day that the
       // last of the work for this work iteration would be scheduled.
-      this.findEarliestAvailableDayForWorkIndex();
       this.dayOfNextWorkIterationCompletion = this.earliestAvailableDayForWorkIndex;
       if (this.earliestAvailableDayForWorkIndex === -1) {
+        this.owner.nextWorkIterationCompletionCheckIn = -1;
         throw RangeError(
           "Not enough time left in the sprint to finish this ticket"
         );
@@ -493,7 +378,7 @@ class Schedule {
       let schedule = this.earliestAvailableDayScheduleForWork;
       let contextSwitchTime = Math.round(Math.random() * (30 - 10) + 10);
       let contextSwitchEvent = new ContextSwitchEvent(
-        schedule.lastEventBeforeAvailable.endTime,
+        schedule.availableTimeSlots[0].startTime,
         contextSwitchTime,
         ticket,
         firstIteration,
@@ -519,7 +404,7 @@ class Schedule {
           : this.scheduledNewTicketWork;
       }
       workIteration.started = true;
-      if (schedule.nextAvailableWorkBlockMaxDuration >= workIteration.time) {
+      if (schedule.availableTimeSlots[0].duration >= workIteration.time) {
         // enough time to complete the iteration
         newWorkEvent = new scheduledWorkClass(
           contextSwitchEvent.endTime,
@@ -536,7 +421,7 @@ class Schedule {
         // not enough time to complete the iteration
         newWorkEvent = new scheduledWorkClass(
           contextSwitchEvent.endTime,
-          schedule.nextAvailableWorkBlockMaxDuration,
+          schedule.availableTimeSlots[0].duration,
           ticket,
           contextSwitchEvent,
           firstIteration,
@@ -547,20 +432,11 @@ class Schedule {
       }
       workIteration.time -= newWorkEvent.duration;
       schedule.scheduleMeeting(newWorkEvent);
-      if (schedule.lastMeetingIndexBeforeAvailability === -1) {
-        // no more time in the day for work for this worker
-        if (
-          this.earliestAvailableDayForWorkIndex >=
-          this.daySchedules.length - 1
-        ) {
-          // no more time in the sprint for work for this worker
-          this.earliestAvailableDayForWorkIndex = -1;
-        }
-        // The next day is the next opportunity for possible work time
-        this.earliestAvailableDayForWorkIndex += 1;
-      }
+      lastWorkEvent = newWorkEvent;
     }
-    this.findEarliestAvailableDayForWorkIndex();
+    if (lastWorkEvent) {
+      this.owner.nextWorkIterationCompletionCheckIn = (lastWorkEvent.day * 480) + lastWorkEvent.endTime;
+    }
     // Because of how the logic works, the ticket's
     // 'needsCodeReview'/'needsAutomation' status may be misleading during a
     // simulation. The ticket's 'needsCodeReview'/'needsAutomation'
@@ -630,24 +506,19 @@ class QaSchedule extends Schedule {
         this.daySchedules.length - (regressionTestDayCount - i);
       let currentSprintDaySchedule = this.daySchedules[currentSprintI];
       // regression tests from previous sprint
-      while (previousSprintDaySchedule.earliestAvailableTimeForWork > -1) {
-        let startTime = previousSprintDaySchedule.earliestAvailableTimeForWork;
-        let duration =
-          previousSprintDaySchedule.nextAvailableWorkBlockMaxDuration;
+      while (previousSprintDaySchedule.availableTimeSlots.length > 0) {
+        const timeSlot = previousSprintDaySchedule.availableTimeSlots[0];
         previousSprintDaySchedule.scheduleMeeting(
-          new RegressionTesting(startTime, duration, this.owner, i)
+          new RegressionTesting(timeSlot.startTime, timeSlot.duration, this.owner, i)
         );
       }
-      while (currentSprintDaySchedule.earliestAvailableTimeForWork > -1) {
-        let startTime = currentSprintDaySchedule.earliestAvailableTimeForWork;
-        let duration =
-          currentSprintDaySchedule.nextAvailableWorkBlockMaxDuration;
+      while (currentSprintDaySchedule.availableTimeSlots.length > 0) {
+        const timeSlot = currentSprintDaySchedule.availableTimeSlots[0];
         currentSprintDaySchedule.scheduleMeeting(
-          new RegressionTesting(startTime, duration, this.owner, currentSprintI)
+          new RegressionTesting(timeSlot.startTime, timeSlot.duration, this.owner, i)
         );
       }
     }
-    this.findEarliestAvailableDayForWorkIndex();
   }
   getWorkIterationQueueFromTicket(ticket) {
     if (ticket.needsAutomation) {
@@ -669,6 +540,7 @@ class Worker {
     this.regressionTestDayCount = regressionTestDayCount;
     this.lunchTime = lunchTime;
     this.customEventsByDay = customEventsByDay;
+    this.nextWorkIterationCompletionCheckIn = null;
 
     // These arrays track the minutes in the dayTime format (e.g. 1455 for day 4 at
     // 10AM), which will be useful for determining how much time was spent on
@@ -921,31 +793,12 @@ class Worker {
     //
     // If needed, the day can be found again by dividing by 480 and then rounding
     // down.
-    let earliestDay = this.schedule.earliestAvailableDayForWorkIndex;
-    this.schedule.findEarliestAvailableDayForWorkIndex();
-    let earliestTime = this.schedule.earliestAvailableTimeForWork;
-    earliestTime += earliestDay * 480;
-    return earliestTime;
-  }
-
-  get nextWorkIterationCompletionCheckIn() {
-    // The return value is in minutes, but each day prior is multiplied by 480 (the
-    // number of minutes in a day) and then added to the minutes. So if the next
-    // check-in time should be on the 5th day (which is actually the 4th because of
-    // zero indexing) at the 332 minute, that would be (4 * 480) + 332.
-    //
-    // If needed, the day can be found again by dividing by 480 and then rounding
-    // down.
-    let earliestDay = this.schedule.dayOfNextWorkIterationCompletion;
-    if (earliestDay === null) {
-      return null;
+    let earliestDayIndex = this.schedule.earliestAvailableDayForWorkIndex;
+    if (earliestDayIndex < 0) {
+      return -1;
     }
-    let earliestTime = this.schedule.timeOfNextWorkIterationCompletion;
-    if (earliestTime === null) {
-      return null;
-    }
-    earliestTime += earliestDay * 480;
-    return earliestTime;
+    let earliestTime = this.schedule.daySchedules[earliestDayIndex].availableTimeSlots[0].startTime;
+    return earliestTime + (earliestDayIndex * 480);
   }
 }
 
@@ -1153,7 +1006,7 @@ class TicketFactory {
     const sample = PD.rgamma(sampleCount, 1, 5).map((fixWorkTimeValue) => {
       const fixWorkTimePercentage = Math.min(fixWorkTimeValue / 100.0, 1);
       return new WorkIteration(
-        Math.round(fixWorkTimeValue * fixWorkTimePercentage * 60) +
+        Math.round(baseWorkIteration * fixWorkTimePercentage * 60) +
           minimumWorkTimeInMinutes
       );
     });
@@ -1217,177 +1070,6 @@ class TicketFactory {
     return PD.rpois(sampleCount, this.averagePassBackCount);
   }
 }
-
-function findHighestPriorityPassBackWorkIndexForProgrammer(
-  programmer,
-  passBackStack
-) {
-  let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
-
-  // needs to find highest priority ticket that belongs to them
-  let reducer = (
-    highestPriorityOwnedTicketIndex,
-    currentTicket,
-    currentTicketIndex
-  ) => {
-    if (ownedTickets.includes(currentTicket.number)) {
-      if (!highestPriorityOwnedTicketIndex) {
-        return currentTicketIndex;
-      }
-      if (
-        currentTicket.priority <
-        passBackStack[highestPriorityOwnedTicketIndex].priority
-      ) {
-        return currentTicketIndex;
-      }
-    }
-    return highestPriorityOwnedTicketIndex;
-  };
-  return passBackStack.reduce(reducer, null);
-}
-
-function findHighestPriorityCodeReviewWorkIndexForProgrammer(
-  programmer,
-  codeReviewStack
-) {
-  let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
-
-  // needs to find highest priority ticket that doesn't belongs to them
-  let reducer = (
-    highestPriorityOwnedTicketIndex,
-    currentTicket,
-    currentTicketIndex
-  ) => {
-    if (!ownedTickets.includes(currentTicket.number)) {
-      if (!highestPriorityOwnedTicketIndex) {
-        return currentTicketIndex;
-      }
-      if (
-        currentTicket.priority <
-        codeReviewStack[highestPriorityOwnedTicketIndex].priority
-      ) {
-        return currentTicketIndex;
-      }
-    }
-    return highestPriorityOwnedTicketIndex;
-  };
-  return codeReviewStack.reduce(reducer, null);
-}
-
-function findHighestPriorityTicketForTester(qaStack) {
-  let reducer = (
-    highestPriorityTicketIndex,
-    currentTicket,
-    currentTicketIndex
-  ) => {
-    if (!highestPriorityTicketIndex) {
-      return currentTicketIndex;
-    }
-    if (currentTicket.priority < qaStack[highestPriorityTicketIndex].priority) {
-      return currentTicketIndex;
-    }
-    return highestPriorityTicketIndex;
-  };
-  return qaStack.reduce(reducer, null);
-}
-
-function getWorkerWithEarliestUpcomingCheckIn(
-  workers,
-  currentDay,
-  currentTime
-) {
-  // Skip ahead to the next relevant point in time. This will either be the
-  // next time a worker finishes an iteration of work for a ticket, or the
-  // next time a worker is available for work. These are different times
-  // because a worker can finish the iteration of work for a ticket, but then
-  // have a meeting before they can begin work on another ticket. This is
-  // important because if they didn't wait until after the meeting to grab the
-  // next available ticket for them, another, more important ticket could
-  // become available for them (e.g. a ticket that had to be sent back because
-  // the tester found a problem, or a programmer sent a higher priority ticket
-  // to QA).
-  //
-  // The current day and time are needed to rule out potential check-ing points that
-  // have already passed. If they are in the past, they must have already been
-  // handled, or, in the case of the tester, they are waiting for work to become
-  // available.
-  let currentDayTime = currentDay * 480 + currentTime;
-  let earliestWorker = simulation.workers.reduce((eWorker, nWorker) => {
-    if (eWorker.nextCheckInTime < 0) {
-      // The eWorker is either the first worker, or the worker returned by the
-      // previous iteration through this reduce function. A worker will only have
-      // a negative check-in time if they don't have a check-in time left in this
-      // sprint. If this is the case for eWorker, then return the next worker in
-      // line. Either the last worker will be returned even though they have a
-      // negative check-in time, which would mean that no more check-ins can
-      // happen this sprint, or a worker that still has a check-in in this sprint
-      // will be found.
-      return nWorker;
-    } else if (nWorker.nextCheckInTime < 0) {
-      // If eWorker has a non-negative check-in time, and the next worker has a
-      // negative check-in time, the next worker should be disregarded to make
-      // sure that the eWorker would be recognized as having a check-in for this
-      // sprint.
-      return eWorker;
-    }
-    // both workers have a check-in time this sprint, so determine which is earlier,
-    // provided both have relevant check-ins coming up.
-    else if (
-      eWorker.nextAvailabilityCheckIn <= currentDayTime &&
-      eWorker.nextWorkIterationCompletionCheckIn <= currentDayTime
-    ) {
-      // Both of the eWorker's check-ins are in the past, or were just performed.
-      // Even if the next nWorker has no check-ins coming up, there will
-      // eventually be an nWorker that does, because it would be impossible for
-      // all workers to have check-ins in the past if not all had a -1 check-in.
-      return nWorker;
-    } else if (
-      nWorker.nextAvailabilityCheckIn <= currentDayTime &&
-      nWorker.nextWorkIterationCompletionCheckIn <= currentDayTime
-    ) {
-      // If eWorker check-ins are not entirely in the past, but nWorker's are,
-      // then eWorker moves because it's the only relevant worker in this
-      // comparison.
-      return eWorker;
-    }
-    // Both have check-ins coming up. Find each of their earliest upcoming check-ins
-    // and compare them to determine which worker moves forward.
-    // at least one of eWorker's check-ins would have to be coming up
-    let eWorkerRelevantCheckIn;
-    if (eWorker.nextWorkIterationCompletionCheckIn > currentDayTime) {
-      // Worker has an upcoming work completion check-in. Work completion
-      // check-ins must always come before, or be at the same time as availability
-      // check-ins. If the completion check-in is earlier, then it must be the
-      // one we want. If it's at the same time as the availability check-in, then
-      // it doesn't matter which we use, so the logic is simpler if we defer to
-      // the completion check-in.
-      eWorkerRelevantCheckIn = eWorker.nextWorkIterationCompletionCheckIn;
-    } else {
-      // The work completion check-in must have been in the past, leaving the
-      // availability check-in as the only upcoming check-in for this worker.
-      eWorkerRelevantCheckIn = eWorker.nextAvailabilityCheckIn;
-    }
-    let nWorkerRelevantCheckIn;
-    if (nWorker.nextWorkIterationCompletionCheckIn > currentDayTime) {
-      // Worker has an upcoming work completion check-in. Work completion
-      // check-ins must always come before, or be at the same time as availability
-      // check-ins. If the completion check-in is earlier, then it must be the
-      // one we want. If it's at the same time as the availability check-in, then
-      // it doesn't matter which we use, so the logic is simpler if we defer to
-      // the completion check-in.
-      nWorkerRelevantCheckIn = nWorker.nextWorkIterationCompletionCheckIn;
-    } else {
-      // The work completion check-in must have been in the past, leaving the
-      // availability check-in as the only upcoming check-in for this worker.
-      nWorkerRelevantCheckIn = nWorker.nextAvailabilityCheckIn;
-    }
-    return eWorkerRelevantCheckIn > nWorkerRelevantCheckIn ? nWorker : eWorker;
-  });
-  return earliestWorker;
-}
-
-let stackTimelineHashMap = [];
-let stackTimelineSets = [];
 
 class StackLogEntry {
   constructor(
@@ -2000,43 +1682,21 @@ export class Simulation {
     // necessary to avoid logic issues towards the end of the sprint where next
     // available time is determined.
     for (let t of this.testers) {
-      while (
-        t.nextAvailabilityCheckIn < this.currentDayTime &&
-        t.nextAvailabilityCheckIn > 0
-      ) {
-        let day = parseInt(t.nextAvailabilityCheckIn / this.dayLengthInMinutes);
-        let schedule = t.schedule.daySchedules[day];
-        let availableEndTime;
-        if (
-          schedule.lastMeetingIndexBeforeAvailability ===
-          schedule.items.length - 1
-        ) {
-          availableEndTime = this.dayLengthInMinutes;
-        } else {
-          availableEndTime =
-            schedule.items[schedule.lastMeetingIndexBeforeAvailability + 1]
-              .startTime;
+      for (let daySchedule of t.schedule.daySchedules) {
+        if (daySchedule.day > this.currentDay) {
+          break;
         }
-        let availabilityCheckInTime =
-          t.nextAvailabilityCheckIn % this.dayLengthInMinutes;
-        let availableTimeDelta = availableEndTime - availabilityCheckInTime;
-        let duration = availableTimeDelta;
-        let timeSinceLastRelevantTime =
-          this.currentDayTime - t.nextAvailabilityCheckIn;
-        if (timeSinceLastRelevantTime < availableTimeDelta) {
-          duration = timeSinceLastRelevantTime;
+        for (let timeSlot of daySchedule.availableTimeSlots) {
+          if (daySchedule.day === this.currentDay && timeSlot.startTime < this.currentTime && timeSlot.endTime >= this.currentTime) {
+            // last slot that needs back-filling
+            daySchedule.scheduleMeeting(new NothingEvent(timeSlot.startTime, this.currentTime - timeSlot.startTime, t, daySchedule.day));
+            break;
+          }
+          daySchedule.scheduleMeeting(new NothingEvent(timeSlot.startTime, timeSlot.duration, t, daySchedule.day));
         }
-        if (duration < 0) {
-          throw new Error();
-        }
-        schedule.scheduleMeeting(
-          new NothingEvent(availabilityCheckInTime, duration, t, day)
-        );
-        // force this value to update before doing check on next loop iteration
-        t.nextAvailabilityCheckIn;
       }
     }
-  }
+    }
   getHighestPriorityTicketIndexForTester(tester) {
     let ownedTickets = tester.tickets.map((ticket) => ticket.number);
     return this.qaStack.reduce(
