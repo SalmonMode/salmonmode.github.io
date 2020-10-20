@@ -818,6 +818,7 @@
       .selectAll("svg.workerSchedules")
       .data(simulation.workers)
       .join("svg")
+      .lower()
       .attr("class", "workerSchedules")
       .attr("x", 0)
       .attr("y", (worker, i) => y(i))
