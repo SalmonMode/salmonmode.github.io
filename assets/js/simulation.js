@@ -194,7 +194,9 @@ class AvailableTimeSlot {
     this.duration = endTime - startTime;
   }
   get previousMeetingIndex() {
-    return [null, 0].includes(this.nextMeetingIndex) ? null : this.nextMeetingIndex - 1;
+    return [null, 0].includes(this.nextMeetingIndex)
+      ? null
+      : this.nextMeetingIndex - 1;
   }
 }
 
@@ -223,7 +225,11 @@ class DaySchedule {
     for (let timeSlotIndex in this.availableTimeSlots) {
       const timeSlot = this.availableTimeSlots[timeSlotIndex];
       timeSlot.nextMeetingIndex += meetingsAdded;
-      if (!meetingsAdded && meeting.startTime >= timeSlot.startTime && meeting.endTime <= timeSlot.endTime) {
+      if (
+        !meetingsAdded &&
+        meeting.startTime >= timeSlot.startTime &&
+        meeting.endTime <= timeSlot.endTime
+      ) {
         // meeting fits here
         matchingTimeSlotIndex = timeSlotIndex;
 
@@ -232,10 +238,25 @@ class DaySchedule {
         if (startTimeDiff > 0) {
           if (startTimeDiff <= 30) {
             // just enough time to do nothing
-            this.items.splice(timeSlot.nextMeetingIndex, 0, new NothingEvent(timeSlot.startTime, startTimeDiff, this.owner, this.day));
+            this.items.splice(
+              timeSlot.nextMeetingIndex,
+              0,
+              new NothingEvent(
+                timeSlot.startTime,
+                startTimeDiff,
+                this.owner,
+                this.day
+              )
+            );
             meetingsAdded += 1;
           } else {
-            newAvailableTimeSlots.push(new AvailableTimeSlot(timeSlot.nextMeetingIndex, timeSlot.startTime, meeting.startTime));
+            newAvailableTimeSlots.push(
+              new AvailableTimeSlot(
+                timeSlot.nextMeetingIndex,
+                timeSlot.startTime,
+                meeting.startTime
+              )
+            );
           }
         }
 
@@ -249,10 +270,25 @@ class DaySchedule {
           const nextMeetingIndex = timeSlot.nextMeetingIndex + meetingsAdded;
           if (endTimeDiff <= 30 && !(meeting instanceof ContextSwitchEvent)) {
             // just enough time to do nothing
-            this.items.splice(nextMeetingIndex, 0, new NothingEvent(timeSlot.startTime, endTimeDiff, this.owner, this.day));
+            this.items.splice(
+              nextMeetingIndex,
+              0,
+              new NothingEvent(
+                timeSlot.startTime,
+                endTimeDiff,
+                this.owner,
+                this.day
+              )
+            );
           } else {
             // still room to do something (or the next thing being scheduled will be the ticket work)
-            newAvailableTimeSlots.push(new AvailableTimeSlot(nextMeetingIndex, meeting.endTime, timeSlot.endTime));
+            newAvailableTimeSlots.push(
+              new AvailableTimeSlot(
+                nextMeetingIndex,
+                meeting.endTime,
+                timeSlot.endTime
+              )
+            );
           }
         }
       }
@@ -262,7 +298,11 @@ class DaySchedule {
       throw Error("Event conflicts with another event");
     }
     // Merge in newly defined AvailableTimeSlots if applicable.
-    this.availableTimeSlots.splice(matchingTimeSlotIndex, 1, ...newAvailableTimeSlots);
+    this.availableTimeSlots.splice(
+      matchingTimeSlotIndex,
+      1,
+      ...newAvailableTimeSlots
+    );
   }
 }
 
@@ -435,7 +475,8 @@ class Schedule {
       lastWorkEvent = newWorkEvent;
     }
     if (lastWorkEvent) {
-      this.owner.nextWorkIterationCompletionCheckIn = (lastWorkEvent.day * 480) + lastWorkEvent.endTime;
+      this.owner.nextWorkIterationCompletionCheckIn =
+        lastWorkEvent.day * 480 + lastWorkEvent.endTime;
     }
     // Because of how the logic works, the ticket's
     // 'needsCodeReview'/'needsAutomation' status may be misleading during a
@@ -509,13 +550,23 @@ class QaSchedule extends Schedule {
       while (previousSprintDaySchedule.availableTimeSlots.length > 0) {
         const timeSlot = previousSprintDaySchedule.availableTimeSlots[0];
         previousSprintDaySchedule.scheduleMeeting(
-          new RegressionTesting(timeSlot.startTime, timeSlot.duration, this.owner, i)
+          new RegressionTesting(
+            timeSlot.startTime,
+            timeSlot.duration,
+            this.owner,
+            i
+          )
         );
       }
       while (currentSprintDaySchedule.availableTimeSlots.length > 0) {
         const timeSlot = currentSprintDaySchedule.availableTimeSlots[0];
         currentSprintDaySchedule.scheduleMeeting(
-          new RegressionTesting(timeSlot.startTime, timeSlot.duration, this.owner, i)
+          new RegressionTesting(
+            timeSlot.startTime,
+            timeSlot.duration,
+            this.owner,
+            i
+          )
         );
       }
     }
@@ -685,16 +736,10 @@ class Worker {
     );
   }
   getCheckingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(
-      this.checkingMinutes,
-      dayTime
-    );
+    return this.getMinutesOfTypeAtDayTime(this.checkingMinutes, dayTime);
   }
   getAutomationMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(
-      this.automationMinutes,
-      dayTime
-    );
+    return this.getMinutesOfTypeAtDayTime(this.automationMinutes, dayTime);
   }
   getNothingMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(this.nothingMinutes, dayTime);
@@ -797,8 +842,9 @@ class Worker {
     if (earliestDayIndex < 0) {
       return -1;
     }
-    let earliestTime = this.schedule.daySchedules[earliestDayIndex].availableTimeSlots[0].startTime;
-    return earliestTime + (earliestDayIndex * 480);
+    let earliestTime = this.schedule.daySchedules[earliestDayIndex]
+      .availableTimeSlots[0].startTime;
+    return earliestTime + earliestDayIndex * 480;
   }
 }
 
@@ -1363,7 +1409,11 @@ export class Simulation {
   getTicketsCurrentlyBeingAutomated() {
     return [
       ...this.testers.reduce((tickets, tester) => {
-        if (tester.schedule.lastTicketWorkedOn && tester.schedule.lastTicketWorkedOn.automationWorkIterations.length === 0) {
+        if (
+          tester.schedule.lastTicketWorkedOn &&
+          tester.schedule.lastTicketWorkedOn.automationWorkIterations.length ===
+            0
+        ) {
           tickets.push(tester.schedule.lastTicketWorkedOn);
         }
         return tickets;
@@ -1481,8 +1531,7 @@ export class Simulation {
         } else if (!possiblyFinishedTicket.needsAutomation) {
           // automation was just completed
           this.automatedStack.push(possiblyFinishedTicket);
-        }
-          else {
+        } else {
           // no work iterations left, which means the tester didn't find any
           // issues
           // possiblyFinishedTicket.needsAutomation = true;
@@ -1594,9 +1643,7 @@ export class Simulation {
       null
     );
   }
-  getHighestPriorityCodeReviewWorkIndexForProgrammer(
-    programmer
-  ) {
+  getHighestPriorityCodeReviewWorkIndexForProgrammer(programmer) {
     let ownedTickets = programmer.tickets.map((ticket) => ticket.number);
 
     // needs to get highest priority ticket that doesn't belongs to them
@@ -1662,7 +1709,10 @@ export class Simulation {
           }
         } else if (this.automationStack.length > 0) {
           let highestPriorityTicketIndex = this.getHighestPriorityAutomationIndex();
-          ticket = this.automationStack.splice(highestPriorityTicketIndex, 1)[0];
+          ticket = this.automationStack.splice(
+            highestPriorityTicketIndex,
+            1
+          )[0];
           t.addTicket(ticket);
           try {
             t.schedule.addWork(ticket);
@@ -1687,19 +1737,40 @@ export class Simulation {
           break;
         }
         for (let timeSlot of daySchedule.availableTimeSlots) {
-          if (daySchedule.day === this.currentDay && timeSlot.startTime >= this.currentTime) {
+          if (
+            daySchedule.day === this.currentDay &&
+            timeSlot.startTime >= this.currentTime
+          ) {
             break;
           }
-          if (daySchedule.day === this.currentDay && timeSlot.startTime < this.currentTime && timeSlot.endTime >= this.currentTime) {
+          if (
+            daySchedule.day === this.currentDay &&
+            timeSlot.startTime < this.currentTime &&
+            timeSlot.endTime >= this.currentTime
+          ) {
             // last slot that needs back-filling
-            daySchedule.scheduleMeeting(new NothingEvent(timeSlot.startTime, this.currentTime - timeSlot.startTime, t, daySchedule.day));
+            daySchedule.scheduleMeeting(
+              new NothingEvent(
+                timeSlot.startTime,
+                this.currentTime - timeSlot.startTime,
+                t,
+                daySchedule.day
+              )
+            );
             break;
           }
-          daySchedule.scheduleMeeting(new NothingEvent(timeSlot.startTime, timeSlot.duration, t, daySchedule.day));
+          daySchedule.scheduleMeeting(
+            new NothingEvent(
+              timeSlot.startTime,
+              timeSlot.duration,
+              t,
+              daySchedule.day
+            )
+          );
         }
       }
     }
-    }
+  }
   getHighestPriorityTicketIndexForTester(tester) {
     let ownedTickets = tester.tickets.map((ticket) => ticket.number);
     return this.qaStack.reduce(

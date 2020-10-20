@@ -475,7 +475,9 @@
                 )
                 .join("")}
           </ul>
-          <p class="sectionTitle">Being Automated (${stackLog.beingAutomated.length})</p>
+          <p class="sectionTitle">Being Automated (${
+            stackLog.beingAutomated.length
+          })</p>
           <ul style="list-style-type: none;">
               ${stackLog.beingAutomated
                 .map(
@@ -541,7 +543,7 @@
         d3.select(this).node().updateAnnotationsToReflectSynchronizer();
       })
       .on("mousemove", function (event) {
-        const self = d3.select(this)
+        const self = d3.select(this);
         const x0 = d3.pointer(event)[0];
         const targetedDayTime = Math.max(
           0,
@@ -574,7 +576,11 @@
       .attr("x", timeChartMargin.left)
       .attr("width", "100%");
 
-    graphSvg.append('text').attr('class', 'workerName').attr('x', 10).attr('y', 20);
+    graphSvg
+      .append("text")
+      .attr("class", "workerName")
+      .attr("x", 10)
+      .attr("y", 20);
 
     const clipPath = graphSvg
       .append("clipPath")
@@ -587,8 +593,10 @@
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
     const mouseTarget = graphSvg.append("g").attr("class", "chartPathsWrapper");
-    const backgroundRectWrapper = mouseTarget.append('g').attr('class', 'backgroundRectWrapper');
-    mouseTarget.append('g').attr('class', 'chartPaths');
+    const backgroundRectWrapper = mouseTarget
+      .append("g")
+      .attr("class", "backgroundRectWrapper");
+    mouseTarget.append("g").attr("class", "chartPaths");
     graphSvg.append("g").attr("class", "yAxis");
     const focus = graphSvg
       .append("g")
@@ -602,8 +610,8 @@
     backgroundRectWrapper
       .append("rect")
       .attr("opacity", "0")
-      .attr("height", '100%')
-      .attr("width", '100%')
+      .attr("height", "100%")
+      .attr("width", "100%")
       .attr("x", 0)
       .attr("y", 0)
       .attr("class", "mouseBox")
@@ -656,7 +664,9 @@
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
     const mouseTarget = graphSvg.append("g").attr("class", "pathsGWrapper");
-    const backgroundRectWrapper = mouseTarget.append("g").attr("class", "backgroundRectWrapper");
+    const backgroundRectWrapper = mouseTarget
+      .append("g")
+      .attr("class", "backgroundRectWrapper");
     mouseTarget.append("g").attr("class", "pathsG");
     const xAxis = graphSvg
       .append("g")
@@ -937,8 +947,7 @@
       // transition as the mouse move.
       tooltipX.range([
         rangePixelStart,
-        parentPixelWidth -
-          tooltip.node().getBoundingClientRect().width,
+        parentPixelWidth - tooltip.node().getBoundingClientRect().width,
       ]);
       x = tooltipX(x);
 
@@ -1484,13 +1493,17 @@
         .join("path")
         .attr("fill", (d) => d.worker.color)
         .attr("clip-path", (d) => `url(#${d.dataKey}TimeChartsClipPath)`)
-        .on('mouseover', function (d, t) {
-          d3.select(`#${t.dataKey}TimeChartSvg`).select('text.workerName').text(`Worker: ${t.worker.name}`);
-          d3.select(this).attr('fill', d3.color(t.worker.color).brighter());
+        .on("mouseover", function (d, t) {
+          d3.select(`#${t.dataKey}TimeChartSvg`)
+            .select("text.workerName")
+            .text(`Worker: ${t.worker.name}`);
+          d3.select(this).attr("fill", d3.color(t.worker.color).brighter());
         })
-        .on('mouseout', function (d, t) {
-          d3.select(`#${t.dataKey}TimeChartSvg`).select('text.workerName').text(``);
-          d3.select(this).attr('fill', t.worker.color);
+        .on("mouseout", function (d, t) {
+          d3.select(`#${t.dataKey}TimeChartSvg`)
+            .select("text.workerName")
+            .text(``);
+          d3.select(this).attr("fill", t.worker.color);
         })
         .transition()
         .duration(1000)
@@ -1546,10 +1559,7 @@
       d3.select("#timeChartsWrapper"),
       "regressionTesting"
     );
-    updateTimeChartGraphForDataType(
-      d3.select("#timeChartsWrapper"),
-      "nothing"
-    );
+    updateTimeChartGraphForDataType(d3.select("#timeChartsWrapper"), "nothing");
     updateTimeChartGraphForDataType(
       d3.select("#timeChartsWrapper"),
       "automation"
