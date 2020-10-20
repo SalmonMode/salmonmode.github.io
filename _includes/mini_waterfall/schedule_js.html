@@ -559,6 +559,27 @@
       });
     return mouseTarget;
   }
+  function addGraphMouseTargetToAllGraphs() {
+    d3.selectAll('.graphMouseTarget')
+      .on("mouseout", function (event) {
+        d3.select(this).node().updateAnnotationsToReflectSynchronizer();
+      })
+      .on("mousemove", function (event) {
+        const self = d3.select(this);
+        const x0 = d3.pointer(event)[0];
+        const targetedDayTime = Math.max(
+          0,
+          Math.round(
+            self
+              .node()
+              .timeChartGraphX.invert(
+                self.node().timeChartGraphXMouseEventTranslator(x0)
+              )
+          ) - 1
+        );
+        self.node().updateAnnotations(targetedDayTime);
+      });
+  }
 
   // set up base charts without data
 
@@ -592,7 +613,7 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const mouseTarget = graphSvg.append("g").attr("class", "chartPathsWrapper");
+    const mouseTarget = graphSvg.append("g").attr("class", "chartPathsWrapper graphMouseTarget");
     const backgroundRectWrapper = mouseTarget
       .append("g")
       .attr("class", "backgroundRectWrapper");
@@ -663,7 +684,7 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const mouseTarget = graphSvg.append("g").attr("class", "pathsGWrapper");
+    const mouseTarget = graphSvg.append("g").attr("class", "pathsGWrapper graphMouseTarget");
     const backgroundRectWrapper = mouseTarget
       .append("g")
       .attr("class", "backgroundRectWrapper");
@@ -715,55 +736,57 @@
     addGraphMouseTargetToTimeChartGraph(mouseTarget);
   }
 
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Meetings",
-    "meeting"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Context Switching",
-    "contextSwitching"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Productive Ticket Work",
-    "productiveTicketWork"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Checking Tickets",
-    "checking"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Fixing Ticket Work",
-    "fixingTicketWork"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Code Review",
-    "codeReview"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Regression Testing",
-    "regressionTesting"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Nothing",
-    "nothing"
-  );
-  initializeTimeChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Automation",
-    "automation"
-  );
-  initializeStackChartGraphForDataType(
-    d3.select("#timeChartsWrapper"),
-    "Tickets in Stasis"
-  );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Meetings",
+  //   "meeting"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Context Switching",
+  //   "contextSwitching"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Productive Ticket Work",
+  //   "productiveTicketWork"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Checking Tickets",
+  //   "checking"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Fixing Ticket Work",
+  //   "fixingTicketWork"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Code Review",
+  //   "codeReview"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Regression Testing",
+  //   "regressionTesting"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Nothing",
+  //   "nothing"
+  // );
+  // initializeTimeChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Automation",
+  //   "automation"
+  // );
+  // initializeStackChartGraphForDataType(
+  //   d3.select("#timeChartsWrapper"),
+  //   "Tickets in Stasis"
+  // );
+  synchronizer.addEventListener("input", (event) => d3.selectAll('clipPath').nodes().forEach( node => node.update()));
+  addGraphMouseTargetToAllGraphs();
 
   function renderSimulation(simulation) {
     const x = d3
