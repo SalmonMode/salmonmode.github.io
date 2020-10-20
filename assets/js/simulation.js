@@ -1687,7 +1687,7 @@ export class Simulation {
           break;
         }
         for (let timeSlot of daySchedule.availableTimeSlots) {
-          if (daySchedule.day === this.curentDay && timeSlot.startTime >= this.currentTime) {
+          if (daySchedule.day === this.currentDay && timeSlot.startTime >= this.currentTime) {
             break;
           }
           if (daySchedule.day === this.currentDay && timeSlot.startTime < this.currentTime && timeSlot.endTime >= this.currentTime) {
