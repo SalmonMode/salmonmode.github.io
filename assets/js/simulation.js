@@ -270,16 +270,17 @@ class DaySchedule {
           const nextMeetingIndex = timeSlot.nextMeetingIndex + meetingsAdded;
           if (endTimeDiff <= 30 && !(meeting instanceof ContextSwitchEvent)) {
             // just enough time to do nothing
-            this.items.splice(
-              nextMeetingIndex,
-              0,
-              new NothingEvent(
-                timeSlot.startTime,
-                endTimeDiff,
-                this.owner,
-                this.day
-              )
+            const newNothingEvent = new NothingEvent(
+              meeting.endTime,
+              endTimeDiff,
+              this.owner,
+              this.day
             );
+            if (timeSlot.nextMeetingIndex == null) {
+              this.items.push(newNothingEvent);
+            } else {
+              this.items.splice(nextMeetingIndex, 0, newNothingEvent);
+            }
           } else {
             // still room to do something (or the next thing being scheduled will be the ticket work)
             newAvailableTimeSlots.push(
