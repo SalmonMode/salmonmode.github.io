@@ -287,7 +287,7 @@
   const dayStartText = svgGraph
     .append("text")
     .attr("y", "100%")
-    .attr("font-size", "0.7em")
+    .attr("font-size", "small")
     .text("Day 1")
     .attr("alignment-baseline", "text-after-edge");
   const dayStartLine = svgGraph
@@ -834,7 +834,7 @@
       .join("text")
       .text((worker) => worker.name)
       .attr("alignment-baseline", "middle")
-      .attr("font-size", ".9em")
+      .attr("font-size", "medium")
       .attr("text-anchor", "end")
       .attr("x", "100%")
       .attr("y", (w, i) => y(i) + y.bandwidth() / 2);
@@ -864,7 +864,7 @@
       .join("text")
       .attr("x", (i) => x.step() * (1 + i) + graphMarginLeft - 2)
       .attr("y", "100%")
-      .attr("font-size", "0.7em")
+      .attr("font-size", "small")
       .attr("text-anchor", "end")
       .text(
         (i) =>
