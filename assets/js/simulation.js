@@ -1006,7 +1006,7 @@ class TicketFactory {
     const sample = PD.rgamma(sampleCount, 1, 5).map((fixWorkTimeValue) => {
       const fixWorkTimePercentage = Math.min(fixWorkTimeValue / 100.0, 1);
       return new WorkIteration(
-        Math.round(baseWorkIteration * fixWorkTimePercentage * 60) +
+        Math.round(baseWorkIteration.time * fixWorkTimePercentage * 60) +
           minimumWorkTimeInMinutes
       );
     });
@@ -1687,6 +1687,9 @@ export class Simulation {
           break;
         }
         for (let timeSlot of daySchedule.availableTimeSlots) {
+          if (daySchedule.day === this.curentDay && timeSlot.startTime >= this.currentTime) {
+            break;
+          }
           if (daySchedule.day === this.currentDay && timeSlot.startTime < this.currentTime && timeSlot.endTime >= this.currentTime) {
             // last slot that needs back-filling
             daySchedule.scheduleMeeting(new NothingEvent(timeSlot.startTime, this.currentTime - timeSlot.startTime, t, daySchedule.day));
