@@ -122,7 +122,7 @@
 <label for='dayStartTime'><span class='mainLabelContent'>Day start hour (min 8):</span><span role='tooltip'>The hour of the day that work typically begins.</span></label>
 </div>
 <div>
-<input id='dayStartTime' name='dayStartTime' type='number' min='8' value='10'>
+<input id='dayStartTime' name='dayStartTime' type='number' min='8' value='10' step="0.25">
 </div>
 </div>
 <div>
@@ -146,7 +146,7 @@
 <label for='maxInitialProgrammerWorkTimeInHours'><span class='mainLabelContent'>Peek programming time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a programmer to finish their first iteration of a ticket's code changes before submitting it to code review.</span></label>
 </div>
 <div>
-<input id='maxInitialProgrammerWorkTimeInHours' name='maxInitialProgrammerWorkTimeInHours' type='number' min='1' value='16'>
+<input id='maxInitialProgrammerWorkTimeInHours' name='maxInitialProgrammerWorkTimeInHours' type='number' min='1' value='16' step="0.25">
 </div>
 </div>
 <div>
@@ -154,7 +154,7 @@
 <label for='maxFullRunTesterWorkTimeInHours'><span class='mainLabelContent'>Peek check time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a tester to verify all of the functional requirements/acceptance criteria of a ticket.</span></label>
 </div>
 <div>
-<input id='maxFullRunTesterWorkTimeInHours' name='maxFullRunTesterWorkTimeInHours' type='number' min='1' value='8'>
+<input id='maxFullRunTesterWorkTimeInHours' name='maxFullRunTesterWorkTimeInHours' type='number' min='1' value='8' step="0.25">
 </div>
 </div>
 <div>
@@ -162,7 +162,7 @@
 <label for='maxQaAutomationTime'><span class='mainLabelContent'>Peek check automation time per ticket (in hours, min 1):</span><span role='tooltip'>The max number of hours you would expect it to take a tester to finish automating the checking of all of the functional requirements/acceptance criteria of a ticket.</span></label>
 </div>
 <div>
-<input id='maxQaAutomationTime' name='maxQaAutomationTime' type='number' min='1' value='8'>
+<input id='maxQaAutomationTime' name='maxQaAutomationTime' type='number' min='1' value='8' step="0.25">
 </div>
 </div>
 <div>
@@ -170,7 +170,7 @@
 <label for='averagePassBackCount'><span class='mainLabelContent'>Average pass back (min 0):</span><span role='tooltip'>On average, the number of times you would expect a tester to send a ticket back to a programmer because of a problem they found with the programmer's code changes.</span></label>
 </div>
 <div>
-<input id='averagePassBackCount' name='averagePassBackCount' type='number' min='0' value='1'>
+<input id='averagePassBackCount' name='averagePassBackCount' type='number' min='0' value='1' step="any">
 </div>
 </div>
 <div>

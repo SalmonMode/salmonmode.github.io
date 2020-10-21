@@ -75,10 +75,8 @@
   const svgGraphWidth = svgWidth - margin.left;
   const svgMinimap = d3.select("svg#sprintTimelineMinimap");
 
-  function getTooltipContent(event) {
-    const eventTimeSpan = `Day ${event.sprintDay} - ${formatDate(
-      event.startTime
-    )} - ${formatDate(event.endTime)}`;
+  function getTooltipContent(simulation, event) {
+    const eventTimeSpan = `Day ${event.sprintDay} - ${formatDate(simulation, event.startTime)} - ${formatDate(simulation, event.endTime)}`;
     if (event instanceof ScheduledTicketWork) {
       return `<b>Ticket ${
         event instanceof ScheduledTicketCodeReviewWork
@@ -116,10 +114,10 @@
     `;
   }
 
-  function formatDate(timeInMinutes) {
-    // start time is 10 am
-    const hour = Math.floor(timeInMinutes / 60) + 10;
-    const minute = timeInMinutes % 60;
+  function formatDate(simulation, timeInMinutes) {
+    const eventRealTimeInMinutes = (simulation.dayStartTime * 60) + timeInMinutes;
+    const hour = Math.floor(eventRealTimeInMinutes / 60);
+    const minute = eventRealTimeInMinutes % 60;
     return `${hour > 12 ? hour % 12 : hour}:${
       minute < 10 ? "0" : ""
     }${minute} ${hour > 11 ? "PM" : "AM"}`;
@@ -855,7 +853,7 @@
       .join("g")
       .on("mouseover", function (event, target) {
         d3.select(this).select("rect").attr("fill", target.color.darker());
-        tooltip.style("opacity", 1).html(getTooltipContent(target));
+        tooltip.style("opacity", 1).html(getTooltipContent(simulation, target));
       })
       .on("mouseleave", function (event, target) {
         d3.select(this).select("rect").attr("fill", target.color);
