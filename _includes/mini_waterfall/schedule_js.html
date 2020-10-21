@@ -1013,43 +1013,6 @@
       .attr("height", "100%");
     svgMinimap.attr("height", simulation.workers.length * minimapY.bandwidth());
 
-    // draw regression test grey out for previous sprint
-    workerMinimapTimelineGreyOutG
-      .selectAll("rect.regressionTestGreyOut")
-      .data([...Array(simulation.regressionTestDayCount).keys()])
-      .join("rect")
-      .attr("class", "regressionTestGreyOut")
-      .attr("x", (i) => minimapX(i))
-      .attr("y", (i) => minimapY(simulation.programmerCount))
-      .attr("width", (i) => minimapX.bandwidth())
-      .attr(
-        "height",
-        (i) =>
-          minimapY.bandwidth() + minimapY.step() * (simulation.testerCount - 1)
-      )
-      .attr("fill", "grey")
-      .attr("opacity", "70%")
-      .attr("pointer-events", "none");
-
-    // draw programmer work grey out for next sprint
-    workerMinimapTimelineGreyOutG
-      .selectAll("rect.programmerNextSprintGreyOut")
-      .data([...Array(simulation.regressionTestDayCount).keys()])
-      .join("rect")
-      .attr("class", "programmerNextSprintGreyOut")
-      .attr("x", (i) => minimapX(i + simulation.sprintDayCount))
-      .attr("y", (i) => minimapY(0))
-      .attr("width", (i) => minimapX.bandwidth())
-      .attr(
-        "height",
-        (i) =>
-          minimapY.bandwidth() +
-          minimapY.step() * (simulation.programmerCount - 1)
-      )
-      .attr("fill", "grey")
-      .attr("opacity", "70%")
-      .attr("pointer-events", "none");
-
     // draw viewport slider
     const viewportData = [
       { x: 0 - svgWidth, width: "100%", opacity: "0.5", class: "" },
