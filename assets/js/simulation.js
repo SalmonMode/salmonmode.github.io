@@ -735,7 +735,7 @@ class QaSchedule extends Schedule {
             timeSlot.startTime,
             timeSlot.duration,
             this.owner,
-            i
+            i + this.sprintDayCount
           )
         );
       }
