@@ -2,7 +2,7 @@
     #sprintTimelineWrapper {
         position: relative;
     }
-    #sprintTimelineWrapper svg, #timeCharts svg {
+    #sprintTimelineWrapper svg, #timeChartsWrapper svg {
         overflow: auto;
     }
     #ticketStacks ul {
@@ -192,7 +192,9 @@
 <svg width="100%" height="75" id="sprintTimelineMinimap"></svg></div>
 <div id="timeCharts">
 <div id="dataSetSelectWrapper">
-<div id="playStopButtonDiv"><button>Play</button></div>
+<div id="playStopButtonDiv">
+<button>Play</button>
+</div>
 <p><select name="dataSetSelection" id="dataSetSelection"><option value="all">All workers</option><option value="0">Programmer #1</option><option value="1">Programmer #2</option><option value="2">Programmer #3</option><option value="3">Programmer #4</option><option value="4">Programmer #5</option><option value="5">Tester #1</option></select></p>
 </div>
 </div>
@@ -204,9 +206,9 @@
 <svg width="100%" class="timeChartsSvg" id="productiveTicketWorkTimeChartSvg">
 <svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="productiveTicketWorkTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#productiveTicketWorkTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Checking Tickets</p>
 <svg width="100%" class="timeChartsSvg" id="checkingTimeChartSvg">
-<svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="checkingTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#checkingTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Fixing Ticket Work</p>
-<svg width="100%" class="timeChartsSvg" id="fixingTicketWorkTimeChartSvg">
-<svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="fixingTicketWorkTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#fixingTicketWorkTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Code Review</p>
+<svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="checkingTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#checkingTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Redundant Ticket Work</p>
+<svg width="100%" class="timeChartsSvg" id="redundantTicketWorkTimeChartSvg">
+<svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="redundantTicketWorkTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#redundantTicketWorkTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Code Review</p>
 <svg width="100%" class="timeChartsSvg" id="codeReviewTimeChartSvg">
 <svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="codeReviewTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#codeReviewTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Regression Testing</p>
 <svg width="100%" class="timeChartsSvg" id="regressionTestingTimeChartSvg">
@@ -216,8 +218,7 @@
 <svg width="100%" class="timeChartsSvg" id="automationTimeChartSvg">
 <svg class="timeChartGraph" y="10" x="50" width="100%"><text class="workerName" x="10" y="20"></text><clipPath id="automationTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="chartPathsWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="100%" width="100%" x="0" y="0" class="mouseBox" clip-path="url(#automationTimeChartsClipPath)"></rect></g><g class="chartPaths"></g></g><g class="yAxis"></g><g class="focusCircleG"><circle stroke="black" r="8.5" class="graphAnnotationCircle" style="fill: none;"></circle></g><g class="graphAnnotation"></g></svg></svg><p class="sectionTitle">Tickets in Stasis</p>
 <svg width="100%" class="timeChartsSvg" id="ticketStasisTimeChartSvg">
-<svg y="10" x="50" width="100%" class="timeChartGraph">
-<clipPath id="ticketStasisTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="pathsGWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="200" width="647.333" x="0" y="0" class="mouseBox" clip-path="url(#ticketStasisTimeChartsClipPath)"></rect></g><g class="pathsG"></g></g><g class="xAxis" transform="translate(0,200)"></g><g class="yAxisStack"></g><g class="keysSvgs">
+<svg y="10" x="50" width="100%" class="timeChartGraph"><clipPath id="ticketStasisTimeChartsClipPath"><rect x="0" y="-10" height="100%"></rect></clipPath><g class="pathsGWrapper graphMouseTarget"><g class="backgroundRectWrapper"><rect opacity="0" height="200" width="647.333" x="0" y="0" class="mouseBox" clip-path="url(#ticketStasisTimeChartsClipPath)"></rect></g><g class="pathsG"></g></g><g class="xAxis" transform="translate(0,200)"></g><g class="yAxisStack"></g><g class="keysSvgs">
 <svg x="10" y="0.19966722129783676"><rect x="0" y="0" height="15" width="15" fill="#ffa600"></rect><text class="graphLegend" x="20" y="0"></text></svg>
 <svg x="10" y="20.16638935108153"><rect x="0" y="0" height="15" width="15" fill="#ff7c43"></rect><text class="graphLegend" x="20" y="0"></text></svg>
 <svg x="10" y="40.133111480865225"><rect x="0" y="0" height="15" width="15" fill="#f95d6a"></rect><text class="graphLegend" x="20" y="0"></text></svg>

@@ -58,7 +58,11 @@ export class Event {
   }
 }
 
-export class Meeting extends Event {}
+export class Meeting extends Event {
+  relevantMinutes = [
+    'meetingMinutes'
+  ]
+}
 
 class DailyStandup extends Meeting {
   title = "Daily Standup";
@@ -82,6 +86,9 @@ class SprintRetro extends Meeting {
 }
 
 export class RegressionTesting extends Event {
+  relevantMinutes = [
+    'regressionTestingMinutes'
+  ]
   title = "Regression Testing";
 }
 
@@ -90,10 +97,16 @@ class NothingEvent extends Event {
   // easier, and is placed in a schedule when it's determined that no work can be done
   // because it will take too long to switch contexts and get anything productive
   // done.
+  relevantMinutes = [
+    'nothingMinutes'
+  ]
   title = "Nothing";
 }
 
 class ContextSwitchEvent extends Event {
+  relevantMinutes = [
+    'contextSwitchingMinutes'
+  ]
   title = "Context Switching";
   constructor(
     startTime,
@@ -171,15 +184,123 @@ export class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {
   title = "Code Review";
 }
 
-class ScheduledNewTicketProgrammingWork extends ScheduledTicketProgrammingWork {}
-class ScheduledNewTicketCheckingWork extends ScheduledTicketCheckingWork {}
-class ScheduledNewTicketAutomationWork extends ScheduledTicketAutomationWork {}
-class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+class ScheduledNewTicketProgrammingWork extends ScheduledTicketProgrammingWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'programmingMinutes',
+    'productiveProgrammingTicketWorkMinutes'
+  ]
+}
 
-class ScheduledPreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {}
-class ScheduledPreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {}
-class ScheduledPreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {}
-class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {}
+class ScheduledNewTicketCheckingWork extends ScheduledTicketCheckingWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'checkingMinutes',
+    'productiveCheckingTicketWorkMinutes'
+  ]
+}
+class ScheduledNewTicketAutomationWork extends ScheduledTicketAutomationWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'automationMinutes',
+    'productiveProgrammingTicketWorkMinutes'
+  ]
+}
+class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'codeReviewMinutes',
+    'productiveCodeReviewTicketWorkMinutes'
+  ]
+}
+
+class ScheduledRedundantNewTicketProgrammingWork extends ScheduledNewTicketProgrammingWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'programmingMinutes',
+    'redundantProgrammingTicketWorkMinutes'
+  ]
+}
+class ScheduledRedundantNewTicketCheckingWork extends ScheduledNewTicketCheckingWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'checkingMinutes',
+    'redundantCheckingTicketWorkMinutes'
+  ]
+}
+// Not real because testers would be responsible in this system for making sure their
+// checks work completely before committing them (ideally).
+// class ScheduledRedundantNewTicketAutomationWork extends ScheduledNewTicketAutomationWork {}
+class ScheduledRedundantNewTicketCodeReviewWork extends ScheduledNewTicketCodeReviewWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'codeReviewMinutes',
+    'redundantCodeReviewTicketWorkMinutes'
+  ]
+}
+
+class ScheduledPreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'programmingMinutes',
+    'productiveProgrammingTicketWorkMinutes'
+  ]
+}
+class ScheduledPreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'checkingMinutes',
+    'productiveCheckingTicketWorkMinutes'
+  ]
+}
+class ScheduledPreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'automationMinutes',
+    'productiveProgrammingTicketWorkMinutes'
+  ]
+}
+class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
+  relevantMinutes = [
+    'productiveTicketWorkMinutes',
+    'codeReviewMinutes',
+    'productiveCodeReviewTicketWorkMinutes'
+  ]
+}
+
+class ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork extends ScheduledPreviouslyInterruptedTicketProgrammingWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'programmingMinutes',
+    'redundantProgrammingTicketWorkMinutes'
+  ]
+}
+class ScheduledRedundantPreviouslyInterruptedTicketCheckingWork extends ScheduledPreviouslyInterruptedTicketCheckingWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'checkingMinutes',
+    'redundantCheckingTicketWorkMinutes'
+  ]
+}
+// Not real because testers would be responsible in this system for making sure their
+// checks work completely before committing them (ideally).
+// class ScheduledRedundantPreviouslyInterruptedTicketAutomationWork extends ScheduledPreviouslyInterruptedTicketAutomationWork {}
+class ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork extends ScheduledPreviouslyInterruptedTicketCodeReviewWork {
+  relevantMinutes = [
+    'redundantTicketWorkMinutes',
+    'codeReviewMinutes',
+    'redundantCodeReviewTicketWorkMinutes'
+  ]
+}
+
+const redundantEvents = [
+  ScheduledRedundantNewTicketProgrammingWork,
+  ScheduledRedundantNewTicketCheckingWork,
+  ScheduledRedundantNewTicketCodeReviewWork,
+  ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork,
+  ScheduledRedundantPreviouslyInterruptedTicketCheckingWork,
+  ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork
+]
 
 class ScheduledPreviouslyInterruptedTicketWork extends ScheduledTicketWork {
   // Represents follow-up work for a work iteration that was interrupted and context
@@ -432,17 +553,61 @@ class Schedule {
       // distinguish between interrupted work, and non-interrupted work
       let scheduledWorkClass;
       if (needsCodeReview) {
-        scheduledWorkClass = workIteration.started
-          ? ScheduledPreviouslyInterruptedTicketCodeReviewWork
-          : ScheduledNewTicketCodeReviewWork;
+        if (finalIteration) {
+          // This is the last time this ticket will need to be code reviewed, so it
+          // isn't redundant.
+          scheduledWorkClass = workIteration.started
+            ? ScheduledPreviouslyInterruptedTicketCodeReviewWork
+            : ScheduledNewTicketCodeReviewWork;
+        } else {
+          // This code review will have to be done again in the future, making it
+          // redundant.
+          scheduledWorkClass = workIteration.started
+            ? ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork
+            : ScheduledRedundantNewTicketCodeReviewWork;
+        }
       } else if (needsAutomation) {
         scheduledWorkClass = workIteration.started
           ? ScheduledPreviouslyInterruptedTicketAutomationWork
           : ScheduledNewTicketAutomationWork;
       } else {
-        scheduledWorkClass = workIteration.started
-          ? this.scheduledPreviouslyInterruptedTicketWork
-          : this.scheduledNewTicketWork;
+        if (this instanceof QaSchedule){
+          if (finalIteration) {
+            // this is the last time this ticket will need to be checked, as it will be
+            // checked successfully, in full, meaning it isn't redundant.
+            scheduledWorkClass = workIteration.started
+              ? this.scheduledPreviouslyInterruptedTicketWork
+              : this.scheduledNewTicketWork;
+          } else {
+            // The tester will only get part way through their checks for this ticket
+            // before something goes wrong and they have to send it back, meaning the
+            // next time they check this ticket, they'll have to repeat everything they
+            // already did, so this work is redundant (even if the tester never gets to
+            // finish checking this ticket successfully this sprint).
+            scheduledWorkClass = workIteration.started
+              ? this.scheduledRedundantPreviouslyInterruptedTicketWork
+              : this.scheduledRedundantNewTicketWork;
+          }
+        }else if (this instanceof ProgrammerSchedule){
+          if (firstIteration) {
+            // this is the first time the programmer will have worked on the ticket, and
+            // what they send to code review after this will be something they believe
+            // is worthy of going to production, making this work not redundant.
+            scheduledWorkClass = workIteration.started
+              ? this.scheduledPreviouslyInterruptedTicketWork
+              : this.scheduledNewTicketWork;
+          } else {
+            // The programmer is fixing their initial work, which would've ideally been
+            // working fine before sending it to code review, making this redundant
+            // work.
+            scheduledWorkClass = workIteration.started
+              ? this.scheduledRedundantPreviouslyInterruptedTicketWork
+              : this.scheduledRedundantNewTicketWork;
+          }
+        } else {
+          // unknown circumstances
+          throw Error("Unrecognized worker schedule");
+        }
       }
       workIteration.started = true;
       if (schedule.availableTimeSlots[0].duration >= workIteration.time) {
@@ -507,7 +672,7 @@ class Schedule {
       // scheduled by mistake.
       ticket.needsCodeReview = !needsCodeReview;
     }
-    if (this instanceof QaSchedule && queue.length === 0) {
+    if (this instanceof QaSchedule && finalIteration) {
       // final check has just been completed
       ticket.needsAutomation = !needsAutomation;
     }
@@ -516,7 +681,9 @@ class Schedule {
 
 class ProgrammerSchedule extends Schedule {
   scheduledNewTicketWork = ScheduledNewTicketProgrammingWork;
+  scheduledRedundantNewTicketWork = ScheduledRedundantNewTicketProgrammingWork;
   scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketProgrammingWork;
+  scheduledRedundantPreviouslyInterruptedTicketWork = ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork;
   getWorkIterationQueueFromTicket(ticket) {
     if (ticket.needsCodeReview) {
       return ticket.programmerCodeReviewWorkIterations;
@@ -527,7 +694,9 @@ class ProgrammerSchedule extends Schedule {
 
 class QaSchedule extends Schedule {
   scheduledNewTicketWork = ScheduledNewTicketCheckingWork;
+  scheduledRedundantNewTicketWork = ScheduledRedundantNewTicketCheckingWork;
   scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketCheckingWork;
+  scheduledRedundantPreviouslyInterruptedTicketWork = ScheduledRedundantPreviouslyInterruptedTicketCheckingWork;
   constructor(
     sprintDayCount,
     regressionTestDayCount,
@@ -617,15 +786,13 @@ class Worker {
     this.contextSwitchingMinutes = [];
     this.meetingMinutes = [];
     this.productiveTicketWorkMinutes = [];
-    this.codeReviewWorkMinutes = [];
-    // working on a ticket that had to be sent back
-    //
-    // Testers will actually write to this array unless it's their final iteration
-    // of work on this ticket before sending it to "done". This is done to reflect
-    // that the tester, for every work iteration, will have to repeat the entire
-    // collection of tests for that ticket until they either find a problem and send
-    // it back, or it's all good. So it reflects the repetitive nature of that work.
-    this.productiveTicketFixWorkMinutes = [];
+    this.redundantTicketWorkMinutes = [];
+    this.programmingMinutes = [];
+    this.productiveProgrammingTicketWorkMinutes = [];
+    this.redundantProgrammingTicketWorkMinutes = [];
+    this.codeReviewMinutes = [];
+    this.productiveCodeReviewTicketWorkMinutes = [];
+    this.redundantCodeReviewTicketWorkMinutes = [];
     // TODO: This array tracks minutes that were spent recovering from an interruption,
     // other than Lunch, and an end of day that was reached without going through a
     // meeting. So if the day ended with SprintRetro, and the worker was in the
@@ -635,6 +802,8 @@ class Worker {
     // handy if other meetings are implemented.
     this.productivityRecoveryMinutes = [];
     this.checkingMinutes = [];
+    this.productiveCheckingTicketWorkMinutes = [];
+    this.redundantCheckingTicketWorkMinutes = [];
     this.regressionTestingMinutes = [];
     this.automationMinutes = [];
     // Time spent doing nothing because there was no time to get started on anything
@@ -659,42 +828,8 @@ class Worker {
         let eventMinutes = [...Array(event.duration).keys()].map(
           (i) => i + event.rawStartDayTime + 1
         );
-
-        // standalone if statements are used because the minutes for one event
-        // category may apply to more than one event minute array.
-        if (event instanceof Meeting) {
-          this.meetingMinutes.push(...eventMinutes);
-        }
-        if (event instanceof ContextSwitchEvent) {
-          this.contextSwitchingMinutes.push(...eventMinutes);
-        }
-        if (event instanceof ScheduledTicketWork) {
-          this.productiveTicketWorkMinutes.push(...eventMinutes);
-          if (this instanceof Programmer && !event.firstIteration) {
-            this.productiveTicketFixWorkMinutes.push(...eventMinutes);
-          }
-          if (this instanceof Tester && !event.finalIteration) {
-            this.productiveTicketFixWorkMinutes.push(...eventMinutes);
-          }
-        }
-        if (event instanceof ScheduledTicketCodeReviewWork) {
-          this.codeReviewWorkMinutes.push(...eventMinutes);
-        }
-        if (event instanceof ContextSwitchEvent) {
-          // TODO
-          // this.productivityRecoveryMinutes.push(...eventMinutes);
-        }
-        if (event instanceof ScheduledTicketCheckingWork) {
-          this.checkingMinutes.push(...eventMinutes);
-        }
-        if (event instanceof RegressionTesting) {
-          this.regressionTestingMinutes.push(...eventMinutes);
-        }
-        if (event instanceof ScheduledTicketAutomationWork) {
-          this.automationMinutes.push(...eventMinutes);
-        }
-        if (event instanceof NothingEvent) {
-          this.nothingMinutes.push(...eventMinutes);
+        for (let category of event.relevantMinutes) {
+          this[category].push(...eventMinutes);
         }
       }
     }
@@ -715,14 +850,38 @@ class Worker {
       dayTime
     );
   }
-  getProductiveTicketFixWorkMinutesAtDayTime(dayTime) {
+  getRedundantTicketWorkMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(
-      this.productiveTicketFixWorkMinutes,
+      this.redundantTicketWorkMinutes,
       dayTime
     );
   }
-  getCodeReviewWorkMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.codeReviewWorkMinutes, dayTime);
+  getCodeReviewMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.codeReviewMinutes, dayTime);
+  }
+  getProductiveCodeReviewMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.productiveCodeReviewTicketWorkMinutes, dayTime);
+  }
+  geRedundantCodeReviewMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.redundantCodeReviewTicketWorkMinutes, dayTime);
+  }
+  getProgrammingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.programmingMinutes, dayTime);
+  }
+  getProductiveProgrammingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.productiveProgrammingTicketWorkMinutes, dayTime);
+  }
+  geRedundantProgrammingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.redundantProgrammingTicketWorkMinutes, dayTime);
+  }
+  getCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.checkingMinutes, dayTime);
+  }
+  getProductiveCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.productiveCheckingTicketWorkMinutes, dayTime);
+  }
+  geRedundantCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.redundantCheckingTicketWorkMinutes, dayTime);
   }
   getProductivityRecoveryMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(
@@ -735,9 +894,6 @@ class Worker {
       this.regressionTestingMinutes,
       dayTime
     );
-  }
-  getCheckingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.checkingMinutes, dayTime);
   }
   getAutomationMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(this.automationMinutes, dayTime);
@@ -1807,10 +1963,10 @@ export class Simulation {
           productiveTicketWork: worker.getProductiveTicketWorkMinutesAtDayTime(
             i
           ),
-          fixingTicketWork: worker.getProductiveTicketFixWorkMinutesAtDayTime(
+          redundantTicketWork: worker.getRedundantTicketWorkMinutesAtDayTime(
             i
           ),
-          codeReview: worker.getCodeReviewWorkMinutesAtDayTime(i),
+          codeReview: worker.getCodeReviewMinutesAtDayTime(i),
           // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
           checking: worker.getCheckingMinutesAtDayTime(i),
           regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
