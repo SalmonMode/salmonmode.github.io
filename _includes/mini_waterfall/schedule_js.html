@@ -28,6 +28,7 @@
   //   ],
   // });
   sim = new Simulation({});
+  sim.simulate();
   var t1 = performance.now();
   console.log(`Call to simulate took ${t1 - t0} milliseconds.`);
 
@@ -1618,8 +1619,61 @@
       // customEventsByDay: form.customEventsByDay.valueAsNumber
       customEventsByDay: null,
     });
+    simulation.simulate();
     renderSimulation(simulation);
   }
+  function generateAllPreviews() {
+    const form = d3.select('#generationForm').node();
+    const simulation = new Simulation({
+      maxInitialProgrammerWorkTimeInHours:
+        form.maxInitialProgrammerWorkTimeInHours.valueAsNumber,
+      maxFullRunTesterWorkTimeInHours:
+        form.maxFullRunTesterWorkTimeInHours.valueAsNumber,
+      maxQaAutomationTime: form.maxQaAutomationTime.valueAsNumber,
+    });
+    var margin = {top: 10, right: 30, bottom: 30, left: 40};
+    d3.select('#probabilityDistributionPreview').style('display', 'block');
+    generatePreview(simulation, 'programmingPreview', margin, 'maxInitialProgrammerWorkTimeInHours', 'sampleInitialProgrammerWorkTime');
+    generatePreview(simulation, 'checkingPreview', margin, 'maxFullRunTesterWorkTimeInHours', 'sampleFullRunTesterWorkTime');
+    generatePreview(simulation, 'automationPreview', margin, 'maxQaAutomationTime', 'sampleQaAutomationIterationTime');
+  }
+  function generatePreview(simulation, rootSvgId, margin, configDataKey, sampleMethodName) {
+    const svg = d3.select(`svg#${rootSvgId}`);
+    const svgG = svg.select('g');
+    var width = +svg.style("width").replace("px", "") - margin.left - margin.right,
+        height = +svg.style("height").replace("px", "") - margin.top - margin.bottom;
+
+    svgG.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    const previewX = d3.scaleLinear()
+      .domain([0, simulation[configDataKey]])
+      .range([0, width]);
+
+    const histogramBins = d3.histogram()
+      .value(d => d)
+      .domain(previewX.domain())
+      .thresholds(simulation[configDataKey] / 0.25)(simulation.ticketFactory[sampleMethodName](10000).map(wi => wi.time / 60));
+    svgG.select("g.previewXAxis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(previewX));
+    var previewY = d3.scaleLinear()
+      .range([height, 0]);
+    previewY.domain([0, d3.max(histogramBins, (d) => d.length)]);
+    svgG.select("g.previewYAxis")
+      .call(d3.axisLeft(previewY));
+    svgG.selectAll("rect")
+      .data(histogramBins)
+      .join('rect')
+        .attr("x", 1)
+        .attr("transform", (d) => "translate(" + previewX(d.x0) + "," + previewY(d.length) + ")")
+        .attr("width", (d) => previewX(d.x1) - previewX(d.x0) -1 )
+        .attr("height", (d) => height - previewY(d.length))
+        .style("fill", "#69b3a2");
+  }
+  function hidePreview() {
+    d3.select('#probabilityDistributionPreview').style('display', 'none');
+  }
   form.addEventListener("submit", handleCustomSimulationSubmit);
+  d3.select('#previewButton').node().addEventListener("click", generateAllPreviews);
+  d3.select('#hidePreviewButton').node().addEventListener("click", hidePreview);
   renderSimulation(sim);
 </script>

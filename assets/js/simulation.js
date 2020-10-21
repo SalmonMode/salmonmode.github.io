@@ -166,7 +166,7 @@ export class ScheduledTicketWork extends Event {
   }
 }
 
-class ScheduledNewTicketWork extends ScheduledTicketWork {
+class ScheduledCoreTicketWork extends ScheduledTicketWork {
   // This is exactly like ScheduledTicketWork, except it can't be placed in between a
   // prior event's end and a Meeting (even Lunch), if that next Meeting starts 30
   // minutes or less after the prior event.
@@ -184,7 +184,7 @@ export class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {
   title = "Code Review";
 }
 
-class ScheduledNewTicketProgrammingWork extends ScheduledTicketProgrammingWork {
+class ScheduledCoreTicketProgrammingWork extends ScheduledTicketProgrammingWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'programmingMinutes',
@@ -192,21 +192,21 @@ class ScheduledNewTicketProgrammingWork extends ScheduledTicketProgrammingWork {
   ]
 }
 
-class ScheduledNewTicketCheckingWork extends ScheduledTicketCheckingWork {
+class ScheduledCoreTicketCheckingWork extends ScheduledTicketCheckingWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'checkingMinutes',
     'productiveCheckingTicketWorkMinutes'
   ]
 }
-class ScheduledNewTicketAutomationWork extends ScheduledTicketAutomationWork {
+class ScheduledCoreTicketAutomationWork extends ScheduledTicketAutomationWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'automationMinutes',
     'productiveProgrammingTicketWorkMinutes'
   ]
 }
-class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
+class ScheduledCoreTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'codeReviewMinutes',
@@ -214,14 +214,14 @@ class ScheduledNewTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
   ]
 }
 
-class ScheduledRedundantNewTicketProgrammingWork extends ScheduledNewTicketProgrammingWork {
+class ScheduledRedundantNewTicketProgrammingWork extends ScheduledCoreTicketProgrammingWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'programmingMinutes',
     'redundantProgrammingTicketWorkMinutes'
   ]
 }
-class ScheduledRedundantNewTicketCheckingWork extends ScheduledNewTicketCheckingWork {
+class ScheduledRedundantNewTicketCheckingWork extends ScheduledCoreTicketCheckingWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'checkingMinutes',
@@ -230,8 +230,8 @@ class ScheduledRedundantNewTicketCheckingWork extends ScheduledNewTicketChecking
 }
 // Not real because testers would be responsible in this system for making sure their
 // checks work completely before committing them (ideally).
-// class ScheduledRedundantNewTicketAutomationWork extends ScheduledNewTicketAutomationWork {}
-class ScheduledRedundantNewTicketCodeReviewWork extends ScheduledNewTicketCodeReviewWork {
+// class ScheduledRedundantNewTicketAutomationWork extends ScheduledCoreTicketAutomationWork {}
+class ScheduledRedundantNewTicketCodeReviewWork extends ScheduledCoreTicketCodeReviewWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'codeReviewMinutes',
@@ -239,28 +239,28 @@ class ScheduledRedundantNewTicketCodeReviewWork extends ScheduledNewTicketCodeRe
   ]
 }
 
-class ScheduledPreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {
+class ScheduledCorePreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'programmingMinutes',
     'productiveProgrammingTicketWorkMinutes'
   ]
 }
-class ScheduledPreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {
+class ScheduledCorePreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'checkingMinutes',
     'productiveCheckingTicketWorkMinutes'
   ]
 }
-class ScheduledPreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {
+class ScheduledCorePreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'automationMinutes',
     'productiveProgrammingTicketWorkMinutes'
   ]
 }
-class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
+class ScheduledCorePreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
   relevantMinutes = [
     'productiveTicketWorkMinutes',
     'codeReviewMinutes',
@@ -268,14 +268,14 @@ class ScheduledPreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicket
   ]
 }
 
-class ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork extends ScheduledPreviouslyInterruptedTicketProgrammingWork {
+class ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork extends ScheduledCorePreviouslyInterruptedTicketProgrammingWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'programmingMinutes',
     'redundantProgrammingTicketWorkMinutes'
   ]
 }
-class ScheduledRedundantPreviouslyInterruptedTicketCheckingWork extends ScheduledPreviouslyInterruptedTicketCheckingWork {
+class ScheduledRedundantPreviouslyInterruptedTicketCheckingWork extends ScheduledCorePreviouslyInterruptedTicketCheckingWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'checkingMinutes',
@@ -284,8 +284,8 @@ class ScheduledRedundantPreviouslyInterruptedTicketCheckingWork extends Schedule
 }
 // Not real because testers would be responsible in this system for making sure their
 // checks work completely before committing them (ideally).
-// class ScheduledRedundantPreviouslyInterruptedTicketAutomationWork extends ScheduledPreviouslyInterruptedTicketAutomationWork {}
-class ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork extends ScheduledPreviouslyInterruptedTicketCodeReviewWork {
+// class ScheduledRedundantPreviouslyInterruptedTicketAutomationWork extends ScheduledCorePreviouslyInterruptedTicketAutomationWork {}
+class ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork extends ScheduledCorePreviouslyInterruptedTicketCodeReviewWork {
   relevantMinutes = [
     'redundantTicketWorkMinutes',
     'codeReviewMinutes',
@@ -302,7 +302,7 @@ const redundantEvents = [
   ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork
 ]
 
-class ScheduledPreviouslyInterruptedTicketWork extends ScheduledTicketWork {
+class ScheduledCorePreviouslyInterruptedTicketWork extends ScheduledTicketWork {
   // Represents follow-up work for a work iteration that was interrupted and context
   // had to be re-acquired.
 }
@@ -557,8 +557,8 @@ class Schedule {
           // This is the last time this ticket will need to be code reviewed, so it
           // isn't redundant.
           scheduledWorkClass = workIteration.started
-            ? ScheduledPreviouslyInterruptedTicketCodeReviewWork
-            : ScheduledNewTicketCodeReviewWork;
+            ? ScheduledCorePreviouslyInterruptedTicketCodeReviewWork
+            : ScheduledCoreTicketCodeReviewWork;
         } else {
           // This code review will have to be done again in the future, making it
           // redundant.
@@ -568,16 +568,16 @@ class Schedule {
         }
       } else if (needsAutomation) {
         scheduledWorkClass = workIteration.started
-          ? ScheduledPreviouslyInterruptedTicketAutomationWork
-          : ScheduledNewTicketAutomationWork;
+          ? ScheduledCorePreviouslyInterruptedTicketAutomationWork
+          : ScheduledCoreTicketAutomationWork;
       } else {
         if (this instanceof QaSchedule){
           if (finalIteration) {
             // this is the last time this ticket will need to be checked, as it will be
             // checked successfully, in full, meaning it isn't redundant.
             scheduledWorkClass = workIteration.started
-              ? this.scheduledPreviouslyInterruptedTicketWork
-              : this.scheduledNewTicketWork;
+              ? this.scheduledCorePreviouslyInterruptedTicketWork
+              : this.scheduledCoreTicketWork;
           } else {
             // The tester will only get part way through their checks for this ticket
             // before something goes wrong and they have to send it back, meaning the
@@ -594,8 +594,8 @@ class Schedule {
             // what they send to code review after this will be something they believe
             // is worthy of going to production, making this work not redundant.
             scheduledWorkClass = workIteration.started
-              ? this.scheduledPreviouslyInterruptedTicketWork
-              : this.scheduledNewTicketWork;
+              ? this.scheduledCorePreviouslyInterruptedTicketWork
+              : this.scheduledCoreTicketWork;
           } else {
             // The programmer is fixing their initial work, which would've ideally been
             // working fine before sending it to code review, making this redundant
@@ -680,9 +680,9 @@ class Schedule {
 }
 
 class ProgrammerSchedule extends Schedule {
-  scheduledNewTicketWork = ScheduledNewTicketProgrammingWork;
+  scheduledCoreTicketWork = ScheduledCoreTicketProgrammingWork;
   scheduledRedundantNewTicketWork = ScheduledRedundantNewTicketProgrammingWork;
-  scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketProgrammingWork;
+  scheduledCorePreviouslyInterruptedTicketWork = ScheduledCorePreviouslyInterruptedTicketProgrammingWork;
   scheduledRedundantPreviouslyInterruptedTicketWork = ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork;
   getWorkIterationQueueFromTicket(ticket) {
     if (ticket.needsCodeReview) {
@@ -693,9 +693,9 @@ class ProgrammerSchedule extends Schedule {
 }
 
 class QaSchedule extends Schedule {
-  scheduledNewTicketWork = ScheduledNewTicketCheckingWork;
+  scheduledCoreTicketWork = ScheduledCoreTicketCheckingWork;
   scheduledRedundantNewTicketWork = ScheduledRedundantNewTicketCheckingWork;
-  scheduledPreviouslyInterruptedTicketWork = ScheduledPreviouslyInterruptedTicketCheckingWork;
+  scheduledCorePreviouslyInterruptedTicketWork = ScheduledCorePreviouslyInterruptedTicketCheckingWork;
   scheduledRedundantPreviouslyInterruptedTicketWork = ScheduledRedundantPreviouslyInterruptedTicketCheckingWork;
   constructor(
     sprintDayCount,
@@ -1253,7 +1253,7 @@ class TicketFactory {
       return [];
     }
     const minimumWorkTimeInMinutes = 30;
-    const sample = PD.rgamma(1, 3, 0.1).map((workTimeValue) => {
+    const sample = PD.rgamma(sampleCount, 3, 0.1).map((workTimeValue) => {
       const workTimePercentage = Math.max(
         (workTimeValue / 100.0 - 1.0) * -1,
         0
@@ -1368,8 +1368,6 @@ export class Simulation {
     this.codeReviewStack = [];
     this.stackTimelineHashMap = [];
     this.stackTimelineSets = [];
-    this.simulate();
-    this.aggregateMinutesSpent();
   }
   prepareWorkers(customEventsByDay) {
     this.programmers = [];
@@ -1481,6 +1479,7 @@ export class Simulation {
       );
     }
     this.unfinishedStack.concat([...this.qaStack, ...this.passBackStack]);
+    this.aggregateMinutesSpent();
   }
   dayTimeFromDayAndTime(day, time) {
     // given a day and a time, return the dayTime
