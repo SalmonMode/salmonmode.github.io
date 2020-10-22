@@ -1067,7 +1067,9 @@ class Ticket {
     this.totalTimesToBeSentBack = totalTimesToBeSentBack;
     this.initialProgrammerWorkIterationTime = this.programmerWorkIterations[0].time;
     this.initialProgrammerCodeReviewWorkIterationTime = this.programmerCodeReviewWorkIterations[0].time;
-    this.initialTesterWorkIterationTime = this.testerWorkIterations[0].time;
+    this.fullTesterWorkIterationTime = this.testerWorkIterations[
+      this.testerWorkIterations.length - 1
+    ].time;
     this.initialTesterAutomationWorkIterationTime = this.automationWorkIterations[0].time;
     // After the programmer has done work on the ticket, it will need code review
     // before being passed off to QA. Only once that work is done (or at least
@@ -1158,6 +1160,9 @@ class TicketFactory {
     return this.sampleInitialProgrammerWorkTime(1)[0];
   }
   sampleInitialProgrammerWorkTime(sampleCount) {
+    if (sampleCount <= 0) {
+      return [];
+    }
     return this.sampleWorkIterationTime(
       this.maxInitialProgrammerWorkTimeInHours,
       sampleCount
@@ -1167,6 +1172,9 @@ class TicketFactory {
     return this.sampleFullRunTesterWorkTime(1)[0];
   }
   sampleFullRunTesterWorkTime(sampleCount) {
+    if (sampleCount <= 0) {
+      return [];
+    }
     return this.sampleWorkIterationTime(
       this.maxFullRunTesterWorkTimeInHours,
       sampleCount
@@ -1269,6 +1277,9 @@ class TicketFactory {
     return this.sampleTicketPassBackCount(1)[0];
   }
   sampleTicketPassBackCount(sampleCount) {
+    if (sampleCount <= 0) {
+      return [];
+    }
     // return Math.floor(PD.rchisq(1, 1, 5)[0]);
     return PD.rpois(sampleCount, this.averagePassBackCount);
   }
@@ -1315,6 +1326,7 @@ export class Simulation {
     maxFullRunTesterWorkTimeInHours = 8,
     maxQaAutomationTime = 8,
     averagePassBackCount = 1,
+    checkRefinement = 0.15,
     customEventsByDay = null,
   }) {
     this.dayLengthInMinutes = 480;
@@ -1344,6 +1356,7 @@ export class Simulation {
     this.maxFullRunTesterWorkTimeInHours = maxFullRunTesterWorkTimeInHours;
     this.maxQaAutomationTime = maxQaAutomationTime;
     this.averagePassBackCount = averagePassBackCount;
+    this.checkRefinement = checkRefinement;
     if (customEventsByDay === null) {
       // One array for each worker, each containing one array for each day of the sprint
       customEventsByDay = [
@@ -1360,7 +1373,7 @@ export class Simulation {
     this.tickets = [];
     this.sprintTickets = [];
     this.qaStack = [];
-    this.automationStack = [];
+    this.needsAutomationStack = [];
     this.automatedStack = [];
     this.passBackStack = [];
     this.doneStack = [];
@@ -1368,6 +1381,7 @@ export class Simulation {
     this.codeReviewStack = [];
     this.stackTimelineHashMap = [];
     this.stackTimelineSets = [];
+    this.projectedSprintCountUntilDeadlock = undefined;
   }
   prepareWorkers(customEventsByDay) {
     this.programmers = [];
@@ -1480,6 +1494,50 @@ export class Simulation {
     }
     this.unfinishedStack.concat([...this.qaStack, ...this.passBackStack]);
     this.aggregateMinutesSpent();
+    this.projectDeadlock();
+  }
+  projectDeadlock() {
+    /*
+    For each of the tickets in the done stack, consider how much time it took to do a
+    complete successful check of the ones that weren't automated. Consider then how much
+    this time would be refined (according to this.checkRefinement), and this would be
+    the amount of additional time that needs to be allotted for regression checking.
+
+    Consider then the percentage of available checking time that was spent doing
+    complete check runs that wouldn't be automated. As the projection goes forward,
+    sprint by sprint, the amount of new manual regression checking time will be
+    subtracted from the remaining available check time, and the previously mentioned
+    percentage will be used to estimate how much manual checking time would need to be
+    factored in for how the regression checking period grows for the next sprint.
+
+    This will be projected forward, counting each sprint that could theoretically be
+    done, until the remaining available time for checks is less than it would take to
+    do a single checking iteration for a "small" ticket, which, for the purposes of this
+    projection, will be considered to be 25% of this.maxFullRunTesterWorkTimeInHours.
+
+    When that point is reached, it would be unreasonable to expect the testers to even
+    have the opportunity to try and check something, and thus, progress will be in a
+    deadlock.
+    */
+    const totalSuccessfulCheckTime = this.doneStack.reduce((totalTime, currentTicket) => totalTime + currentTicket.fullTesterWorkIterationTime, 0);
+    const newManualCheckTimeEliminatedByAutomation = this.automatedStack.reduce((totalTime, currentTicket) => totalTime + currentTicket.fullTesterWorkIterationTime, 0);
+    const newManualCheckTime = totalSuccessfulCheckTime - newManualCheckTimeEliminatedByAutomation
+    if (newManualCheckTime <= 0) {
+      // configuration is theoretically sustainable
+      this.projectedSprintCountUntilDeadlock = null;
+    }
+    const totalCheckingMinutes = this.workerDataForDayTime[this.workerDataForDayTime.length - 1].cumulativeMinutes.checking;
+    const percentageOfCheckTimeSpentOnNewManualChecking = newManualCheckTime / totalCheckingMinutes;
+    let remainingCheckingMinutes = totalCheckingMinutes;
+    let sprintsUntilDeadlock = 0;
+    const estimatedMinimumCheckTimePerTicket = (this.maxFullRunTesterWorkTimeInHours * 60) * 0.25;
+    while (remainingCheckingMinutes > estimatedMinimumCheckTimePerTicket) {
+      let totalNewManualCheckTime = Math.round(percentageOfCheckTimeSpentOnNewManualChecking * remainingCheckingMinutes);
+      let projectedRefinedNewRegressionCheckMinutes = (1 - this.checkRefinement) * totalNewManualCheckTime;
+      remainingCheckingMinutes -= projectedRefinedNewRegressionCheckMinutes;
+      sprintsUntilDeadlock++;
+    }
+    this.projectedSprintCountUntilDeadlock = sprintsUntilDeadlock;
   }
   dayTimeFromDayAndTime(day, time) {
     // given a day and a time, return the dayTime
@@ -1492,7 +1550,7 @@ export class Simulation {
     let waitingForCodeReview = this.codeReviewStack.slice();
     let inCodeReview = this.getTicketsCurrentlyInCodeReview();
     let waitingForQa = this.qaStack.slice();
-    let waitingForAutomation = this.automationStack.slice();
+    let waitingForAutomation = this.needsAutomationStack.slice();
     let automated = this.automatedStack.slice();
     let inQa = this.getTicketsCurrentlyInQa();
     let beingAutomated = this.getTicketsCurrentlyBeingAutomated();
@@ -1692,7 +1750,7 @@ export class Simulation {
           // issues
           // possiblyFinishedTicket.needsAutomation = true;
           this.doneStack.push(possiblyFinishedTicket);
-          this.automationStack.push(possiblyFinishedTicket);
+          this.needsAutomationStack.push(possiblyFinishedTicket);
         }
       }
     }
@@ -1822,14 +1880,14 @@ export class Simulation {
     );
   }
   getHighestPriorityAutomationIndex() {
-    return this.automationStack.reduce(
+    return this.needsAutomationStack.reduce(
       (highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
         if (!highestPriorityTicketIndex) {
           return currentTicketIndex;
         }
         if (
           currentTicket.priority <
-          this.automationStack[highestPriorityTicketIndex].priority
+          this.needsAutomationStack[highestPriorityTicketIndex].priority
         ) {
           return currentTicketIndex;
         }
@@ -1863,9 +1921,9 @@ export class Simulation {
               throw err;
             }
           }
-        } else if (this.automationStack.length > 0) {
+        } else if (this.needsAutomationStack.length > 0) {
           let highestPriorityTicketIndex = this.getHighestPriorityAutomationIndex();
-          ticket = this.automationStack.splice(
+          ticket = this.needsAutomationStack.splice(
             highestPriorityTicketIndex,
             1
           )[0];
@@ -1875,7 +1933,7 @@ export class Simulation {
           } catch (err) {
             if (err instanceof RangeError) {
               // ran out of time in the sprint
-              this.automationStack.push(ticket);
+              continue;
             } else {
               throw err;
             }

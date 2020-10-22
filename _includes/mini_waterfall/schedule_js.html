@@ -788,6 +788,12 @@
   addGraphMouseTargetToAllGraphs();
 
   function renderSimulation(simulation) {
+    const deadlockP = d3.select('#deadlockProjection');
+    if (simulation.projectedSprintCountUntilDeadlock === null) {
+      deadlockP.text('Configuration is theoretically sustainable');
+    } else {
+      deadlockP.text(`Projected deadlock in ${simulation.projectedSprintCountUntilDeadlock} sprints`);
+    }
     const x = d3
       .scaleBand()
       .domain([...Array(simulation.totalDays).keys()].map((i) => i))
@@ -1579,6 +1585,7 @@
         form.maxFullRunTesterWorkTimeInHours.valueAsNumber,
       maxQaAutomationTime: form.maxQaAutomationTime.valueAsNumber,
       averagePassBackCount: form.averagePassBackCount.valueAsNumber,
+      checkRefinement: form.checkRefinement.valueAsNumber,
       // customEventsByDay: form.customEventsByDay.valueAsNumber
       customEventsByDay: null,
     });
