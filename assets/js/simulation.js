@@ -1326,7 +1326,7 @@ export class Simulation {
     maxFullRunTesterWorkTimeInHours = 8,
     maxQaAutomationTime = 8,
     averagePassBackCount = 1,
-    checkRefinement = 0.15,
+    checkRefinement = 0.30,
     customEventsByDay = null,
   }) {
     this.dayLengthInMinutes = 480;
