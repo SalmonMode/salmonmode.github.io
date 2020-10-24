@@ -39,19 +39,14 @@ export const workerIdentifierColors = [
 ];
 
 export class Event {
-  constructor(startTime, duration, owner, day, title = null) {
+  constructor(startTime, duration, day, title = null) {
     this.startTime = startTime;
     this.duration = duration;
     this.endTime = startTime + duration;
-    this.owner = owner;
     this.day = day;
-    // this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
     this.rawStartDayTime = this.day * 480 + this.startTime;
     this.rawEndDayTime = this.rawStartDayTime + this.duration;
     this.title = title || this.title;
-  }
-  get sprintDay() {
-    return this.day - this.owner.regressionTestDayCount + 1;
   }
   get color() {
     return d3.color(color(this));
@@ -66,22 +61,22 @@ export class Meeting extends Event {
 
 class DailyStandup extends Meeting {
   title = "Daily Standup";
-  constructor(owner, day) {
-    super(0, 15, owner, day);
+  constructor(day) {
+    super(0, 15, day);
   }
 }
 
 class SprintPlanning extends Meeting {
   title = "Sprint Planning";
-  constructor(owner, day) {
-    super(0, 120, owner, day);
+  constructor(day) {
+    super(0, 120, day);
   }
 }
 
 class SprintRetro extends Meeting {
   title = "Sprint Retro";
-  constructor(owner, day) {
-    super(420, 60, owner, day);
+  constructor(day) {
+    super(420, 60, day);
   }
 }
 
@@ -114,10 +109,9 @@ class ContextSwitchEvent extends Event {
     ticket,
     firstIteration = true,
     lastIteration = true,
-    owner,
     day
   ) {
-    super(startTime, duration, owner, day);
+    super(startTime, duration, day);
     this.ticket = ticket;
     this.firstIteration = firstIteration;
     this.lastIteration = lastIteration;
@@ -130,8 +124,8 @@ export class LunchBreak extends Meeting {
   // the prior Event ended less than or equal to 30 minutes before it, then new work
   // won't be started. These are all true for Lunch as well.
   title = "Lunch";
-  constructor(lunchTime, owner, day) {
-    super(lunchTime, 60, owner, day);
+  constructor(lunchTime, day) {
+    super(lunchTime, 60, day);
   }
 }
 
@@ -155,10 +149,9 @@ export class ScheduledTicketWork extends Event {
     contextSwitchEvent,
     firstIteration = true,
     lastIteration = true,
-    owner,
     day
   ) {
-    super(startTime, duration, owner, day);
+    super(startTime, duration, day);
     this.ticket = ticket;
     this.contextSwitchEvent = contextSwitchEvent;
     this.firstIteration = firstIteration;
@@ -322,14 +315,12 @@ class AvailableTimeSlot {
 }
 
 class DaySchedule {
-  constructor(lunchTime, owner, day) {
-    this.owner = owner;
+  constructor(lunchTime, day) {
     this.day = day;
-    this.sprintDay = this.day - this.owner.regressionTestDayCount + 1;
     this.items = [];
     this.lastMeetingIndexBeforeAvailability = null;
     this.availableTimeSlots = [new AvailableTimeSlot(null, 0, 480)];
-    let lunch = new LunchBreak(lunchTime, this.owner, this.day);
+    let lunch = new LunchBreak(lunchTime, this.day);
     this.scheduleMeeting(lunch);
   }
 
@@ -365,7 +356,6 @@ class DaySchedule {
               new NothingEvent(
                 timeSlot.startTime,
                 startTimeDiff,
-                this.owner,
                 this.day
               )
             );
@@ -394,7 +384,6 @@ class DaySchedule {
             const newNothingEvent = new NothingEvent(
               meeting.endTime,
               endTimeDiff,
-              this.owner,
               this.day
             );
             if (timeSlot.nextMeetingIndex == null) {
@@ -447,7 +436,6 @@ class Schedule {
     regressionTestDayCount,
     lunchTime,
     customEventsByDay,
-    owner
   ) {
     // The "first" ${regressionTestDayCount} days of the sprint are actually
     // the last days of the previous sprint when the tester is doing the
@@ -459,7 +447,6 @@ class Schedule {
     // the sprint with ticket work to do. Metrics will be gathered for all
     // days, even those from the last days of the previous sprint to reflect
     // the impact of this process from a holistic perspective.
-    this.owner = owner;
     this.daySchedules = [];
     this.sprintDayCount = sprintDayCount;
     this.regressionTestDayCount = regressionTestDayCount;
@@ -470,24 +457,23 @@ class Schedule {
       i++
     ) {
       const customEvents = this.customEventsByDay[i];
-      let schedule = new DaySchedule(lunchTime, this.owner, i);
+      let schedule = new DaySchedule(lunchTime, i);
       for (const event of customEvents) {
-        event.owner = this.owner;
         schedule.scheduleMeeting(event);
       }
       if (i === regressionTestDayCount) {
         // first actual day of sprint, so sprint planning
-        schedule.scheduleMeeting(new SprintPlanning(this.owner, i));
+        schedule.scheduleMeeting(new SprintPlanning(i));
       } else {
-        schedule.scheduleMeeting(new DailyStandup(this.owner, i));
+        schedule.scheduleMeeting(new DailyStandup(i));
       }
       this.daySchedules.push(schedule);
     }
     this.daySchedules[regressionTestDayCount - 1].scheduleMeeting(
-      new SprintRetro(this.owner, regressionTestDayCount - 1)
+      new SprintRetro(regressionTestDayCount - 1)
     );
     this.daySchedules[this.daySchedules.length - 1].scheduleMeeting(
-      new SprintRetro(this.owner, this.daySchedules.length - 1)
+      new SprintRetro(this.daySchedules.length - 1)
     );
     this.dayOfNextWorkIterationCompletion = null;
     this.timeOfNextWorkIterationCompletion = null;
@@ -532,7 +518,6 @@ class Schedule {
       // last of the work for this work iteration would be scheduled.
       this.dayOfNextWorkIterationCompletion = this.earliestAvailableDayForWorkIndex;
       if (this.earliestAvailableDayForWorkIndex === -1) {
-        this.owner.nextWorkIterationCompletionCheckIn = -1;
         throw RangeError(
           "Not enough time left in the sprint to finish this ticket"
         );
@@ -545,7 +530,6 @@ class Schedule {
         ticket,
         firstIteration,
         finalIteration,
-        this.owner,
         this.earliestAvailableDayForWorkIndex
       );
       schedule.scheduleMeeting(contextSwitchEvent);
@@ -619,7 +603,6 @@ class Schedule {
           contextSwitchEvent,
           firstIteration,
           finalIteration,
-          this.owner,
           this.earliestAvailableDayForWorkIndex
         );
         this.timeOfNextWorkIterationCompletion = newWorkEvent.endTime;
@@ -632,17 +615,12 @@ class Schedule {
           contextSwitchEvent,
           firstIteration,
           finalIteration,
-          this.owner,
           this.earliestAvailableDayForWorkIndex
         );
       }
       workIteration.time -= newWorkEvent.duration;
       schedule.scheduleMeeting(newWorkEvent);
       lastWorkEvent = newWorkEvent;
-    }
-    if (lastWorkEvent) {
-      this.owner.nextWorkIterationCompletionCheckIn =
-        lastWorkEvent.day * 480 + lastWorkEvent.endTime;
     }
     // Because of how the logic works, the ticket's
     // 'needsCodeReview'/'needsAutomation' status may be misleading during a
@@ -663,7 +641,7 @@ class Schedule {
     // moment had 'needsCodeReview' set to false, it would mean that that
     // programmer was doing code review on that ticket, rather than writing the
     // code for it.
-    if (this.owner instanceof Programmer) {
+    if (this instanceof ProgrammerSchedule) {
       // If the Programmer just finished scheduling the changes for this ticket,
       // then the ticket will need to be code reviewed by another programmer. If
       // a programmer just code reviewed it, it should be set to false and then
@@ -676,6 +654,10 @@ class Schedule {
       // final check has just been completed
       ticket.needsAutomation = !needsAutomation;
     }
+    if (lastWorkEvent) {
+        return lastWorkEvent.day * 480 + lastWorkEvent.endTime;
+    }
+    return false;
   }
 }
 
@@ -702,14 +684,12 @@ class QaSchedule extends Schedule {
     regressionTestDayCount,
     lunchTime,
     customEventsByDay,
-    owner
   ) {
     super(
       sprintDayCount,
       regressionTestDayCount,
       lunchTime,
       customEventsByDay,
-      owner
     );
     for (let i = 0; i < regressionTestDayCount; i++) {
       let previousSprintDaySchedule = this.daySchedules[i];
@@ -723,7 +703,6 @@ class QaSchedule extends Schedule {
           new RegressionTesting(
             timeSlot.startTime,
             timeSlot.duration,
-            this.owner,
             i
           )
         );
@@ -734,7 +713,6 @@ class QaSchedule extends Schedule {
           new RegressionTesting(
             timeSlot.startTime,
             timeSlot.duration,
-            this.owner,
             i + this.sprintDayCount
           )
         );
@@ -1825,10 +1803,14 @@ export class Simulation {
         }
       }
       try {
-        p.schedule.addWork(ticket);
+        const iterationComplete = p.schedule.addWork(ticket);
+        if (iterationComplete !== false) {
+          p.nextWorkIterationCompletionCheckIn = iterationComplete;
+        }
       } catch (err) {
         if (err instanceof RangeError) {
           // ran out of time in the sprint
+          p.nextWorkIterationCompletionCheckIn = -1;
           this.unfinishedStack.push(ticket);
         } else {
           throw err;
@@ -1912,10 +1894,14 @@ export class Simulation {
           ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
           t.addTicket(ticket);
           try {
-            t.schedule.addWork(ticket);
+            const iterationComplete = t.schedule.addWork(ticket);
+            if (iterationComplete !== false) {
+              t.nextWorkIterationCompletionCheckIn = iterationComplete;
+            }
           } catch (err) {
             if (err instanceof RangeError) {
               // ran out of time in the sprint
+              t.nextWorkIterationCompletionCheckIn = -1;
               this.unfinishedStack.push(ticket);
             } else {
               throw err;
@@ -1929,10 +1915,14 @@ export class Simulation {
           )[0];
           t.addTicket(ticket);
           try {
-            t.schedule.addWork(ticket);
+            const iterationComplete = t.schedule.addWork(ticket);
+            if (iterationComplete !== false) {
+              t.nextWorkIterationCompletionCheckIn = iterationComplete;
+            }
           } catch (err) {
             if (err instanceof RangeError) {
               // ran out of time in the sprint
+              t.nextWorkIterationCompletionCheckIn = -1;
               continue;
             } else {
               throw err;

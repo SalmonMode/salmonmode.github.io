@@ -77,15 +77,9 @@
   const svgMinimap = d3.select("svg#sprintTimelineMinimap");
 
   function getTooltipContent(simulation, event) {
-    const eventTimeSpan = `Day ${event.sprintDay} - ${formatDate(simulation, event.startTime)} - ${formatDate(simulation, event.endTime)}`;
+    const eventTimeSpan = `Day ${event.day}: ${formatDate(simulation, event.startTime)} - ${formatDate(simulation, event.endTime)}`;
     if (event instanceof ScheduledTicketWork) {
-      return `<b>Ticket ${
-        event instanceof ScheduledTicketCodeReviewWork
-          ? "Code Review"
-          : event.owner instanceof Tester
-          ? "Testing"
-          : "Programming"
-      } Work</b>
+      return `<b>${event.title}</b>
         <br/>
         <b style="color:${event.color.darker()}">#${event.ticket.number}</b>
         <br/>
