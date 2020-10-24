@@ -61,23 +61,14 @@ export class Meeting extends Event {
 
 class DailyStandup extends Meeting {
   title = "Daily Standup";
-  constructor(day) {
-    super(0, 15, day);
-  }
 }
 
 class SprintPlanning extends Meeting {
   title = "Sprint Planning";
-  constructor(day) {
-    super(0, 120, day);
-  }
 }
 
 class SprintRetro extends Meeting {
   title = "Sprint Retro";
-  constructor(day) {
-    super(420, 60, day);
-  }
 }
 
 export class RegressionTesting extends Event {
@@ -124,9 +115,6 @@ export class LunchBreak extends Meeting {
   // the prior Event ended less than or equal to 30 minutes before it, then new work
   // won't be started. These are all true for Lunch as well.
   title = "Lunch";
-  constructor(lunchTime, day) {
-    super(lunchTime, 60, day);
-  }
 }
 
 class LunchAndLearn extends LunchBreak {
@@ -320,7 +308,7 @@ class DaySchedule {
     this.items = [];
     this.lastMeetingIndexBeforeAvailability = null;
     this.availableTimeSlots = [new AvailableTimeSlot(null, 0, 480)];
-    let lunch = new LunchBreak(lunchTime, this.day);
+    let lunch = new LunchBreak(lunchTime, 60, this.day);
     this.scheduleMeeting(lunch);
   }
 
@@ -448,6 +436,7 @@ class Schedule {
     // days, even those from the last days of the previous sprint to reflect
     // the impact of this process from a holistic perspective.
     this.daySchedules = [];
+    this.dayLengthInMinutes = 480;
     this.sprintDayCount = sprintDayCount;
     this.regressionTestDayCount = regressionTestDayCount;
     this.customEventsByDay = customEventsByDay;
@@ -463,17 +452,18 @@ class Schedule {
       }
       if (i === regressionTestDayCount) {
         // first actual day of sprint, so sprint planning
-        schedule.scheduleMeeting(new SprintPlanning(i));
+        schedule.scheduleMeeting(new SprintPlanning(0, 120, i));
       } else {
-        schedule.scheduleMeeting(new DailyStandup(i));
+        schedule.scheduleMeeting(new DailyStandup(0, 15, i));
       }
       this.daySchedules.push(schedule);
     }
+    const lastHourOfDay = this.dayLengthInMinutes - 60;
     this.daySchedules[regressionTestDayCount - 1].scheduleMeeting(
-      new SprintRetro(regressionTestDayCount - 1)
+      new SprintRetro(lastHourOfDay, 60, regressionTestDayCount - 1)
     );
     this.daySchedules[this.daySchedules.length - 1].scheduleMeeting(
-      new SprintRetro(this.daySchedules.length - 1)
+      new SprintRetro(lastHourOfDay, 60, this.daySchedules.length - 1)
     );
     this.dayOfNextWorkIterationCompletion = null;
     this.timeOfNextWorkIterationCompletion = null;
