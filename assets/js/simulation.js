@@ -135,9 +135,9 @@ export class ScheduledTicketWork extends Event {
     duration,
     ticket,
     contextSwitchEvent,
+    day,
     firstIteration = true,
-    lastIteration = true,
-    day
+    lastIteration = true
   ) {
     super(startTime, duration, day);
     this.ticket = ticket;
@@ -591,9 +591,9 @@ class Schedule {
           workIteration.time,
           ticket,
           contextSwitchEvent,
+          this.earliestAvailableDayForWorkIndex,
           firstIteration,
           finalIteration,
-          this.earliestAvailableDayForWorkIndex
         );
         this.timeOfNextWorkIterationCompletion = newWorkEvent.endTime;
       } else {
@@ -603,9 +603,9 @@ class Schedule {
           schedule.availableTimeSlots[0].duration,
           ticket,
           contextSwitchEvent,
+          this.earliestAvailableDayForWorkIndex,
           firstIteration,
-          finalIteration,
-          this.earliestAvailableDayForWorkIndex
+          finalIteration
         );
       }
       workIteration.time -= newWorkEvent.duration;
