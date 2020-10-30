@@ -785,6 +785,8 @@
     const deadlockP = d3.select('#deadlockProjection');
     if (simulation.projectedSprintCountUntilDeadlock === null) {
       deadlockP.text('Configuration is theoretically sustainable');
+    } else if (simulation.projectedSprintCountUntilDeadlock === Infinity) {
+      deadlockP.text('Configuration was so incredibly inefficient that not a single ticket was completed during the sprint. A deadlock could not be estimated because nothing would ever get done to begin with to warrant a need for regression testing.');
     } else {
       deadlockP.text(`Projected deadlock in ${simulation.projectedSprintCountUntilDeadlock} sprints`);
     }
