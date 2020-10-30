@@ -54,9 +54,7 @@ export class Event {
 }
 
 export class Meeting extends Event {
-  relevantMinutes = [
-    'meetingMinutes'
-  ]
+  relevantMinutes = ["meetingMinutes"];
 }
 
 class DailyStandup extends Meeting {
@@ -72,9 +70,7 @@ class SprintRetro extends Meeting {
 }
 
 export class RegressionTesting extends Event {
-  relevantMinutes = [
-    'regressionTestingMinutes'
-  ]
+  relevantMinutes = ["regressionTestingMinutes"];
   title = "Regression Testing";
 }
 
@@ -83,16 +79,12 @@ class NothingEvent extends Event {
   // easier, and is placed in a schedule when it's determined that no work can be done
   // because it will take too long to switch contexts and get anything productive
   // done.
-  relevantMinutes = [
-    'nothingMinutes'
-  ]
+  relevantMinutes = ["nothingMinutes"];
   title = "Nothing";
 }
 
 class ContextSwitchEvent extends Event {
-  relevantMinutes = [
-    'contextSwitchingMinutes'
-  ]
+  relevantMinutes = ["contextSwitchingMinutes"];
   title = "Context Switching";
   constructor(
     startTime,
@@ -167,111 +159,111 @@ export class ScheduledTicketCodeReviewWork extends ScheduledTicketWork {
 
 class ScheduledCoreTicketProgrammingWork extends ScheduledTicketProgrammingWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'programmingMinutes',
-    'productiveProgrammingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "programmingMinutes",
+    "productiveProgrammingTicketWorkMinutes",
+  ];
 }
 
 class ScheduledCoreTicketCheckingWork extends ScheduledTicketCheckingWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'checkingMinutes',
-    'productiveCheckingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "checkingMinutes",
+    "productiveCheckingTicketWorkMinutes",
+  ];
 }
 class ScheduledCoreTicketAutomationWork extends ScheduledTicketAutomationWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'automationMinutes',
-    'productiveProgrammingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "automationMinutes",
+    "productiveProgrammingTicketWorkMinutes",
+  ];
 }
 class ScheduledCoreTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'codeReviewMinutes',
-    'productiveCodeReviewTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "codeReviewMinutes",
+    "productiveCodeReviewTicketWorkMinutes",
+  ];
 }
 
 class ScheduledRedundantNewTicketProgrammingWork extends ScheduledCoreTicketProgrammingWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'programmingMinutes',
-    'redundantProgrammingTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "programmingMinutes",
+    "redundantProgrammingTicketWorkMinutes",
+  ];
 }
 class ScheduledRedundantNewTicketCheckingWork extends ScheduledCoreTicketCheckingWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'checkingMinutes',
-    'redundantCheckingTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "checkingMinutes",
+    "redundantCheckingTicketWorkMinutes",
+  ];
 }
 // Not real because testers would be responsible in this system for making sure their
 // checks work completely before committing them (ideally).
 // class ScheduledRedundantNewTicketAutomationWork extends ScheduledCoreTicketAutomationWork {}
 class ScheduledRedundantNewTicketCodeReviewWork extends ScheduledCoreTicketCodeReviewWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'codeReviewMinutes',
-    'redundantCodeReviewTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "codeReviewMinutes",
+    "redundantCodeReviewTicketWorkMinutes",
+  ];
 }
 
 class ScheduledCorePreviouslyInterruptedTicketProgrammingWork extends ScheduledTicketProgrammingWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'programmingMinutes',
-    'productiveProgrammingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "programmingMinutes",
+    "productiveProgrammingTicketWorkMinutes",
+  ];
 }
 class ScheduledCorePreviouslyInterruptedTicketCheckingWork extends ScheduledTicketCheckingWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'checkingMinutes',
-    'productiveCheckingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "checkingMinutes",
+    "productiveCheckingTicketWorkMinutes",
+  ];
 }
 class ScheduledCorePreviouslyInterruptedTicketAutomationWork extends ScheduledTicketAutomationWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'automationMinutes',
-    'productiveProgrammingTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "automationMinutes",
+    "productiveProgrammingTicketWorkMinutes",
+  ];
 }
 class ScheduledCorePreviouslyInterruptedTicketCodeReviewWork extends ScheduledTicketCodeReviewWork {
   relevantMinutes = [
-    'productiveTicketWorkMinutes',
-    'codeReviewMinutes',
-    'productiveCodeReviewTicketWorkMinutes'
-  ]
+    "productiveTicketWorkMinutes",
+    "codeReviewMinutes",
+    "productiveCodeReviewTicketWorkMinutes",
+  ];
 }
 
 class ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork extends ScheduledCorePreviouslyInterruptedTicketProgrammingWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'programmingMinutes',
-    'redundantProgrammingTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "programmingMinutes",
+    "redundantProgrammingTicketWorkMinutes",
+  ];
 }
 class ScheduledRedundantPreviouslyInterruptedTicketCheckingWork extends ScheduledCorePreviouslyInterruptedTicketCheckingWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'checkingMinutes',
-    'redundantCheckingTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "checkingMinutes",
+    "redundantCheckingTicketWorkMinutes",
+  ];
 }
 // Not real because testers would be responsible in this system for making sure their
 // checks work completely before committing them (ideally).
 // class ScheduledRedundantPreviouslyInterruptedTicketAutomationWork extends ScheduledCorePreviouslyInterruptedTicketAutomationWork {}
 class ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork extends ScheduledCorePreviouslyInterruptedTicketCodeReviewWork {
   relevantMinutes = [
-    'redundantTicketWorkMinutes',
-    'codeReviewMinutes',
-    'redundantCodeReviewTicketWorkMinutes'
-  ]
+    "redundantTicketWorkMinutes",
+    "codeReviewMinutes",
+    "redundantCodeReviewTicketWorkMinutes",
+  ];
 }
 
 const redundantEvents = [
@@ -280,8 +272,8 @@ const redundantEvents = [
   ScheduledRedundantNewTicketCodeReviewWork,
   ScheduledRedundantPreviouslyInterruptedTicketProgrammingWork,
   ScheduledRedundantPreviouslyInterruptedTicketCheckingWork,
-  ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork
-]
+  ScheduledRedundantPreviouslyInterruptedTicketCodeReviewWork,
+];
 
 class ScheduledCorePreviouslyInterruptedTicketWork extends ScheduledTicketWork {
   // Represents follow-up work for a work iteration that was interrupted and context
@@ -341,11 +333,7 @@ class DaySchedule {
             this.items.splice(
               timeSlot.nextMeetingIndex,
               0,
-              new NothingEvent(
-                timeSlot.startTime,
-                startTimeDiff,
-                this.day
-              )
+              new NothingEvent(timeSlot.startTime, startTimeDiff, this.day)
             );
             meetingsAdded += 1;
           } else {
@@ -423,7 +411,7 @@ class Schedule {
     sprintDayCount,
     regressionTestDayCount,
     lunchTime,
-    customEventsByDay,
+    customEventsByDay
   ) {
     // The "first" ${regressionTestDayCount} days of the sprint are actually
     // the last days of the previous sprint when the tester is doing the
@@ -452,7 +440,16 @@ class Schedule {
       }
       if (i === regressionTestDayCount) {
         // first actual day of sprint, so sprint planning
-        schedule.scheduleMeeting(new SprintPlanning(0, 120, i));
+        let remainingDuration = 120;
+        while (remainingDuration > 0) {
+          const availableDuration = schedule.availableTimeSlots[0].duration;
+          let nextEventDuration = remainingDuration - availableDuration;
+          if (nextEventDuration <= 0) {
+            nextEventDuration = remainingDuration;
+          }
+          remainingDuration -= nextEventDuration;
+          schedule.scheduleMeeting(new SprintPlanning(schedule.availableTimeSlots[0].startTime, nextEventDuration, i));
+        }
       } else {
         schedule.scheduleMeeting(new DailyStandup(0, 15, i));
       }
@@ -545,7 +542,7 @@ class Schedule {
           ? ScheduledCorePreviouslyInterruptedTicketAutomationWork
           : ScheduledCoreTicketAutomationWork;
       } else {
-        if (this instanceof QaSchedule){
+        if (this instanceof QaSchedule) {
           if (finalIteration) {
             // this is the last time this ticket will need to be checked, as it will be
             // checked successfully, in full, meaning it isn't redundant.
@@ -562,7 +559,7 @@ class Schedule {
               ? this.scheduledRedundantPreviouslyInterruptedTicketWork
               : this.scheduledRedundantNewTicketWork;
           }
-        }else if (this instanceof ProgrammerSchedule){
+        } else if (this instanceof ProgrammerSchedule) {
           if (firstIteration) {
             // this is the first time the programmer will have worked on the ticket, and
             // what they send to code review after this will be something they believe
@@ -593,7 +590,7 @@ class Schedule {
           contextSwitchEvent,
           this.earliestAvailableDayForWorkIndex,
           firstIteration,
-          finalIteration,
+          finalIteration
         );
         this.timeOfNextWorkIterationCompletion = newWorkEvent.endTime;
       } else {
@@ -645,7 +642,7 @@ class Schedule {
       ticket.needsAutomation = !needsAutomation;
     }
     if (lastWorkEvent) {
-        return lastWorkEvent.day * 480 + lastWorkEvent.endTime;
+      return lastWorkEvent.day * 480 + lastWorkEvent.endTime;
     }
     return false;
   }
@@ -673,14 +670,9 @@ class QaSchedule extends Schedule {
     sprintDayCount,
     regressionTestDayCount,
     lunchTime,
-    customEventsByDay,
+    customEventsByDay
   ) {
-    super(
-      sprintDayCount,
-      regressionTestDayCount,
-      lunchTime,
-      customEventsByDay,
-    );
+    super(sprintDayCount, regressionTestDayCount, lunchTime, customEventsByDay);
     for (let i = 0; i < regressionTestDayCount; i++) {
       let previousSprintDaySchedule = this.daySchedules[i];
       let currentSprintI =
@@ -690,11 +682,7 @@ class QaSchedule extends Schedule {
       while (previousSprintDaySchedule.availableTimeSlots.length > 0) {
         const timeSlot = previousSprintDaySchedule.availableTimeSlots[0];
         previousSprintDaySchedule.scheduleMeeting(
-          new RegressionTesting(
-            timeSlot.startTime,
-            timeSlot.duration,
-            i
-          )
+          new RegressionTesting(timeSlot.startTime, timeSlot.duration, i)
         );
       }
       while (currentSprintDaySchedule.availableTimeSlots.length > 0) {
@@ -770,6 +758,8 @@ class Worker {
     // handy if other meetings are implemented.
     this.productivityRecoveryMinutes = [];
     this.checkingMinutes = [];
+    this.fluffCheckingMinutes = [];
+    this.nonFluffCheckingMinutes = [];
     this.productiveCheckingTicketWorkMinutes = [];
     this.redundantCheckingTicketWorkMinutes = [];
     this.regressionTestingMinutes = [];
@@ -798,6 +788,15 @@ class Worker {
         );
         for (let category of event.relevantMinutes) {
           this[category].push(...eventMinutes);
+        }
+        if (this instanceof Tester) {
+          if (event.relevantMinutes.includes('checkingMinutes')){
+            if (event.ticket.unfinished) {
+              this.fluffCheckingMinutes.push(...eventMinutes);
+            } else {
+              this.nonFluffCheckingMinutes.push(...eventMinutes);
+            }
+          }
         }
       }
     }
@@ -828,28 +827,55 @@ class Worker {
     return this.getMinutesOfTypeAtDayTime(this.codeReviewMinutes, dayTime);
   }
   getProductiveCodeReviewMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.productiveCodeReviewTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.productiveCodeReviewTicketWorkMinutes,
+      dayTime
+    );
   }
   geRedundantCodeReviewMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.redundantCodeReviewTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.redundantCodeReviewTicketWorkMinutes,
+      dayTime
+    );
   }
   getProgrammingMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(this.programmingMinutes, dayTime);
   }
   getProductiveProgrammingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.productiveProgrammingTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.productiveProgrammingTicketWorkMinutes,
+      dayTime
+    );
   }
   geRedundantProgrammingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.redundantProgrammingTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.redundantProgrammingTicketWorkMinutes,
+      dayTime
+    );
   }
   getCheckingMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(this.checkingMinutes, dayTime);
   }
+  getFluffCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(this.fluffCheckingMinutes, dayTime);
+  }
+  getNonFluffCheckingMinutesAtDayTime(dayTime) {
+    return this.getMinutesOfTypeAtDayTime(
+      this.nonFluffCheckingMinutes,
+      dayTime
+    );
+  }
   getProductiveCheckingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.productiveCheckingTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.productiveCheckingTicketWorkMinutes,
+      dayTime
+    );
   }
   geRedundantCheckingMinutesAtDayTime(dayTime) {
-    return this.getMinutesOfTypeAtDayTime(this.redundantCheckingTicketWorkMinutes, dayTime);
+    return this.getMinutesOfTypeAtDayTime(
+      this.redundantCheckingTicketWorkMinutes,
+      dayTime
+    );
   }
   getProductivityRecoveryMinutesAtDayTime(dayTime) {
     return this.getMinutesOfTypeAtDayTime(
@@ -1050,6 +1076,7 @@ class Ticket {
     // the very first for the ticket. For testers, this means any iteration that
     // wasn't the last iteration.
     this.fresh = true;
+    this.unfinished = true;
   }
 }
 
@@ -1294,7 +1321,7 @@ export class Simulation {
     maxFullRunTesterWorkTimeInHours = 8,
     maxQaAutomationTime = 8,
     averagePassBackCount = 1,
-    checkRefinement = 0.30,
+    checkRefinement = 0.3,
     customEventsByDay = null,
   }) {
     this.dayLengthInMinutes = 480;
@@ -1314,10 +1341,6 @@ export class Simulation {
       this.simulationEndDay,
       this.simulationEndTime
     );
-    // The amount of minutes from the previous days of regression testing. The
-    // simulation starts at the first day of regression tests from the prior sprint,
-    // so this is used to get the dayTime of events relative to the full sprint.
-    this.dayTimeAdjustment = regressionTestDayCount * this.dayLengthInMinutes;
     this.programmerCount = programmerCount;
     this.testerCount = testerCount;
     this.maxInitialProgrammerWorkTimeInHours = maxInitialProgrammerWorkTimeInHours;
@@ -1387,9 +1410,9 @@ export class Simulation {
     this.currentDay = 0;
     this.currentTime = 0;
     this.currentDayTime = 0;
-    let checkInTime = this.getNextCheckInTime();
-    this.currentDay = Math.floor(checkInTime / this.dayLengthInMinutes);
-    this.currentTime = checkInTime % this.dayLengthInMinutes;
+    let nextCheckInTime = this.getNextCheckInTime();
+    this.currentDay = Math.floor(nextCheckInTime / this.dayLengthInMinutes);
+    this.currentTime = nextCheckInTime % this.dayLengthInMinutes;
     this.currentDayTime = this.dayTimeFromDayAndTime(
       this.currentDay,
       this.currentTime
@@ -1402,50 +1425,30 @@ export class Simulation {
       this.currentDayTime >= 0
     ) {
       // process potentially completed work first
-      if (
-        this.getNextCheckInTime() > 0 &&
-        this.getNextCheckInTime() < this.currentDayTime
-      ) {
-        throw new Error();
-      }
       this.processProgrammerCompletedWork();
       this.processTesterCompletedWork();
-      if (
-        this.getNextCheckInTime() > 0 &&
-        this.getNextCheckInTime() < this.currentDayTime
-      ) {
-        throw new Error();
-      }
 
       // process handing out new work after all available tickets have been
       // determined
       this.handOutNewProgrammerWork();
       this.backfillTesterScheduleForTimeTheySpentDoingNothing();
       this.handOutNewTesterWork();
-      if (
-        this.getNextCheckInTime() > 0 &&
-        this.getNextCheckInTime() < this.currentDayTime
-      ) {
-        throw new Error();
-      }
-      this.nextCheckInTime = this.getNextCheckInTime();
-      if (this.nextCheckInTime === this.currentDayTime) {
+      nextCheckInTime = this.getNextCheckInTime();
+      if (nextCheckInTime === this.currentDayTime) {
         throw Error("DayTime would not progress");
       }
       this.previousDay = this.currentDay;
       this.previousTime = this.currentTime;
       this.previousDayTime = this.currentDayTime;
-      this.currentDay = Math.floor(
-        this.nextCheckInTime / this.dayLengthInMinutes
-      );
-      this.currentTime = this.nextCheckInTime % this.dayLengthInMinutes;
+      this.currentDay = Math.floor(nextCheckInTime / this.dayLengthInMinutes);
+      this.currentTime = nextCheckInTime % this.dayLengthInMinutes;
       this.currentDayTime = this.dayTimeFromDayAndTime(
         this.currentDay,
         this.currentTime
       );
       let logEndTime = this.currentDayTime;
 
-      if (this.nextCheckInTime < 0) {
+      if (nextCheckInTime < 0) {
         // no more check-ins for this sprint, so set both values to -1 to exit the
         // loop. Add stack log entries from this time to the end of the sprint
         // because whatever the stacks are now will be what they are at the end of
@@ -1478,6 +1481,17 @@ export class Simulation {
     percentage will be used to estimate how much manual checking time would need to be
     factored in for how the regression checking period grows for the next sprint.
 
+    In addition to this, when tickets aren't finished in a sprint and time was spent on
+    checking iterations of them, the testers will be unable to automate them, so this
+    checking time is lost and can't be saved through automation. It is essentially
+    fluff, and the percentage of checking time spent on this will be used to estimate
+    how much of the potential checking time would be lost each sprint. If all tickets
+    that are started in a sprint get finished, then this will be 0. But if it's not 0,
+    then it means the programmers are getting an opportunity to squeeze in additional
+    work that only applies to subsequent sprints and so it means that there's work the
+    testers can't get ahead of in the current sprint, so it will cost them time in the
+    future.
+
     This will be projected forward, counting each sprint that could theoretically be
     done, until the remaining available time for checks is less than it would take to
     do a single checking iteration for a "small" ticket, which, for the purposes of this
@@ -1487,22 +1501,61 @@ export class Simulation {
     have the opportunity to try and check something, and thus, progress will be in a
     deadlock.
     */
-    const totalSuccessfulCheckTime = this.doneStack.reduce((totalTime, currentTicket) => totalTime + currentTicket.fullTesterWorkIterationTime, 0);
-    const newManualCheckTimeEliminatedByAutomation = this.automatedStack.reduce((totalTime, currentTicket) => totalTime + currentTicket.fullTesterWorkIterationTime, 0);
-    const newManualCheckTime = totalSuccessfulCheckTime - newManualCheckTimeEliminatedByAutomation
-    if (newManualCheckTime <= 0) {
-      // configuration is theoretically sustainable
-      this.projectedSprintCountUntilDeadlock = null;
+    if (this.doneStack.length === 0) {
+      // Development was so inefficient that literally 0 tickets were finished in the
+      // simulated sprint, which means there's not enough data to project into the
+      // future to see when a deadlock would occur. This sets the projected sprint count
+      // to Infinity to reflect that it would take so long to even get anything done in
+      // the first place that it's not even worth considering.
+      this.projectedSprintCountUntilDeadlock = Infinity;
+      return;
     }
-    const totalCheckingMinutes = this.workerDataForDayTime[this.workerDataForDayTime.length - 1].cumulativeMinutes.checking;
-    const percentageOfCheckTimeSpentOnNewManualChecking = newManualCheckTime / totalCheckingMinutes;
+    const totalCheckingMinutes = this.workerDataForDayTime[
+      this.workerDataForDayTime.length - 1
+    ].cumulativeMinutes.checking;
+    const totalSuccessfulCheckTime = this.doneStack.reduce(
+      (totalTime, currentTicket) =>
+        totalTime + currentTicket.fullTesterWorkIterationTime,
+      0
+    );
+    const newManualCheckTimeEliminatedByAutomation = this.automatedStack.reduce(
+      (totalTime, currentTicket) =>
+        totalTime + currentTicket.fullTesterWorkIterationTime,
+      0
+    );
+    // time spent checking tickets that wouldn't be finished this sprint
+    const fluffCheckingMinutes = this.workerDataForDayTime[
+      this.workerDataForDayTime.length - 1
+    ].cumulativeMinutes.fluffChecking;
+    const percentageOfCheckTimeSpentOnFluffChecking =
+      fluffCheckingMinutes / totalCheckingMinutes;
+    const newManualCheckTime =
+      totalSuccessfulCheckTime - newManualCheckTimeEliminatedByAutomation;
+    if (newManualCheckTime <= 0 && fluffCheckingMinutes <= 0) {
+      // configuration is theoretically sustainable, as it means all tickets that were
+      //planned for a sprint were both completed and had the checking of them automated.
+      this.projectedSprintCountUntilDeadlock = null;
+      return;
+    }
+
+    const percentageOfCheckTimeSpentOnNewManualChecking =
+      newManualCheckTime / totalCheckingMinutes;
     let remainingCheckingMinutes = totalCheckingMinutes;
     let sprintsUntilDeadlock = 0;
-    const estimatedMinimumCheckTimePerTicket = (this.maxFullRunTesterWorkTimeInHours * 60) * 0.25;
+    const estimatedMinimumCheckTimePerTicket =
+      this.maxFullRunTesterWorkTimeInHours * 60 * 0.25;
     while (remainingCheckingMinutes > estimatedMinimumCheckTimePerTicket) {
-      let totalNewManualCheckTime = Math.round(percentageOfCheckTimeSpentOnNewManualChecking * remainingCheckingMinutes);
-      let projectedRefinedNewRegressionCheckMinutes = (1 - this.checkRefinement) * totalNewManualCheckTime;
+      let totalNewManualCheckTime = Math.round(
+        percentageOfCheckTimeSpentOnNewManualChecking * remainingCheckingMinutes
+      );
+      let totalNewFluffCheckTime = Math.round(
+        percentageOfCheckTimeSpentOnFluffChecking * remainingCheckingMinutes
+      );
+      let projectedRefinedNewRegressionCheckMinutes =
+        (1 - this.checkRefinement) * totalNewManualCheckTime;
+
       remainingCheckingMinutes -= projectedRefinedNewRegressionCheckMinutes;
+      remainingCheckingMinutes -= totalNewFluffCheckTime;
       sprintsUntilDeadlock++;
     }
     this.projectedSprintCountUntilDeadlock = sprintsUntilDeadlock;
@@ -1719,6 +1772,7 @@ export class Simulation {
           // possiblyFinishedTicket.needsAutomation = true;
           this.doneStack.push(possiblyFinishedTicket);
           this.needsAutomationStack.push(possiblyFinishedTicket);
+          possiblyFinishedTicket.unfinished = false;
         }
       }
     }
@@ -2000,12 +2054,12 @@ export class Simulation {
           productiveTicketWork: worker.getProductiveTicketWorkMinutesAtDayTime(
             i
           ),
-          redundantTicketWork: worker.getRedundantTicketWorkMinutesAtDayTime(
-            i
-          ),
+          redundantTicketWork: worker.getRedundantTicketWorkMinutesAtDayTime(i),
           codeReview: worker.getCodeReviewMinutesAtDayTime(i),
           // recovery: worker.getProductivityRecoveryMinutesAtDayTime(i),
           checking: worker.getCheckingMinutesAtDayTime(i),
+          fluffChecking: worker.getFluffCheckingMinutesAtDayTime(i),
+          nonFluffChecking: worker.getNonFluffCheckingMinutesAtDayTime(i),
           regressionTesting: worker.getRegressionTestingMinutesAtDayTime(i),
           automation: worker.getAutomationMinutesAtDayTime(i),
           nothing: worker.getNothingMinutesAtDayTime(i),
