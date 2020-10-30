@@ -77,7 +77,10 @@
   const svgMinimap = d3.select("svg#sprintTimelineMinimap");
 
   function getTooltipContent(simulation, event) {
-    const eventTimeSpan = `Day ${event.day}: ${formatDate(simulation, event.startTime)} - ${formatDate(simulation, event.endTime)}`;
+    const eventTimeSpan = `Day ${event.day}: ${formatDate(
+      simulation,
+      event.startTime
+    )} - ${formatDate(simulation, event.endTime)}`;
     if (event instanceof ScheduledTicketWork) {
       return `<b>${event.title}</b>
         <br/>
@@ -110,7 +113,7 @@
   }
 
   function formatDate(simulation, timeInMinutes) {
-    const eventRealTimeInMinutes = (simulation.dayStartTime * 60) + timeInMinutes;
+    const eventRealTimeInMinutes = simulation.dayStartTime * 60 + timeInMinutes;
     const hour = Math.floor(eventRealTimeInMinutes / 60);
     const minute = eventRealTimeInMinutes % 60;
     return `${hour > 12 ? hour % 12 : hour}:${
@@ -553,7 +556,7 @@
     return mouseTarget;
   }
   function addGraphMouseTargetToAllGraphs() {
-    d3.selectAll('.graphMouseTarget')
+    d3.selectAll(".graphMouseTarget")
       .on("mouseout", function (event) {
         d3.select(this).node().updateAnnotationsToReflectSynchronizer();
       })
@@ -606,7 +609,9 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const mouseTarget = graphSvg.append("g").attr("class", "chartPathsWrapper graphMouseTarget");
+    const mouseTarget = graphSvg
+      .append("g")
+      .attr("class", "chartPathsWrapper graphMouseTarget");
     const backgroundRectWrapper = mouseTarget
       .append("g")
       .attr("class", "backgroundRectWrapper");
@@ -677,7 +682,9 @@
       .attr("y", "-10")
       .attr("height", "100%");
     synchronizer.addEventListener("input", (event) => clipPath.node().update());
-    const mouseTarget = graphSvg.append("g").attr("class", "pathsGWrapper graphMouseTarget");
+    const mouseTarget = graphSvg
+      .append("g")
+      .attr("class", "pathsGWrapper graphMouseTarget");
     const backgroundRectWrapper = mouseTarget
       .append("g")
       .attr("class", "backgroundRectWrapper");
@@ -778,17 +785,26 @@
   //   d3.select("#timeChartsWrapper"),
   //   "Tickets in Stasis"
   // );
-  synchronizer.addEventListener("input", (event) => d3.selectAll('clipPath').nodes().forEach( node => node.update()));
+  synchronizer.addEventListener("input", (event) =>
+    d3
+      .selectAll("clipPath")
+      .nodes()
+      .forEach((node) => node.update())
+  );
   addGraphMouseTargetToAllGraphs();
 
   function renderSimulation(simulation) {
-    const deadlockP = d3.select('#deadlockProjection');
+    const deadlockP = d3.select("#deadlockProjection");
     if (simulation.projectedSprintCountUntilDeadlock === null) {
-      deadlockP.text('Configuration is theoretically sustainable');
+      deadlockP.text("Configuration is theoretically sustainable");
     } else if (simulation.projectedSprintCountUntilDeadlock === Infinity) {
-      deadlockP.text('Configuration was so incredibly inefficient that not a single ticket was completed during the sprint. A deadlock could not be estimated because nothing would ever get done to begin with to warrant a need for regression testing.');
+      deadlockP.text(
+        "Configuration was so incredibly inefficient that not a single ticket was completed during the sprint. A deadlock could not be estimated because nothing would ever get done to begin with to warrant a need for regression testing."
+      );
     } else {
-      deadlockP.text(`Projected deadlock in ${simulation.projectedSprintCountUntilDeadlock} sprints`);
+      deadlockP.text(
+        `Projected deadlock in ${simulation.projectedSprintCountUntilDeadlock} sprints`
+      );
     }
     const x = d3
       .scaleBand()
@@ -1589,7 +1605,7 @@
     renderSimulation(simulation);
   }
   function generateAllPreviews() {
-    const form = d3.select('#generationForm').node();
+    const form = d3.select("#generationForm").node();
     const simulation = new Simulation({
       maxInitialProgrammerWorkTimeInHours:
         form.maxInitialProgrammerWorkTimeInHours.valueAsNumber,
@@ -1597,49 +1613,86 @@
         form.maxFullRunTesterWorkTimeInHours.valueAsNumber,
       maxQaAutomationTime: form.maxQaAutomationTime.valueAsNumber,
     });
-    var margin = {top: 10, right: 30, bottom: 30, left: 40};
-    d3.select('#probabilityDistributionPreview').style('display', 'block');
-    generatePreview(simulation, 'programmingPreview', margin, 'maxInitialProgrammerWorkTimeInHours', 'sampleInitialProgrammerWorkTime');
-    generatePreview(simulation, 'checkingPreview', margin, 'maxFullRunTesterWorkTimeInHours', 'sampleFullRunTesterWorkTime');
-    generatePreview(simulation, 'automationPreview', margin, 'maxQaAutomationTime', 'sampleQaAutomationIterationTime');
+    var margin = { top: 10, right: 30, bottom: 30, left: 40 };
+    d3.select("#probabilityDistributionPreview").style("display", "block");
+    generatePreview(
+      simulation,
+      "programmingPreview",
+      margin,
+      "maxInitialProgrammerWorkTimeInHours",
+      "sampleInitialProgrammerWorkTime"
+    );
+    generatePreview(
+      simulation,
+      "checkingPreview",
+      margin,
+      "maxFullRunTesterWorkTimeInHours",
+      "sampleFullRunTesterWorkTime"
+    );
+    generatePreview(
+      simulation,
+      "automationPreview",
+      margin,
+      "maxQaAutomationTime",
+      "sampleQaAutomationIterationTime"
+    );
   }
-  function generatePreview(simulation, rootSvgId, margin, configDataKey, sampleMethodName) {
+  function generatePreview(
+    simulation,
+    rootSvgId,
+    margin,
+    configDataKey,
+    sampleMethodName
+  ) {
     const svg = d3.select(`svg#${rootSvgId}`);
-    const svgG = svg.select('g');
-    var width = +svg.style("width").replace("px", "") - margin.left - margin.right,
-        height = +svg.style("height").replace("px", "") - margin.top - margin.bottom;
+    const svgG = svg.select("g");
+    var width =
+        +svg.style("width").replace("px", "") - margin.left - margin.right,
+      height =
+        +svg.style("height").replace("px", "") - margin.top - margin.bottom;
 
     svgG.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    const previewX = d3.scaleLinear()
+    const previewX = d3
+      .scaleLinear()
       .domain([0, simulation[configDataKey]])
       .range([0, width]);
 
-    const histogramBins = d3.histogram()
-      .value(d => d)
+    const histogramBins = d3
+      .histogram()
+      .value((d) => d)
       .domain(previewX.domain())
-      .thresholds(simulation[configDataKey] / 0.25)(simulation.ticketFactory[sampleMethodName](10000).map(wi => wi.time / 60));
-    svgG.select("g.previewXAxis")
+      .thresholds(simulation[configDataKey] / 0.25)(
+      simulation.ticketFactory[sampleMethodName](10000).map(
+        (wi) => wi.time / 60
+      )
+    );
+    svgG
+      .select("g.previewXAxis")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(previewX));
-    var previewY = d3.scaleLinear()
-      .range([height, 0]);
+    var previewY = d3.scaleLinear().range([height, 0]);
     previewY.domain([0, d3.max(histogramBins, (d) => d.length)]);
-    svgG.select("g.previewYAxis")
-      .call(d3.axisLeft(previewY));
-    svgG.selectAll("rect")
+    svgG.select("g.previewYAxis").call(d3.axisLeft(previewY));
+    svgG
+      .selectAll("rect")
       .data(histogramBins)
-      .join('rect')
-        .attr("x", 1)
-        .attr("transform", (d) => "translate(" + previewX(d.x0) + "," + previewY(d.length) + ")")
-        .attr("width", (d) => previewX(d.x1) - previewX(d.x0) -1 )
-        .attr("height", (d) => height - previewY(d.length))
-        .style("fill", "#69b3a2");
+      .join("rect")
+      .attr("x", 1)
+      .attr(
+        "transform",
+        (d) => "translate(" + previewX(d.x0) + "," + previewY(d.length) + ")"
+      )
+      .attr("width", (d) => previewX(d.x1) - previewX(d.x0) - 1)
+      .attr("height", (d) => height - previewY(d.length))
+      .style("fill", "#69b3a2");
   }
   function hidePreview() {
-    d3.select('#probabilityDistributionPreview').style('display', 'none');
+    d3.select("#probabilityDistributionPreview").style("display", "none");
   }
   form.addEventListener("submit", handleCustomSimulationSubmit);
-  d3.select('#previewButton').node().addEventListener("click", generateAllPreviews);
-  d3.select('#hidePreviewButton').node().addEventListener("click", hidePreview);
+  d3.select("#previewButton")
+    .node()
+    .addEventListener("click", generateAllPreviews);
+  d3.select("#hidePreviewButton").node().addEventListener("click", hidePreview);
   renderSimulation(sim);
 </script>
