@@ -448,7 +448,13 @@ class Schedule {
             nextEventDuration = remainingDuration;
           }
           remainingDuration -= nextEventDuration;
-          schedule.scheduleMeeting(new SprintPlanning(schedule.availableTimeSlots[0].startTime, nextEventDuration, i));
+          schedule.scheduleMeeting(
+            new SprintPlanning(
+              schedule.availableTimeSlots[0].startTime,
+              nextEventDuration,
+              i
+            )
+          );
         }
       } else {
         schedule.scheduleMeeting(new DailyStandup(0, 15, i));
@@ -790,7 +796,7 @@ class Worker {
           this[category].push(...eventMinutes);
         }
         if (this instanceof Tester) {
-          if (event.relevantMinutes.includes('checkingMinutes')){
+          if (event.relevantMinutes.includes("checkingMinutes")) {
             if (event.ticket.unfinished) {
               this.fluffCheckingMinutes.push(...eventMinutes);
             } else {
@@ -1657,6 +1663,20 @@ export class Simulation {
   }
   getNextCheckInTime() {
     let earliestWorker = this.getWorkerWithEarliestUpcomingCheckIn();
+    if (
+      earliestWorker instanceof Tester &&
+      this.noWorkForTesters &&
+      earliestWorker.nextWorkIterationCompletionCheckIn === null &&
+      this.allProgrammersAreDoneForTheSprint
+    ) {
+      // The worker with the earliest check-in was found to be a tester, but there's no
+      // available work for them, they have nothing to turn in, and all the programmers
+      // are done for the rest of the sprint so no new work will become available. Since
+      // in this case, only a tester that was just now becoming available would be the
+      // earliest worker. But since there's no new work for any of the testers to do, it
+      // must mean that the simulation can be finished.
+      return -1;
+    }
     if (
       earliestWorker.nextWorkIterationCompletionCheckIn > this.currentDayTime
     ) {
