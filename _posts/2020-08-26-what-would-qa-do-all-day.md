@@ -225,7 +225,7 @@ Remember that, in Agile, teams are _self-organizing_ and need to be _trusted_ to
 
 Your expectations of the team, how you work, and how you believe the development process works, fundamentally need to change if you want to have a remotely predictable process.
 
-You _cannot_ expect to have fixed cost, fixed time, and fixed scope. Something _has_ to be variable. This isn't a factory line, and there _are_ unknowns, so something will have to give.
+You _cannot_ expect to have fixed cost, fixed time, fixed scope, and fixed quality. Something _has_ to be variable. This isn't a factory line, and there _are_ unknowns, so something will have to give.
 
 I recommend scope, because setting dates for things is a normal part of business operations, we want to keep costs low, and scope is the easiest to regulate when you start off knowing that you'll have to regulate it.
 
