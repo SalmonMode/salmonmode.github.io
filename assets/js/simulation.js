@@ -1742,7 +1742,7 @@ export class Simulation {
     let earliestWorker = this.getWorkerWithEarliestUpcomingCheckIn();
     if (
       earliestWorker instanceof Tester &&
-      this.noWorkForTesters &&
+      this.noAvailableWorkForTesters &&
       this.allProgrammersAreDoneForTheSprint &&
       this.remainingTestersHaveCheckInNow
     ) {
@@ -1765,8 +1765,15 @@ export class Simulation {
       return earliestWorker.nextAvailabilityCheckIn;
     }
   }
-  get noWorkForTesters() {
-    return this.qaStack.length === 0 && this.needsAutomationStack.length === 0;
+  get noAvailableWorkForTesters() {
+    // check for any tickets in either the qaStack or the needsAutomationStack that can
+    // be claimed by any tester that is still available this sprint.
+    const unavailableTesters = this.testers.filter((t) => t.nextCheckInTime < 0);
+    const unclaimableTicketNumbers = unavailableTesters
+      .reduce((acc, t) => acc.concat(t.tickets), [])
+      .map((ticket) => ticket.ticketNumber);
+    const availableTicketNumbers = [...this.qaStack, ...this.needsAutomationStack].map((ticket) => ticket.ticketNumber);
+    return availableTicketNumbers.filter((num) => !unclaimableTicketNumbers.includes(num)).length === 0;
   }
   get allProgrammersAreDoneForTheSprint() {
     return this.programmers.every((p) => p.nextCheckInTime < 0);
