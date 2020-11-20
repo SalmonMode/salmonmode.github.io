@@ -281,16 +281,16 @@ class ScheduledCorePreviouslyInterruptedTicketWork extends ScheduledTicketWork {
 }
 
 class AvailableTimeSlot {
-  constructor(nextMeetingIndex, startTime, endTime) {
-    this.nextMeetingIndex = nextMeetingIndex;
+  constructor(nextEventIndex, startTime, endTime) {
+    this.nextEventIndex = nextEventIndex;
     this.startTime = startTime;
     this.endTime = endTime;
     this.duration = endTime - startTime;
   }
   get previousMeetingIndex() {
-    return [null, 0].includes(this.nextMeetingIndex)
+    return [null, 0].includes(this.nextEventIndex)
       ? null
-      : this.nextMeetingIndex - 1;
+      : this.nextEventIndex - 1;
   }
 }
 
@@ -304,75 +304,103 @@ class DaySchedule {
     this.scheduleMeeting(lunch);
   }
 
-  scheduleMeeting(meeting) {
-    // assumes meetings are set first and were set in order
+  scheduleMeeting(event) {
+    // assumes events are set first and were set in order
     if (this.availableTimeSlots.length === 0) {
-      throw Error("No available time to schedule meetings");
+      throw Error("No available time to schedule events");
     }
     const newAvailableTimeSlots = [];
-    // track the number of meetings added so that NothingEvents can also impact the
-    // later AvailableTimeSlot's nextMeetingIndex attribute.
-    let meetingsAdded = 0;
+    // track the number of events added so that NothingEvents can also impact the
+    // later AvailableTimeSlot's nextEventIndex attribute.
+    let eventsAdded = 0;
     let matchingTimeSlotIndex = 0;
-    for (let timeSlotIndex in this.availableTimeSlots) {
+    for (
+      let timeSlotIndex = 0;
+      timeSlotIndex < this.availableTimeSlots.length;
+      timeSlotIndex++
+    ) {
       const timeSlot = this.availableTimeSlots[timeSlotIndex];
-      timeSlot.nextMeetingIndex += meetingsAdded;
       if (
-        !meetingsAdded &&
-        meeting.startTime >= timeSlot.startTime &&
-        meeting.endTime <= timeSlot.endTime
+        !eventsAdded &&
+        event.startTime >= timeSlot.startTime &&
+        event.endTime <= timeSlot.endTime
       ) {
-        // meeting fits here
+        // event fits here
         matchingTimeSlotIndex = timeSlotIndex;
 
         // Add possible NothingEvent to schedule items, or AvailableTimeSlot to schedule's available time slots.
-        const startTimeDiff = meeting.startTime - timeSlot.startTime;
+        const startTimeDiff = event.startTime - timeSlot.startTime;
         if (startTimeDiff > 0) {
           if (startTimeDiff <= 30) {
             // just enough time to do nothing
-            this.items.splice(
-              timeSlot.nextMeetingIndex,
-              0,
-              new NothingEvent(timeSlot.startTime, startTimeDiff, this.day)
+            const newNothingEvent = new NothingEvent(
+              timeSlot.startTime,
+              startTimeDiff,
+              this.day
             );
-            meetingsAdded += 1;
+            if (timeSlot.nextEventIndex === null) {
+              this.items.push(newNothingEvent);
+            } else {
+              this.items.splice(timeSlot.nextEventIndex, 0, newNothingEvent);
+            }
+            eventsAdded += 1;
           } else {
+            let newTimeSlotNextEventIndex;
+            if (timeSlot.nextEventIndex === null) {
+              newTimeSlotNextEventIndex = this.items.length;
+            } else {
+              newTimeSlotNextEventIndex = timeSlot.nextEventIndex;
+            }
             newAvailableTimeSlots.push(
               new AvailableTimeSlot(
-                timeSlot.nextMeetingIndex,
+                newTimeSlotNextEventIndex,
                 timeSlot.startTime,
-                meeting.startTime
+                event.startTime
               )
             );
           }
         }
 
-        // add meeting to schedule items
-        this.items.splice(timeSlot.nextMeetingIndex, 0, meeting);
-        meetingsAdded += 1;
+        // add event to schedule items
+        if (timeSlot.nextEventIndex === null) {
+          this.items.push(event);
+        } else {
+          this.items.splice(timeSlot.nextEventIndex + eventsAdded, 0, event);
+        }
+        eventsAdded += 1;
 
         // Add possible NothingEvent to schedule items, or AvailableTimeSlot to schedule's available time slots.
-        const endTimeDiff = timeSlot.endTime - meeting.endTime;
+        const endTimeDiff = timeSlot.endTime - event.endTime;
         if (endTimeDiff > 0) {
-          const nextMeetingIndex = timeSlot.nextMeetingIndex + meetingsAdded;
-          if (endTimeDiff <= 30 && !(meeting instanceof ContextSwitchEvent)) {
+          if (endTimeDiff <= 30 && !(event instanceof ContextSwitchEvent)) {
             // just enough time to do nothing
             const newNothingEvent = new NothingEvent(
-              meeting.endTime,
+              event.endTime,
               endTimeDiff,
               this.day
             );
-            if (timeSlot.nextMeetingIndex == null) {
+            if (timeSlot.nextEventIndex === null) {
               this.items.push(newNothingEvent);
             } else {
-              this.items.splice(nextMeetingIndex, 0, newNothingEvent);
+              this.items.splice(
+                timeSlot.nextEventIndex + eventsAdded,
+                0,
+                newNothingEvent
+              );
             }
+            eventsAdded += 1;
           } else {
             // still room to do something (or the next thing being scheduled will be the ticket work)
+            let newTimeSlotNextEventIndex;
+            if (timeSlot.nextEventIndex === null) {
+              newTimeSlotNextEventIndex = null;
+            } else {
+              newTimeSlotNextEventIndex = timeSlot.nextEventIndex + eventsAdded;
+            }
             newAvailableTimeSlots.push(
               new AvailableTimeSlot(
-                nextMeetingIndex,
-                meeting.endTime,
+                newTimeSlotNextEventIndex,
+                event.endTime,
                 timeSlot.endTime
               )
             );
@@ -380,9 +408,21 @@ class DaySchedule {
         }
       }
     }
-    if (!meetingsAdded) {
+    if (!eventsAdded) {
       // event conflicts
       throw Error("Event conflicts with another event");
+    }
+    // update remaining time slots so they're `nextEventIndex` properties are increased
+    // as necessary, based on the number of events added
+    for (
+      let i = matchingTimeSlotIndex + 1;
+      i < this.availableTimeSlots.length;
+      i++
+    ) {
+      const timeSlot = this.availableTimeSlots[i];
+      if (timeSlot.nextEventIndex !== null) {
+        timeSlot.nextEventIndex += eventsAdded;
+      }
     }
     // Merge in newly defined AvailableTimeSlots if applicable.
     this.availableTimeSlots.splice(
@@ -474,9 +514,9 @@ class Schedule {
   }
 
   get earliestAvailableDayForWorkIndex() {
-    for (let daySchedule of this.daySchedules) {
-      if (daySchedule.availableTimeSlots.length > 0) {
-        return daySchedule.day;
+    for (let i in this.daySchedules) {
+      if (this.daySchedules[i].availableTimeSlots.length > 0) {
+        return parseInt(i);
       }
     }
     return -1;
@@ -501,6 +541,9 @@ class Schedule {
     let firstIteration = ticket.firstIteration;
     let finalIteration = !queue.length;
     let lastWorkEvent;
+    if (workIteration.time === 0) {
+      throw new Error("Got work iteration with no time");
+    }
     while (workIteration.time > 0) {
       // work has a potential of being completed on the currently considered day,
       // but if it isn't, this.earliestAvailableDayForWorkIndex will be updated to
@@ -1112,7 +1155,7 @@ class TicketFactory {
     this.maxFullRunTesterWorkTimeInHours = maxFullRunTesterWorkTimeInHours;
     this.maxQaAutomationTime = maxQaAutomationTime;
     this.averagePassBackCount = averagePassBackCount;
-    this.maxCodeReviewTimeInHours = 0.5;
+    this.maxCodeReviewTimeInHours = 1;
     this.ticketsMade = 0;
   }
   generateTicket() {
@@ -1130,7 +1173,7 @@ class TicketFactory {
       )
     );
     programmerCodeReviewWorkIterations.push(
-      ...this.sampleFixWorkIterationTime(
+      ...this.sampleFixCodeReviewWorkIterationTime(
         fullRunCodeReviewWorkTime,
         passBackCount
       ),
@@ -1218,13 +1261,33 @@ class TicketFactory {
     const sample = PD.rgamma(sampleCount, 1, 5).map((fixWorkTimeValue) => {
       const fixWorkTimePercentage = Math.min(fixWorkTimeValue / 100.0, 1);
       return new WorkIteration(
-        Math.round(baseWorkIteration.time * fixWorkTimePercentage * 60) +
-          minimumWorkTimeInMinutes
+        Math.min(
+          Math.round(baseWorkIteration.time * fixWorkTimePercentage * 60) +
+            minimumWorkTimeInMinutes,
+          baseWorkIteration.time
+        )
       );
     });
     return sample;
   }
-  generateCodeReviewWorkIterationTime(maxTimeInHours = 0.5) {
+  sampleFixCodeReviewWorkIterationTime(baseWorkIteration, sampleCount) {
+    if (sampleCount <= 0) {
+      return [];
+    }
+    const minimumWorkTimeInMinutes = 5;
+    const sample = PD.rgamma(sampleCount, 1, 5).map((fixWorkTimeValue) => {
+      const fixWorkTimePercentage = Math.min(fixWorkTimeValue / 100.0, 1);
+      return new WorkIteration(
+        Math.min(
+          Math.round(baseWorkIteration.time * fixWorkTimePercentage * 60) +
+            minimumWorkTimeInMinutes,
+          baseWorkIteration.time
+        )
+      );
+    });
+    return sample;
+  }
+  generateCodeReviewWorkIterationTime() {
     return this.sampleCodeReviewWorkIterationTime(1)[0];
   }
   sampleCodeReviewWorkIterationTime(sampleCount) {
@@ -1233,10 +1296,16 @@ class TicketFactory {
     if (sampleCount <= 0) {
       return [];
     }
+    const minimumWorkTimeInMinutes = 5;
     const sample = PD.rgamma(sampleCount, 3, 0.1).map((maxWorkTimeValue) => {
       const maxWorkTimePercentage = Math.min(maxWorkTimeValue / 100.0, 1);
       return new WorkIteration(
-        Math.round(this.maxCodeReviewTimeInHours * maxWorkTimePercentage * 60)
+        Math.min(
+          Math.round(
+            this.maxCodeReviewTimeInHours * maxWorkTimePercentage * 60
+          ) + minimumWorkTimeInMinutes,
+          this.maxCodeReviewTimeInHours * 60
+        )
       );
     });
     return sample;
@@ -1378,7 +1447,13 @@ export class Simulation {
     this.codeReviewStack = [];
     this.stackTimelineHashMap = [];
     this.stackTimelineSets = [];
-    this.projectedSprintCountUntilDeadlock = undefined;
+    this.secretProjectedSprintCountUntilDeadlock = undefined;
+  }
+  get projectedSprintCountUntilDeadlock() {
+    if (this.secretProjectedSprintCountUntilDeadlock === undefined) {
+      throw Error("Simulation must simulate to establish a projected deadlock");
+    }
+    return this.secretProjectedSprintCountUntilDeadlock;
   }
   prepareWorkers(customEventsByDay) {
     this.programmers = [];
@@ -1437,7 +1512,9 @@ export class Simulation {
       // process handing out new work after all available tickets have been
       // determined
       this.handOutNewProgrammerWork();
-      this.backfillTesterScheduleForTimeTheySpentDoingNothing();
+      this.backfillUntilDayTimeTesterScheduleForTimeTheySpentDoingNothing(
+        this.currentDayTime
+      );
       this.handOutNewTesterWork();
       nextCheckInTime = this.getNextCheckInTime();
       if (nextCheckInTime === this.currentDayTime) {
@@ -1513,7 +1590,7 @@ export class Simulation {
       // future to see when a deadlock would occur. This sets the projected sprint count
       // to Infinity to reflect that it would take so long to even get anything done in
       // the first place that it's not even worth considering.
-      this.projectedSprintCountUntilDeadlock = Infinity;
+      this.secretProjectedSprintCountUntilDeadlock = Infinity;
       return;
     }
     const totalCheckingMinutes = this.workerDataForDayTime[
@@ -1540,7 +1617,7 @@ export class Simulation {
     if (newManualCheckTime <= 0 && fluffCheckingMinutes <= 0) {
       // configuration is theoretically sustainable, as it means all tickets that were
       //planned for a sprint were both completed and had the checking of them automated.
-      this.projectedSprintCountUntilDeadlock = null;
+      this.secretProjectedSprintCountUntilDeadlock = null;
       return;
     }
 
@@ -1551,10 +1628,10 @@ export class Simulation {
     const estimatedMinimumCheckTimePerTicket =
       this.maxFullRunTesterWorkTimeInHours * 60 * 0.25;
     while (remainingCheckingMinutes > estimatedMinimumCheckTimePerTicket) {
-      let totalNewManualCheckTime = Math.round(
+      let totalNewManualCheckTime = Math.ceil(
         percentageOfCheckTimeSpentOnNewManualChecking * remainingCheckingMinutes
       );
-      let totalNewFluffCheckTime = Math.round(
+      let totalNewFluffCheckTime = Math.ceil(
         percentageOfCheckTimeSpentOnFluffChecking * remainingCheckingMinutes
       );
       let projectedRefinedNewRegressionCheckMinutes =
@@ -1564,7 +1641,7 @@ export class Simulation {
       remainingCheckingMinutes -= totalNewFluffCheckTime;
       sprintsUntilDeadlock++;
     }
-    this.projectedSprintCountUntilDeadlock = sprintsUntilDeadlock;
+    this.secretProjectedSprintCountUntilDeadlock = sprintsUntilDeadlock;
   }
   dayTimeFromDayAndTime(day, time) {
     // given a day and a time, return the dayTime
@@ -1666,8 +1743,8 @@ export class Simulation {
     if (
       earliestWorker instanceof Tester &&
       this.noWorkForTesters &&
-      earliestWorker.nextWorkIterationCompletionCheckIn === null &&
-      this.allProgrammersAreDoneForTheSprint
+      this.allProgrammersAreDoneForTheSprint &&
+      this.remainingTestersHaveCheckInNow
     ) {
       // The worker with the earliest check-in was found to be a tester, but there's no
       // available work for them, they have nothing to turn in, and all the programmers
@@ -1675,6 +1752,9 @@ export class Simulation {
       // in this case, only a tester that was just now becoming available would be the
       // earliest worker. But since there's no new work for any of the testers to do, it
       // must mean that the simulation can be finished.
+      this.backfillUntilDayTimeTesterScheduleForTimeTheySpentDoingNothing(
+        this.totalSimulationMinutes
+      );
       return -1;
     }
     if (
@@ -1684,6 +1764,18 @@ export class Simulation {
     } else {
       return earliestWorker.nextAvailabilityCheckIn;
     }
+  }
+  get noWorkForTesters() {
+    return this.qaStack.length === 0 && this.needsAutomationStack.length === 0;
+  }
+  get allProgrammersAreDoneForTheSprint() {
+    return this.programmers.every((p) => p.nextCheckInTime < 0);
+  }
+  get remainingTestersHaveCheckInNow() {
+    return this.testers
+      .map((t) => t.nextCheckInTime)
+      .filter((t) => t > 0)
+      .every((t) => t === this.currentDayTime);
   }
   getWorkerWithEarliestUpcomingCheckIn() {
     // Skip ahead to the next relevant point in time. This will either be the
@@ -1772,6 +1864,7 @@ export class Simulation {
       } else {
         this.qaStack.push(possiblyFinishedTicket);
       }
+      p.nextWorkIterationCompletionCheckIn = null;
     }
   }
   processTesterCompletedWork() {
@@ -1794,6 +1887,7 @@ export class Simulation {
           this.needsAutomationStack.push(possiblyFinishedTicket);
           possiblyFinishedTicket.unfinished = false;
         }
+        t.nextWorkIterationCompletionCheckIn = null;
       }
     }
   }
@@ -1812,6 +1906,12 @@ export class Simulation {
     // planned work for the sprint, or work that was pulled into the sprint from the
     // backlog. Either way, a programmer should always have work available to do.
     for (let p of this.programmers) {
+      if (
+        p.nextAvailabilityCheckIn > 0 &&
+        p.nextAvailabilityCheckIn < this.currentDayTime
+      ) {
+        throw new Error("Programmer is being left behind");
+      }
       if (
         p.nextAvailabilityCheckIn !== this.currentDayTime ||
         p.nextAvailabilityCheckIn < 0
@@ -1840,6 +1940,8 @@ export class Simulation {
               1
             )[0];
           } else {
+            // code review should be done if it takes higher priority or it's of
+            // equivalent priority (because it takes less time)
             ticket = this.codeReviewStack.splice(
               highestPriorityCodeReviewTicketIndex,
               1
@@ -1857,7 +1959,7 @@ export class Simulation {
           )[0];
         }
       }
-      if (ticket === null) {
+      if (!ticket) {
         ticket = this.ticketFactory.generateTicket();
         ticket.workStartDayTime = this.currentDayTime;
         p.addTicket(ticket);
@@ -1950,88 +2052,76 @@ export class Simulation {
       }
       if (t.nextAvailabilityCheckIn <= this.currentDayTime) {
         // can start new work
-        let ticket;
+        let ticket = null;
         if (this.qaStack.length > 0) {
-          let highestPriorityTicketIndex = this.getHighestPriorityTicketIndexForTester(
+          let highestPriorityTicketIndex = this.getHighestPriorityCheckingWorkIndexForTester(
             t
           );
-          ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
-          t.addTicket(ticket);
-          try {
-            const iterationComplete = t.schedule.addWork(ticket);
-            if (iterationComplete !== false) {
-              t.nextWorkIterationCompletionCheckIn = iterationComplete;
-            }
-          } catch (err) {
-            if (err instanceof RangeError) {
-              // ran out of time in the sprint
-              t.nextWorkIterationCompletionCheckIn = -1;
-              this.unfinishedStack.push(ticket);
-            } else {
-              throw err;
-            }
+          if (highestPriorityTicketIndex) {
+            ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
           }
-        } else if (this.needsAutomationStack.length > 0) {
+        }
+        if (!ticket && this.needsAutomationStack.length > 0) {
+          // automation takes a lower priority than checking by hand
           let highestPriorityTicketIndex = this.getHighestPriorityAutomationIndex();
-          ticket = this.needsAutomationStack.splice(
-            highestPriorityTicketIndex,
-            1
-          )[0];
-          t.addTicket(ticket);
-          try {
-            const iterationComplete = t.schedule.addWork(ticket);
-            if (iterationComplete !== false) {
-              t.nextWorkIterationCompletionCheckIn = iterationComplete;
-            }
-          } catch (err) {
-            if (err instanceof RangeError) {
-              // ran out of time in the sprint
-              t.nextWorkIterationCompletionCheckIn = -1;
-              continue;
-            } else {
-              throw err;
-            }
+          if (highestPriorityTicketIndex) {
+            ticket = this.needsAutomationStack.splice(
+              highestPriorityTicketIndex,
+              1
+            )[0];
+          }
+        }
+        if (!ticket) {
+          // tester can't do anything at the moment
+          continue;
+        }
+        try {
+          const iterationComplete = t.schedule.addWork(ticket);
+          if (iterationComplete !== false) {
+            t.nextWorkIterationCompletionCheckIn = iterationComplete;
+          }
+        } catch (err) {
+          if (err instanceof RangeError) {
+            // ran out of time in the sprint
+            t.nextWorkIterationCompletionCheckIn = -1;
+            this.unfinishedStack.push(ticket);
+          } else {
+            throw err;
           }
         }
       }
     }
   }
-  backfillTesterScheduleForTimeTheySpentDoingNothing() {
+  backfillUntilDayTimeTesterScheduleForTimeTheySpentDoingNothing(
+    targetDayTime
+  ) {
     // necessary to avoid logic issues towards the end of the sprint where next
     // available time is determined.
+    const targetDay = Math.floor(targetDayTime / this.dayLengthInMinutes);
+    const targetTime = Math.floor(targetDayTime % this.dayLengthInMinutes);
     for (let t of this.testers) {
       for (let daySchedule of t.schedule.daySchedules) {
-        if (daySchedule.day > this.currentDay) {
+        if (daySchedule.day > targetDay) {
           break;
         }
-        for (let timeSlot of daySchedule.availableTimeSlots) {
+        while (daySchedule.availableTimeSlots.length > 0) {
+          const timeSlot = daySchedule.availableTimeSlots[0];
           if (
-            daySchedule.day === this.currentDay &&
-            timeSlot.startTime >= this.currentTime
+            daySchedule.day === targetDay &&
+            timeSlot.startTime >= targetTime
           ) {
             break;
           }
-          if (
-            daySchedule.day === this.currentDay &&
-            timeSlot.startTime < this.currentTime &&
-            timeSlot.endTime >= this.currentTime
-          ) {
-            // last slot that needs back-filling
-            daySchedule.scheduleMeeting(
-              new NothingEvent(
-                timeSlot.startTime,
-                this.currentTime - timeSlot.startTime,
-                t,
-                daySchedule.day
-              )
-            );
-            break;
-          }
+          const timeSlotStartDayTime =
+            this.dayLengthInMinutes * daySchedule.day + timeSlot.startTime;
+          const nothingDuration = Math.min(
+            timeSlot.duration,
+            targetDayTime - timeSlotStartDayTime
+          );
           daySchedule.scheduleMeeting(
             new NothingEvent(
               timeSlot.startTime,
-              timeSlot.duration,
-              t,
+              nothingDuration,
               daySchedule.day
             )
           );
@@ -2039,11 +2129,16 @@ export class Simulation {
       }
     }
   }
-  getHighestPriorityTicketIndexForTester(tester) {
+  getHighestPriorityCheckingWorkIndexForTester(tester) {
     let ownedTickets = tester.tickets.map((ticket) => ticket.number);
     return this.qaStack.reduce(
       (highestPriorityTicketIndex, currentTicket, currentTicketIndex) => {
-        if (ownedTickets.includes(currentTicket.number)) {
+        // if the ticket.firstIteration is true, then the ticket hasn't been claimed by
+        // a tester yet, so it's up for grabs.
+        if (
+          ownedTickets.includes(currentTicket.number) ||
+          currentTicket.firstIteration
+        ) {
           if (!highestPriorityTicketIndex) {
             return currentTicketIndex;
           }
