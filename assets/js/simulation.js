@@ -2057,21 +2057,24 @@ export class Simulation {
         // can't accept new work
         continue;
       }
-      if (t.nextAvailabilityCheckIn <= this.currentDayTime) {
+      if (t.nextAvailabilityCheckIn < this.currentDayTime) {
+        this.backfillUntilDayTimeTesterScheduleForTimeTheySpentDoingNothing(this.currentDayTime);
+      }
+      if (t.nextAvailabilityCheckIn === this.currentDayTime) {
         // can start new work
         let ticket = null;
         if (this.qaStack.length > 0) {
           let highestPriorityTicketIndex = this.getHighestPriorityCheckingWorkIndexForTester(
             t
           );
-          if (highestPriorityTicketIndex) {
+          if (highestPriorityTicketIndex !== null) {
             ticket = this.qaStack.splice(highestPriorityTicketIndex, 1)[0];
           }
         }
         if (!ticket && this.needsAutomationStack.length > 0) {
           // automation takes a lower priority than checking by hand
           let highestPriorityTicketIndex = this.getHighestPriorityAutomationIndex();
-          if (highestPriorityTicketIndex) {
+          if (highestPriorityTicketIndex !== null) {
             ticket = this.needsAutomationStack.splice(
               highestPriorityTicketIndex,
               1
