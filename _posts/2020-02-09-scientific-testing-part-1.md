@@ -74,6 +74,8 @@ That's my point. The vast majority of tests _are_ science experiments, because t
 
 Why software testing has been treated differently than other sciences in the past is complicated, and something I don't have the full answer to. I would guess a large part of it stems from lack of proper training/education, or just the fact that we aren't publishing our tests and test results to the entire scientific community for them to tear apart.
 
+Edit: I've come across a paper by Peter J. Denning that dives a little bit into this, and the perception that Computer Science is not a science, and thought it might be of interest, so I'm linking it [here](https://www.cs.umd.edu/class/spring2017/cmsc396H/downloads/is-cs-s.pdf).
+
 ## Why it matters
 
 Hopefully by this point, you can see the connection, and understand that software testing is just another form of science. If not, then your tests must not be trying to build confidence that the behavior or structure of the code aligns with what you want, in which case, they aren't tests.
