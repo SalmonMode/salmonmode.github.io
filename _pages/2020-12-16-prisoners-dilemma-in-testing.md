@@ -196,7 +196,7 @@ Code review itself maxes out at about an hour.
 
 "Check refinement" is the percentage of the full check time for a given ticket that a tester is able to reduce when those checks must be performed during the regression checking phase.
 
-You can find more info on exactly how these work, and why they work those ways, in the [technical writeup](/waterfall_simulation_writeup).
+You can find more info on the assumptions the model makes, exactly how it work, the decisions behind those implementation details, in the [technical writeup](/waterfall_simulation_writeup).
 
 ## Results
 
