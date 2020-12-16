@@ -460,7 +460,7 @@
         .select('text.axis-label')
         .text(trackedMetricKeysAndTitles[metricKeyName]);
     }
-    function buildOtherGraph(metricKeyName, configKeyName){
+    function buildOtherGraph(){
       let configKeyName = dataSetSelectOtherConfig.property("value");
       let metricKeyName = dataSetSelectOtherMetric.property("value");
       const bins = getHistogramBins(metricKeyName, configKeyName);
@@ -753,7 +753,7 @@
     dataSetSelectOtherMetric
       .node()
       .addEventListener("change", (event) => updateOtherGraphForSelection());
-    buildOtherGraph("growthRate", "programmerToTesterRatio");
+    buildOtherGraph();
     divOtherWrapper.node().appendChild(tooltipOther.node());
   });
 </script>
