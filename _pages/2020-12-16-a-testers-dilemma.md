@@ -1,7 +1,7 @@
 ---
 layout: posts
-title: "A Tester's Dilemma: Mini-waterfall"
-excerpt: "Mini-waterfall is incredibly common in the software industry, but many struggle in such a process. Let's take a look at how it plays out in a simulation to see if it's actually sustainable."
+title: "Prisoner's Dilemma in Testing: A Mini-Waterfall Simulation"
+excerpt: "A sustainable development process needs checks and balances to ensure we move forward as quickly as we can safely. But what happens when there are none?"
 date: 2020-12-16 09:00:00 -0500
 permalink: /draft/a-testers-dilemma
 ---
