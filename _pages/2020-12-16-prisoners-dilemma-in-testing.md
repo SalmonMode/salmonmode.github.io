@@ -120,7 +120,7 @@ The programmers are free to run through the code, altering it recklessly, becaus
 
 If there _were_ enough testers and automation engineers to keep pace with the programmers, it would likely mean that the testers and automation engineers would have a good amount of downtime. I would wager that management would see this downtime as slack that can be taken up, and either 1) more programmers would be hired to eliminate that downtime, or 2) it would look poorly on the programmers for working so slow, which would possibly encourage them to work more recklessly.
 
-Following the Theory of Constraints is a common management paradigm, and that's more or less what the theory would suggest the next move is.
+Following the Theory of Constraints is a common management approach (whether they would refer to it that way or not), and that's more or less what the theory would suggest the next move is.
 
 A balance would have to be struck somewhere, but all the options are bad.
 
