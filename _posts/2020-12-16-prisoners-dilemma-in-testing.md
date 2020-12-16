@@ -3,7 +3,6 @@ layout: posts
 title: "Prisoner's Dilemma in Testing: A Mini-Waterfall Simulation"
 excerpt: "A sustainable development process needs checks and balances to ensure we move forward as quickly as we can safely. But what happens when there are none?"
 date: 2020-12-16 09:00:00 -0500
-permalink: /draft/a-testers-dilemma
 ---
 
 ![Zach Galifianakis trying to do math while math symbols fly around"](/images/lots_of_math.webp){:height="auto" width="100%"}
