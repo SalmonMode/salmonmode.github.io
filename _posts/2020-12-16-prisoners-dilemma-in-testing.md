@@ -93,6 +93,8 @@ I've often heard "that would slow the programmers down" in response to suggestin
 
 It's assumed, in waterfall, that the programmers need to rely on testers to know if they've met the acceptance criteria. So the faster the programmers can crank out changes, the faster the testers can verify them.
 
+If someone believes that programmers should be able to move as quickly as possible, and that they shouldn't be expected to (or can't) understand what the actual expectations are for the ticket, then it makes sense that the criteria to be Agile would be so difficult to achieve.
+
 But that unfettered speed with no real consequences to the programmers is exactly what makes waterfall unsustainable in software development (at least in this context).
 
 ## Regression Checks
@@ -117,7 +119,7 @@ But either way, whatever isn't automated, is left to be done by hand during a re
 
 Unless there's an army of testers and automation engineers, they just won't be able to keep up with the programmers.
 
-The programmers are free to run through the code, altering it recklessly, because they are never held accountable for doing this. Internal code quality suffers, which slows them down, but they brush it off as a supposedly natural part of the development process. They don't have to worry about unintended side effects of their changes either, because they are told to rely on the testers to find those cases.
+The programmers are free to run through the code, altering it recklessly, because they could very easily avoid ever being held accountable for doing so. Internal code quality suffers, which slows them down, but they brush it off as a supposedly natural part of the development process. They don't have to worry about unintended side effects of their changes either, because they are told to rely on the testers to find those cases.
 
 If there _were_ enough testers and automation engineers to keep pace with the programmers, it would likely mean that the testers and automation engineers would have a good amount of downtime. I would wager that management would see this downtime as slack that can be taken up, and either 1) more programmers would be hired to eliminate that downtime, or 2) it would look poorly on the programmers for working so slow, which would possibly encourage them to work more recklessly.
 
