@@ -93,7 +93,7 @@ I've often heard "that would slow the programmers down" in response to suggestin
 
 It's assumed, in waterfall, that the programmers need to rely on testers to know if they've met the acceptance criteria. So the faster the programmers can crank out changes, the faster the testers can verify them.
 
-If someone believes that programmers should be able to move as quickly as possible, and that they shouldn't be expected to (or can't) understand what the actual expectations are for the ticket, then it makes sense that the criteria to be Agile would be so difficult to achieve.
+If someone believes that programmers should be able to move as quickly as possible, and that they shouldn't be expected to (or can't) understand what the actual expectations are for the ticket, then it makes sense that the criteria to be Agile would be nigh impossible to achieve.
 
 But that unfettered speed with no real consequences to the programmers is exactly what makes waterfall unsustainable in software development (at least in this context).
 
