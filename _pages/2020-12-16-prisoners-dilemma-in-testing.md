@@ -74,9 +74,9 @@ Many places even use "number of bugs found" as a metric for gauging a tester's p
 
 As long as the programmer gives the appearance of productivity by churning out changes that can get passed code review (which could also be rushed, and more focused on finding flaws with implementation, rather than functionality), they have nothing to worry about.
 
-Actively helping the tester could actually be quite difficult in this game, as they'd have to strike a careful balance of writing code every so sloppily to leave bugs for the tester to find so the tester could also appear productive.
+Actively helping the tester could actually be quite difficult in this game, as they'd have to strike a careful balance of writing code ever so sloppily to leave bugs for the tester to find so the tester could also appear productive.
 
-The programmer gains nothing from helping the tester, though, and so, are incentivized to be focused more on not personally losing, rather than helping the team win.
+The programmer would gain nothing (or at least, very little) from helping the tester, though, and so, are incentivized to be focused more on not personally losing, rather than helping the team win.
 
 ### Tester's Disadvantage
 
@@ -136,7 +136,7 @@ If those bugs getting through is accepted as just a part of the development proc
 
 # Quick Sidebar
 
-I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
+I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
 
 Sure, there's some programmers and managers who aren't cut out for this line of work (to put it lightly), and some who would be apathetic when informed of these issues. But, in my experience, most become genuinely concerned, and want to work with you once informed.
 
