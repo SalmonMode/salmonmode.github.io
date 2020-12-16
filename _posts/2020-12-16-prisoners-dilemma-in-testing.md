@@ -211,7 +211,7 @@ You can find more info on the assumptions the model makes, exactly how it work, 
 
 # Conclusions
 
-**Note:** The graphs here only show the first 1000 results, because the graphs were causing some performance issues, and they were pretty visually dense. The full set of data from those runs can be found [here](/assets/data/waterfall/fullSimData.csv) (and the limited data set used for the graphs can be found [here]([here](/assets/data/waterfall/sim.csv))), if you're curious, though.
+**Note:** The graphs here only show the first 1000 results, because they were having some serious performance issues, and they were pretty visually dense. The full set of data from those runs can be found [here](/assets/data/waterfall/fullSimData.csv) (and the limited data set used for the graphs can be found [here]([here](/assets/data/waterfall/sim.csv))), if you're curious, though.
 {: .notice--info}
 
 The primary metric tracked is the "growth rate" of the sprint, which represents the percentage of time the testers would lose each sprint due to having to either catch up on previous check work, and/or having to perform new regression checks that couldn't be automated in time. If the rate is above 0, then the process used wasn't sustainable.
