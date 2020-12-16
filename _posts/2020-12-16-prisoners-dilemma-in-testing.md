@@ -41,7 +41,7 @@ A process that's sustainable may seem difficult to establish, and some may even 
 * No one on the team is required to work longer hours than anyone else
 * There is never a need to perform any sort of regression checks by hand
 * Writing code doesn't get significantly more difficult as time goes on
-* All tickets that would be completed in a given sprint must have all the checks for them (i.e. any form of verification regarding the acceptance criteria that can be written down as a repeatable set of steps), at _all_ necessary levels, fully automated within that same sprint
+* All tickets that would be completed in a given sprint must have all the checks for them (i.e. any form of verification regarding the acceptance criteria that can be written down as a repeatable set of steps), at _all_ necessary levels, fully automated before the programmer working on the tickets could move on to other tickets
 * No changes that would cause a regression are ever allowed to be merged into the main branch
 * No one on the team is forced, through the nature of the process, to be at risk of not taking as much vacation time as anyone else on the team, nor would the timing of their vacation be a problem
 * No one needs to work on tickets through meetings, lunch, weekends, vacations, etc to avoid violating the previous things
