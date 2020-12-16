@@ -459,10 +459,10 @@
         .text(trackedMetricKeysAndTitles[metricKeyName]);
     }
     buildGraph("growthRate", "sprintDayCount");
-    buildGraph("growthRate", "regressionTestDayCount");
-    buildGraph("growthRate", "dayStartTime");
-    buildGraph("growthRate", "programmerCount");
-    buildGraph("growthRate", "testerCount");
+    // buildGraph("growthRate", "regressionTestDayCount");
+    // buildGraph("growthRate", "dayStartTime");
+    // buildGraph("growthRate", "programmerCount");
+    // buildGraph("growthRate", "testerCount");
     buildGraph("growthRate", "maxInitialProgrammerWorkTimeInHours");
     buildGraph("growthRate", "maxFullRunTesterWorkTimeInHours");
     buildGraph("growthRate", "maxQaAutomationTime");
@@ -474,10 +474,10 @@
     function updateAllGraphsForSelection() {
       let selectedOption = dataSetSelect.property("value");
       updateGraph(selectedOption, "sprintDayCount");
-      updateGraph(selectedOption, "regressionTestDayCount");
-      updateGraph(selectedOption, "dayStartTime");
-      updateGraph(selectedOption, "programmerCount");
-      updateGraph(selectedOption, "testerCount");
+      // updateGraph(selectedOption, "regressionTestDayCount");
+      // updateGraph(selectedOption, "dayStartTime");
+      // updateGraph(selectedOption, "programmerCount");
+      // updateGraph(selectedOption, "testerCount");
       updateGraph(selectedOption, "maxInitialProgrammerWorkTimeInHours");
       updateGraph(selectedOption, "maxFullRunTesterWorkTimeInHours");
       updateGraph(selectedOption, "maxQaAutomationTime");
