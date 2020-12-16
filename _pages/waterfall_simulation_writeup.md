@@ -343,13 +343,14 @@ An iteration is considered "potentially sustainable", when there's no leftovers.
 
 ## Results
 
+With all that covered, here's a selection of graphs visualizing the data, with a customizable graph at the bottom to cover all comparisons.
+
 {% include mini_waterfall/results_svg.html %}
 
 {% include mini_waterfall/results_js.html %}
 
 **Note:** The graphs here only show the first 1000 results, because the graphs were causing some performance issues, and they were pretty visually dense. The full set of data from those runs can be found [here](/assets/data/waterfall/fullSimData.csv) (and the limited data set used for the graphs can be found [here]([here](/assets/data/waterfall/sim.csv))), if you're curious, though.
 {: .notice--info}
-
 
 # Conclusions
 
