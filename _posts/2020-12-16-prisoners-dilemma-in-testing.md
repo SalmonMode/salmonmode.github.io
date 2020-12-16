@@ -25,7 +25,9 @@ You can find any number of resources describing it in detail, but I really only 
 
 If, in a given process, the testing (or, more specifically, the verification) is done _after_ the development, then that process, by definition, is "waterfall".
 
-The verification I'm referring to here is more than just unit tests. It's all criteria that was asked for, that exist at all levels, be they unit, component, integration, end-to-end, or even UI. This could be done entirely by another person, or only partially (to any degree), but either way, it'd still be waterfall.
+The verification I'm referring to here is more than just unit tests, and it extends beyond functionality. It's all criteria that was asked for, regardless of the level they would exist at, be they unit, component, integration, end-to-end, or even how the UI presents itself. If it's something we knew to expect just from reading the ticket, then it falls under this umbrella.
+
+This could be done entirely by another person, or only partially (to any degree), but either way, it'd still be waterfall.
 
 This directly conflicts with Agile principles, because it can't be sustained indefinitely. Why this makes a process unsustainable may not be immediately obvious (if it were, I wouldn't be writing this), but I'll go over why down below.
 
