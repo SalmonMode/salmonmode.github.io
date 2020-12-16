@@ -68,7 +68,7 @@ In fact, if the tester _doesn't_ find bugs, not only does this not look positive
 
 It's often believed that programmers will inherently write incredibly buggy, flawed code that doesn't meet the acceptance criteria. If it turns out there were no serious bugs for the tester to find, then it can be seen as pure luck.
 
-Many companies even use "number of bugs found" as a metric for gauging a tester's performance.
+Many places even use "number of bugs found" as a metric for gauging a tester's performance.
 
 ### Programmer's Advantage
 
