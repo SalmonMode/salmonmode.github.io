@@ -329,7 +329,7 @@ The percentage of what was automated (including partial progress), reflects the 
 
 This is used to find out how much of the practical tester time the regression checking phase increases by each sprint.
 
-### Together
+### Total Growth Rate
 
 Those two rates are added together, and then the simulation, starting with the total amount of practical tester minutes so far, reduces the practical tester minutes by that percentage (this, representing the regression check phase growing by that amount), counting how many times it has to do this, until the remaining time is too short to do anything productive.
 
