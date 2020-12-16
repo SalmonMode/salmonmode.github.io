@@ -37,7 +37,7 @@ You may also see me refer to "_mini_-waterfall". But that's more or less exactly
 
 A process that's sustainable may seem difficult to establish, and some may even claim that it's impossible. After all, the process would need to meet all of these criteria
 
-* Overtime is never required (assuming good planning and communication)
+* Overtime is never required (providing options to reduce scope were built into the planning and they were communicated effectively)
 * No one on the team is required to work longer hours than anyone else
 * There is never a need to perform any sort of regression checks by hand
 * Writing code doesn't get significantly more difficult as time goes on
