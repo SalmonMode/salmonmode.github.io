@@ -307,6 +307,8 @@ If these blocks of time are greater than 30 minutes in duration, then it could b
 
 Of course, they may be interrupted, and might not be able to fit the end of one iteration and the start of another in a single block (because there wasn't enough time remaining). So normal scheduling rules would still apply.
 
+The testers would also still be limited to only working on tickets that either they worked on, or were never worked on by a tester.
+
 But the question is whether or not there's enough "nothing" time for them to reasonably get the catch up work done. If they can't, what's left is considered "leftovers".
 
 ## Leftovers Are How Regression Grows
@@ -334,22 +336,6 @@ This is used to find out how much of the practical tester time the regression ch
 Those two rates are added together, and then the simulation, starting with the total amount of practical tester minutes so far, reduces the practical tester minutes by that percentage (this, representing the regression check phase growing by that amount), counting how many times it has to do this, until the remaining time is too short to do anything productive.
 
 The number of times it has to do this, is the number of sprints it would take to reach a deadlock.
-
-The initial (unrefined) growth rate is really just the total number of leftover minutes divided by
-
-The testers will need to "catch up" to the programmers by 1)
-
-To determine this, it finds the percentage of programmer time spent on tickets that weren't automated, and then, gets that percentage of time the testers spent checking things in minutes.
-
-Those minutes represent potential additional time needed for regression checks for the next sprint.
-
-It will also look at the number of viable "Nothing" blocks (i.e. those longer than 30 minutes long), and how much time would actually be available through these blocks of time, to see how much of that potential regression check time can be reduced. To do this, it plays out the automation work iterations for those unautomated tickets through those blocks of "Nothing" time, context switching, and adding new "Nothing" events (for when an iteration is finished but the time block has 30 minutes or less time remaining) as needed.
-
-It will, of course, still restrict this, so the nothing blocks for a specific tester can't be used with a ticket, if another tester checked that ticket originally.
-
-This is to see if the testers would normally have enough free time to be able to automate those tickets in the next sprint, as this would nullify their impact on increasing the time needed for regression checks each sprint.
-
-The number of minutes left (if any) is multiplied by the check refinement percentage. Then it finds the percentage of regression time that number of minutes is, so it can tell by what percentage the time necessary for regression checking grows each sprint.
 
 ## When an Iteration is Considered Potentially Sustainable
 
