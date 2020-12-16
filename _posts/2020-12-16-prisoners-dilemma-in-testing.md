@@ -101,15 +101,15 @@ But that unfettered speed with no real consequences to the programmers is exactl
 
 Every new acceptance criteria that gets implemented into the product must always be maintained (unless the new criteria is to cancel out an old one). But with every new change, there's a chance for some unrelated feature to be broken unintentionally. This is what's referred to as a "regression", and "regression checks" are those performed to identify any regressions that may have ocurred.
 
-The responsibility for these checks, in a waterfall process, tends to go to the testers. But over time, the list of the checks that must be performed grows, and grows. It should be apparent that, eventually, the testers would have absolutely no time for anything other than just doing regression checks.
+The responsibility for these checks, in a waterfall process, tends to go to the testers. But over time, the list of the checks that must be performed grows, and grows. Eventually, the testers would have absolutely no time for anything other than just doing regression checks.
 
 ### Automation
 
-Automation, to many, seemed to be the answer. If the regression checks could be automated, then the testers wouldn't have to do them by hand.
+Automation, to many, seemed to be the answer that problem. If the regression checks could be automated, then the testers wouldn't have to do them by hand.
 
 Of course, having the programmers write the code for these would slow them down when it came to implementing more criteria, so the responsibility for this is often passed on to the testers as well.
 
-So then, in addition to keeping pace with the programmers in regards to the checks the testers must perform manually, they must also keep pace with regards to automating those changes afterwards, and automating them would also likely be done at the most complex, time consuming, and brittle levels possible (i.e. API and UI).
+So then, in addition to keeping pace with the programmers in regards to the checks the testers must perform manually, they must also keep pace with regards to automating those changes afterwards. That automation would also likely be done at the most complex, time consuming, and brittle levels possible (i.e. API and UI).
 
 Some companies may go the route of hiring QA Automation Engineers (or another, similar title) so that they can focus on the automation (again, at the most complex, time consuming, and brittle levels possible) of already implemented changes, while the testers focus on verifying the new changes coming in.
 
@@ -125,38 +125,40 @@ If there _were_ enough testers and automation engineers to keep pace with the pr
 
 Following the Theory of Constraints is a common management approach (whether they would refer to it that way or not), and that's more or less what the theory would suggest the next move is.
 
-A balance would have to be struck somewhere, but all the options are bad.
+A balance would have to be struck somewhere, but none of the options seem very appealing to me.
 
 They only thing testers can do, is make decisions as to where they want to make sure functionality is verified. They have to make hard decisions about where they are ok with regressions occurring, so that they can focus on other areas that they deem to be more important. That's not a choice I feel a tester should be making.
 
-And even when they do make such decisions, they can still be held responsible for letting serious bugs through.
+And even when they do make such decisions, they may still be held responsible for when serious bugs get passed them.
 
 To paraphrase the Agile manifesto:
 
 The testers are irrationally forced, through the imposition of corporate power structures, to make these decisions in the futile pursuit of establishing balance in a fundamentally flawed process.
 
-If those bugs getting through is accepted as just a part of the development process, then some semblance of balance is achieved. But only in the sense that the testers might not necessarily be punished for reasons outside of their control. In reality, though, there is no balance, only waste, recklessness, and a lot of unnecessary bugs (and also, likely fear as the testers are still at a significant disadvantage).
+If those bugs getting through is accepted as just a part of the development process, then some semblance of balance is achieved. But only in the sense that the testers might not necessarily be punished for something outside of their control. In reality, though, there is no balance, only waste, recklessness, and a lot of unnecessary bugs (and also, likely fear as the testers are still at a significant disadvantage).
 
 # Quick Sidebar
 
+When I see the word "reckless", it seems like a strong word. But I can think of no better word to describe their actions.
+
 I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
 
-Sure, there's some programmers and managers who aren't cut out for this line of work (to put it lightly), and some who would be apathetic when informed of these issues. But, in my experience, most become genuinely concerned, and want to work with you once informed.
+Sure, there's some programmers and managers who may not be cut out for this line of work, and may be apathetic when informed of these issues. But, in my experience, most become genuinely concerned, and want to work with you once informed.
 
 # Restoring Balance
 
 When the programmers are in charge of writing their own, thorough automated checks as part of the work required before sending their changes to code review (instead of having the testers take care of checking things or implementing the automated checks), a few things happen:
 
-1. The changes are automatically validated, and done so quickly
+1. The changes are automatically validated, and validated quickly
 2. The checks can be repeated and the results reproduced by anyone else, including the CI/CD pipeline, giving the checks themselves additional validity
 3. The changes are forever protected from regressions, because requiring all checks to pass before the changes can be merged in would prevent that
-4. Progress is actually locked to the rate it can sustainably be verified at
+4. Progress is locked to the rate it can sustainably be verified at
 
 ### This isn't a silver bullet
 
 This doesn't _guarantee_ the process will be sustainable, but at least one of the things preventing sustainability would be solved.
 
-However, [internal software quality (ISQ)](https://martinfowler.com/articles/is-quality-worth-cost.html) is also essential to operating sustainably, as well.
+However, [internal software quality (ISQ)](https://martinfowler.com/articles/is-quality-worth-cost.html) is also essential to operating sustainably.
 
 Having the programmers write the automated checks in general is a step in the right direction, and does prevent things from getting out of hand for the testers. But having the programmers do it properly, at appropriate levels (instead of having them rely on the API or UI when those aren't necessary) is essential for encouraging them to maintain ISQ, which will also be needed to be sustainable.
 

@@ -6,17 +6,19 @@ date: 2020-12-05 17:00:00 -0500
 permalink: /waterfall_simulation_writeup/
 ---
 
-Before diving in, the source of the simulation can be found [here](https://github.com/SalmonMode/mini-waterfall-simulation-model), and the script that runs it can be found [here](https://github.com/SalmonMode/mini-waterfall-simulation).
+The source of the simulation can be found [here](https://github.com/SalmonMode/mini-waterfall-simulation-model), and the script that runs it can be found [here](https://github.com/SalmonMode/mini-waterfall-simulation).
 {: .notice--info}
 
-My goal with this Monte Carlo simulation was to identify if there were any reasonable ways to go about a mini-waterfall approach that could be sustainable, or if they would eventually, but definitively end up in a deadlock, regardless of any issues with things like proper sprint planning or internal software quality.
+My goal with this Monte Carlo simulation was to identify if there were any reasonable ways to go about a mini-waterfall approach that could be sustainable, or if they would eventually end up in a deadlock, regardless of any issues with things like proper sprint planning or internal software quality. If some were found to be sustainable, I also wanted to identify if they had anything in common that might indicate what made them sustainable.
 
 The results indicate that, in order for the process to even have a chance of being sustainable, two things must happen:
 
 1. The team must consist of the same number of testers as there are programmers. This would suggest that testers could not operate across multiple teams.
 2. The programming work must take roughly 7 times as long as the automation work, at least.
 
-The model starts with the following configurable variables for each iteration, being chosen at random from a specified range, with particular increments:
+### Sprint Configurations
+
+The simulation starts with the following configurable variables for each iteration, being chosen at random from a specified range, with particular increments:
 
 #### Sprint Day Count (Range: 1 to 4 weeks (i.e. 5, 10, 15, or 20 days))
 
@@ -64,11 +66,13 @@ If a ticket is "done" in a sprint, but not automated, the checks would have to b
 
 To quickly cover it, a [Monte Carlo simulation](https://en.wikipedia.org/wiki/Monte_Carlo_method) takes a set of rules, and applies them, over and over again, to a newly randomized set of data each time, to see what the outcomes are.
 
-I'll run through my model, and explain the rules, and its limitations before jumping into the results. But the configurable values mentioned above are only a part of what is randomized. They are used in combination with other randomized values, which I'll be getting into details about further down, to determine things like how long a particular work iteration would take for a particular ticket.
+I'll run through the details, and explain the rules, and its limitations before jumping into the results. But the configurable values mentioned above are only a part of what is randomized. They are used in combination with other randomized values, which I'll be getting into details about further down, to determine things like how long a particular work iteration would take for a particular ticket.
 
 ## "Deadlock"
 
 A "deadlock", in this context, is reached when the testers have to spent so much time during the sprint doing regression checks by hand that they don't have any time left over to check any new tickets. The amount of time they have to spend doing regression checks grows when tickets from a previous sprint weren't automated, which means that they must be re-verified by hand during the regression checking of every sprint after.
+
+It's important to note, that the simulation also considers the time testers would have to spend in following sprints to "catch up" on their work. This time would directly reduce the amount of time in future sprints, just like new regression checks would, and so is factored in the same way (without multiplying by the check refinement rate, that is).
 
 ## Definition of "done" vs "automated"
 
@@ -76,41 +80,31 @@ For the purposes of talking about certain states, I'll define a ticket as being 
 
 ## Limitations
 
-There's a number of factors that go in to how a sprint plays out. It would be impractical to attempt to account for everything, so the model I've come up with makes a few assumptions.
+There's a number of factors that go in to how a sprint plays out. It would be impractical to attempt to account for everything, so the simulation I've come up with makes a few assumptions.
 
 ### Internal Software Quality (ISQ)
 
-This model does not account for the decreases in ISQ that would likely occur from the programmers not writing the automated checks themselves, and doing so at the appropriate levels. So it assumes the programmers are never slowed down by the code having low quality.
+This simulation does not account for the decreases in ISQ that would likely occur from the programmers not writing the automated checks themselves, and doing so at the appropriate levels. So it assumes the programmers are never slowed down by the code having low quality.
 
 This is unrealistic, but this was an intentional decision to see how events played out without this being a factor.
 
 ### Not The First Sprint
 
-This model assumes that the sprint it will be simulating is not the first. It also simulates a small portion of the previous sprint to prepare work for testers in advance, as would normally happen in such a system.
+This simulation assumes that the sprint it will be simulating is not the first. It also simulates a small portion of the previous sprint to prepare work for testers in advance, as would normally happen in such a system.
 
 ### Regression Checking
 
-The model assumes that there were some things _not_ automated in previous sprints, and that there is already some amount of time that must be spent at the end of each sprint by testers checking things by hand to make sure that everything that was "done" in that sprint didn't break anything from previous sprints. This starts out as a static number of days, where all time, other than that spent in meetings or on lunch, is spent performing those regression checks.
+The simulation assumes that there were some things _not_ automated in previous sprints, and that there is already some amount of time that must be spent at the end of each sprint by testers checking things by hand to make sure that everything that was "done" in that sprint didn't break anything from previous sprints. This starts out as a static number of days, where all time, other than that spent in meetings or on lunch, is spent performing those regression checks.
 
 It also assumes that all tickets that were "done" in the most recent sprint were automated, and thus won't increase the amount of time needed to be spent on regression checking in the "current" sprint.
 
-### Previous Sprints
-
-The model assumes that previous sprints have gone mostly successfully, but some things weren't automated, which means time must be spent by testers doing regression checks for those things.
-
-It also assumes that all tickets worked on in the previous sprint were completed and automated.
-
-### Future Automation
-
-The model does not attempt to account for time that may become available in future sprints to automate regression checks.
-
 ### Automation Maintenance
 
-The model does not account for any time that would have to be spent doing maintenance to keep the automated checks working as desired.
+The simulation does not account for any time that would have to be spent doing maintenance to keep the automated checks working as desired.
 
 ### Previous Regression Check Automation
 
-The model does not attempt to have the testers automate regression checks for tickets "done" during from previous sprints. This shouldn't affect the outcome though, as a sustainable process would be able to prevent the list of unautomated regression checks from growing further.
+The simulation does not attempt to have the testers automate regression checks for tickets "done" during from previous sprints. This shouldn't affect the outcome though, as a sustainable process would be able to prevent the list of unautomated regression checks from growing further.
 
 ### Ambiguous Priority
 
@@ -124,48 +118,48 @@ I could have made a ticket pool of a size large enough to guarantee there'd be e
 
 ### Perfect Time Management
 
-The model assumes that everyone is perfect at time management. Everyone knows they won't be able to get anything done in the 30 minutes or fewer before their next meeting (or end of day). No one works on tickets through lunch, so they can enjoy the break, and no one works on tickets through meetings so they can give the meeting the attention it requires.
+The simulation assumes that everyone is perfect at time management. Everyone knows they won't be able to get anything done in the 30 minutes or fewer before their next meeting (or end of day). No one works on tickets through lunch, so they can enjoy the break, and no one works on tickets through meetings so they can give the meeting the attention it requires.
 
 Work also begins and ends at the exact same times every day, with no one working overtime. Working overtime wouldn't be necessary in a sustainable process, so a process being sustainable should be evident even when no overtime is allowed.
 
 ### Effective Code Review and Change Size
 
-According to a [study](https://dphu.org/uploads/attachements/books/books_1713_0.pdf) performed by SmartBear Software, code review should be limited to about 1 hour, and, within that constraint, changes should be no more than 1500 lines in size (with less than 500 lines being optimal). Because of this, the model assumes that code review is limited to no more than one hour, with a possible max of 30 minutes to context switch.
+According to a [study](https://dphu.org/uploads/attachements/books/books_1713_0.pdf) performed by SmartBear Software, code review should be limited to about 1 hour, and, within that constraint, changes should be no more than 1500 lines in size (with less than 500 lines being optimal). Because of this, the simulation assumes that code review is limited to no more than one hour, with a possible max of 30 minutes to context switch.
 
 ### No Problems Found in Code Review
 
-The model assumes that either no problems are found during code review, meaning they wouldn't have to be sent back to the programmer. In the real world this could cause interrupts for the original programmer, or delay the ticket from getting through to the checking phase. This can play a real factor in sustainability, but this model does not account for them.
+The simulation assumes that either no problems are found during code review, meaning they wouldn't have to be sent back to the programmer. In the real world this could cause interrupts for the original programmer, or delay the ticket from getting through to the checking phase. This can play a real factor in sustainability, but this simulation does not account for them.
 
-Had this model accounted for them though, it would only serve to make certain process configurations seem _less_ sustainable, and the goal of this model is to see if it's possible _at all_ for any process configurations following mini-waterfall to be sustainable.
+Had this simulation accounted for them though, it would only serve to make certain process configurations seem _less_ sustainable, and the goal of this simulation is to see if it's possible _at all_ for any process configurations following mini-waterfall to be sustainable.
 
 ### Effect of Weekends and Sprint Start Day
 
-The model assumes that weekends won't have an impact on things like context switching, and that the day a sprint starts on doesn't matter. These things may have an impact, but this model does not account for them.
+The simulation assumes that weekends won't have an impact on things like context switching, and that the day a sprint starts on doesn't matter. These things may have an impact, but this simulation does not account for them.
 
 ### Fixes Take Less Time (Usually)
 
-This model assumes that however long the initial iteration of work a programmer put in to a ticket, subsequent iterations, where they are attempting to fix bugs found by the tester, will usually take less time than the initial iteration. In the real world, it's perfectly possible for a bug fix to take much longer than the original work iteration. This model allows for that, but makes it an extremely rare occurrence.
+This simulation assumes that however long the initial iteration of work a programmer put in to a ticket, subsequent iterations, where they are attempting to fix bugs found by the tester, will usually take less time than the initial iteration. In the real world, it's perfectly possible for a bug fix to take much longer than the original work iteration. This simulation allows for that, but makes it an extremely rare occurrence.
 
 ### Regression Are Not Found
 
-While regressions do occur, and might be detected during the regression check phase of a mini-waterfall development process, it's not guaranteed they will be found. This model assumes that the testers won't find any regressions in this, or the previous sprint. This does not imply that regression checking isn't necessary, just that the programmers happened to get lucky in these 2 particular sprints.
+While regressions do occur in the real world, and might be detected during the regression check phase of a mini-waterfall development process, it's not guaranteed they will be found. This simulation assumes that the testers won't find any regressions in this, or the previous sprint. This does not imply that regression checking isn't necessary, just that the programmers happened to get lucky in these 2 particular sprints.
 
-However, even if programmers had to be interrupted from their work on tickets for the next sprint to fix regressions for the current sprint, they're still capable of making progress on the tickets for the next sprint while the testers are doing regression checks. So accounting for this would only potentially delay an estimated "deadlock" date, but it would not affect whether or not there was a deadlock date at all, i.e. whether or not the process can be considered sustainable.
+However, even if programmers had to be interrupted from their work on tickets for the next sprint to fix regressions for the current sprint, they're still capable of making progress on the tickets for the next sprint while the testers are doing regression checks. It would also mean the testers would have to spend additional time re-checking what regressed. So accounting for this would only potentially delay an estimated "deadlock", but it would not affect whether or not there was a deadlock at all, i.e. whether or not the process can be considered sustainable.
 
 ### Complexities of High Scopes Regarding Automation
 
-Testers often write automated checks at the end-to-end, or API level, and often using a browser.
+Testers often write automated checks at the end-to-end, or API level, and often using a browser (or even mobile devices).
 
 If this is the level that they're writing their checks at, then, by definition, the complexity of doing so _must_ be greater than had the programmer done it at a lower level where less things would be involved that need to be controlled for. As a result, it should be expected that it will usually take the tester longer to write the automated checks for a ticket, than it took the programmer to write the changes.
 
-However, this model assumes that is not the case, for 2 reasons:
+However, this simulation assumes that is not the case, for 2 reasons:
 
 1. It is often assumed that this is not the case in the real world, and this may be why some perceive the mini-waterfall model to be sustainable, and some at least use this as justification for not having the programmers do it at a lower level.
 2. Accounting for this would show how automation at these scopes is not as viable, but is still not necessary to demonstrate the unsustainability of mini-waterfall.
 
 ### Testers Verify Their Automation
 
-The model assumes that testers will not consider their automation to be done until they verify it behaves as expected. As a result, automation will only ever have a single iteration of work, unlike programming, checking, or code review.
+The simulation assumes that testers will not consider their automation to be done until they verify it behaves as expected. As a result, automation will only ever have a single iteration of work, unlike programming, checking, or code review.
 
 ## Per Ticket Randomization
 
@@ -225,7 +219,7 @@ Iterations of this type are generated only using **Distribution A**, and there's
 
 ## Procedural Logic
 
-This section goes into the nitty gritty logic of how the model figures out how the schedule plays out, and how things are calculated/estimated.
+This section goes into the nitty gritty logic of how the simulation figures out how the schedule plays out, and how things are calculated/estimated.
 
 ### Given Events
 
@@ -275,7 +269,7 @@ Tickets typically go from programming, to code review, to checking, and then are
 
 ### Deadlock Estimation
 
-Once an iteration concludes, and all workers have had their schedules completely filled, the model attempts to project how many sprints it would take for that configuration to reach a deadlock. Its calculations revolve around one question:
+Once an iteration concludes, and all workers have had their schedules completely filled, the simulation attempts to project how many sprints it would take for that configuration to reach a deadlock. Its calculations revolve around one question:
 
 How well can the testers keep up with the programmers in regards to their respective work iterations, in addition to the necessary automation work?
 
@@ -329,15 +323,15 @@ However, this number is used to determine the _percentage_ of practical tester t
 
 ### Automation Leftovers
 
-Automation (at least in the context of this model) is the means by which testers are able to reduce how much checking they need to do by hand each regression checking phase. When they automate checking something completely, they no longer need to check it for a regression in future sprints.
+Automation (at least in the context of this simulation) is the means by which testers are able to reduce how much checking they need to do by hand each regression checking phase. When they automate checking something completely, they no longer need to check it for a regression in future sprints.
 
-The percentage of what was automated (including partial progress), reflects the percentage of all the potential new regression checking time that was added by new tickets which no longer needs to be done in future regression checking phases. The model finds the percentage of automation work that the tester(s) wouldn't have finished, and then uses that along with the total new regression check minutes that would have been added (including the percentage of those minutes for tickets that weren't "done"), and the check refinement rate
+The percentage of what was automated (including partial progress), reflects the percentage of all the potential new regression checking time that was added by new tickets which no longer needs to be done in future regression checking phases. The simulation finds the percentage of automation work that the tester(s) wouldn't have finished, and then uses that along with the total new regression check minutes that would have been added (including the percentage of those minutes for tickets that weren't "done"), and the check refinement rate
 
 This is used to find out how much of the practical tester time the regression checking phase increases by each sprint.
 
 ### Together
 
-Those two rates are added together, and then the model, starting with the total amount of practical tester minutes so far, reduces the practical tester minutes by that percentage (this, representing the regression check phase growing by that amount), counting how many times it has to do this, until the remaining time is too short to do anything productive.
+Those two rates are added together, and then the simulation, starting with the total amount of practical tester minutes so far, reduces the practical tester minutes by that percentage (this, representing the regression check phase growing by that amount), counting how many times it has to do this, until the remaining time is too short to do anything productive.
 
 The number of times it has to do this, is the number of sprints it would take to reach a deadlock.
 
@@ -369,3 +363,18 @@ An iteration is considered "potentially sustainable", when there's no leftovers.
 
 **Note:** The graphs here only show the first 1000 results, because the graphs were causing some performance issues, and they were pretty visually dense. The full set of data from those runs can be found [here](/assets/data/waterfall/fullSimData.csv) (and the limited data set used for the graphs can be found [here]([here](/assets/data/waterfall/sim.csv))), if you're curious, though.
 {: .notice--info}
+
+
+# Conclusions
+
+The primary metric tracked is the "growth rate" of the sprint, which represents the percentage of time the testers would lose each sprint due to having to either catch up on previous check work, and/or having to perform new regression checks that couldn't be automated in time. If the rate is above 0, then the process used wasn't sustainable.
+
+Out of all 10,000 runs, only _two_ were deemed theoretically sustainable, and I spotted two things they had in common.
+
+First, was that there were just as many testers as there were programmers, which would basically mean that every programmer would need their own personal tester in order for the process to even have a chance of being sustainable.
+
+Second, was that the ratio between the time it would take to program, versus the time it would take to automate all of the checks was incredibly skewed. It required that the programming work would take roughly 7 times as long, at least, as the time it would take to automate.
+
+Neither of these seem reasonable to me, with the latter seeming to either be impossible or a sign that it's already too late in regards to ISQ.
+
+But even aside from those, there's still the issue of ISQ. If, for whatever reason, it took 7 times as long to implement a change, as it did to automate the checks for it at the most complex, time consuming, brittle levels possible, then I think it's safe to say the ISQ would already be in a bad spot, and probably isn't going to get better.
