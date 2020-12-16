@@ -1,16 +1,17 @@
 <style>
-  #dataSetSelectWrapper {
+  #dataSetSelectWrapper, #dataSetSelectWrapperOther {
       position: -webkit-sticky;
       position: sticky;
       top: 10px;
       background-color: #f8f9fa!important;
       display: inline-block;
   }
-  #dataSetSelectWrapper * {
+  #dataSetSelectWrapper *, #dataSetSelectWrapperOther * {
       display: inline-block;
       margin: 0;
   }
 </style>
 <div id="metricVConfigCharts" style="width:100%; position:relative;">
 <div id="dataSetSelectWrapper" style=" z-index:1;"><p><select name="dataSetSelection" id="dataSetSelection"></select></p></div>
+<div id="dataSetSelectWrapperOther" style=" z-index:1;"><p><select name="dataSetSelection" id="dataSetSelectionOther"></select></p></div>
 </div>
