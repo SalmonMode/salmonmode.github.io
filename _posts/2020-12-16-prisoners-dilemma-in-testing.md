@@ -7,7 +7,7 @@ date: 2020-12-16 09:00:00 -0500
 
 ![Zach Galifianakis trying to do math while math symbols fly around"](/images/lots_of_math.webp){:height="auto" width="100%"}
 
-In my [previous post]({% post_url 2020-08-26-what-would-qa-do-all-day %}), I made a point about mini-waterfall not being sustainable, and the math not adding up. I'd like to expand on this separately, because I feel it needs to be addressed in detail.
+In my [previous post]({% post_url 2020-08-26-what-would-qa-do-all-day %}), I made a point about mini-waterfall not being sustainable, and the math not adding up (and also provided alternatives). I'd like to expand on this separately, because I feel it needs to be addressed in detail.
 
 So what exactly is "the math" here? Well, to answer that, we need to look at what I would consider a typical mini-waterfall process to be.
 
