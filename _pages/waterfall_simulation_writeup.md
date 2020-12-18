@@ -365,3 +365,5 @@ Second, was that the ratio between the time it would take to program, versus the
 Neither of these seem reasonable to me, with the latter seeming to either be impossible or a sign that it's already too late in regards to ISQ.
 
 But even aside from those, there's still the issue of ISQ. If, for whatever reason, it took 7 times as long to implement a change, as it did to automate the checks for it at the most complex, time consuming, brittle levels possible, then I think it's safe to say the ISQ would already be in a bad spot, and probably isn't going to get better.
+
+Recommendations for what can be done alternatively to waterfall or mini-waterfall, and what testers could be doing instead of verifying acceptance criteria can be found [here]({% post_url 2020-08-26-what-would-qa-do-all-day %}).
