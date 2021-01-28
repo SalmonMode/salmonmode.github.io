@@ -172,7 +172,7 @@ I wanted to see how mini-waterfall would play out when mixing up these factors, 
 
 To do this, I created a [Monte Carlo simulation](https://en.wikipedia.org/wiki/Monte_Carlo_method) to play out 10,000 mini-waterfall sprints.
 
-I'll go over the fine details of how it works, the assumptions it makes, and so on in a technical writeup ([here](/waterfall_simulation_results). But for now, I'll go over some general details, and then the results.
+I'll go over the fine details of how it works, the assumptions it makes, and so on in a technical writeup ([here](/waterfall_simulation_writeup)). But for now, I'll go over some general details, and then the results.
 
 ### Sprint Configurations
 
