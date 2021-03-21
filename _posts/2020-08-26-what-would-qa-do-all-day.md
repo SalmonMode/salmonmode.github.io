@@ -260,7 +260,7 @@ Many will likely fear this change, and you will need to assuage those fears by m
 
 Programmers may be concerned about having a larger work load, being less productive, or suddenly being responsible for quality. And, as I mentioned above, they will most certainly be concerned about being the bottleneck (e.g. "Writing the tests would just slow me down").
 
-It's important to acknowledge the concerns they bring up. They may be focusing on their own issues, and believe them to be the issues of the team as a whole. Them and their productivity has usually been the driving force behind decisions for so long that this shouldn't be surprising. It's not necessarily that they're being selfish, and could be because "team productivity" has been conflated with "programmer productivity" by everyone.
+It's important to acknowledge the concerns they bring up. They may be focusing on their own issues, and believe them to be the issues of the team as a whole. Them and their productivity have usually been the driving forces behind decisions for so long that this shouldn't be surprising. It's not necessarily that they're being selfish, and could be because "team productivity" has been conflated with "programmer productivity" by everyone.
 
 They will need help to understand that their pace won't be changing (and more likely will be _slowing down_, or rather, be less frantic), that they will only be expected to move as fast as **maintaining quality** allows them to, and the only difference is that they'll be wasting _far_ less work. They'll also need to understand that quality _truly_ is everyone's responsibility, and they will be expected to hold other team members accountable as well, yourself included.
 
