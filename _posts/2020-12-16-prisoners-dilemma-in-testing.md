@@ -139,7 +139,7 @@ If those bugs getting through is accepted as just a part of the development proc
 
 # Quick Sidebar
 
-When I see the word "reckless", it seems like a strong word. But I can think of no better word to describe their actions.
+When I say the word "reckless", it seems like a strong word. But I can think of no better word to describe their actions.
 
 I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
 
