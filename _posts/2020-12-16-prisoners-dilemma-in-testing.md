@@ -19,9 +19,11 @@ Agile is not exactly the antithesis of waterfall, but it is fundamentally differ
 
 So what is "waterfall"?
 
-In general, it's a process where, a desired change goes through a series of stages. Person A does Stage 1, then passes it to Person B to do Stage 2, and so on. The idea is that changes are done like a factory line.
+In general, it's a process where, a desired change goes through a series of stages. Person A does Stage 1, then passes it to Person B to do Stage 2, and so on. The idea is that changes are done like a factory line. 
 
-You can find any number of resources describing it in detail, but I really only want to focus on one element for the time being:
+**In other words, "waterfall" is any process where there is a handoff.**
+
+You can find any number of resources describing it in detail (for example, [this post](https://martinfowler.com/bliki/WaterfallProcess.html) by Agile manifesto co-author Martin Fowler), but I really only want to focus on one element for the time being:
 
 If, in a given process, the testing (or, more specifically, the verification) is done _after_ the development, then that process, by definition, is "waterfall".
 
@@ -35,7 +37,7 @@ You may also see me refer to "_mini_-waterfall". But that's more or less exactly
 
 # What Makes a Process Sustainable
 
-A process that's sustainable may seem difficult to establish, and some may even claim that it's impossible. After all, the process would need to meet all of these criteria
+A process that's sustainable may seem difficult to establish, and some may even claim that it's impossible. After all, the process would need to meet all of these criteria (and others as well):
 
 * Overtime is never required (providing options to reduce scope were built into the planning and they were communicated effectively)
 * No one on the team is required to work longer hours than anyone else
@@ -139,7 +141,7 @@ If those bugs getting through is accepted as just a part of the development proc
 
 # Quick Sidebar
 
-When I say the word "reckless", it seems like a strong word. But I can think of no better word to describe their actions.
+When I say the word "reckless", it seems like a strong word. But I can think of no better word to describe their behavior.
 
 I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
 
@@ -149,7 +151,7 @@ Sure, there's some programmers and managers who may not be cut out for this line
 
 When the programmers are in charge of writing their own, thorough automated checks (and again, this is reference to more than just the unit checks) as part of the work required before sending their changes to code review (instead of having the testers take care of checking things or implementing the automated checks), a few things happen:
 
-1. The changes are automatically validated, and validated quickly
+1. The changes are automatically verified, and verified quickly
 2. The checks can be repeated and the results reproduced by anyone else, including the CI/CD pipeline, giving the checks themselves additional validity
 3. The changes are forever protected from regressions, because requiring all checks to pass before the changes can be merged in would prevent that
 4. Progress is locked to the rate it can sustainably be verified at
