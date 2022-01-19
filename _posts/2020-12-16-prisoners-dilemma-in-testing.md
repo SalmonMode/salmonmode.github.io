@@ -21,7 +21,7 @@ So what is "waterfall"?
 
 In general, it's a process where, a desired change goes through a series of stages. Person A does Stage 1, then passes it to Person B to do Stage 2, and so on. The idea is that changes are done like a factory line. 
 
-**In other words, "waterfall" is any process where there is a handoff.**
+**In other words, "waterfall" is any process where there is a handoff. It has nothing to do with the duration of the project.**
 
 You can find any number of resources describing it in detail (for example, [this post](https://martinfowler.com/bliki/WaterfallProcess.html) by Agile manifesto co-author Martin Fowler), but I really only want to focus on one element for the time being:
 
