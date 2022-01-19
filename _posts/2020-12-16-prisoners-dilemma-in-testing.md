@@ -147,7 +147,7 @@ Sure, there's some programmers and managers who may not be cut out for this line
 
 # Restoring Balance
 
-When the programmers are in charge of writing their own, thorough automated checks as part of the work required before sending their changes to code review (instead of having the testers take care of checking things or implementing the automated checks), a few things happen:
+When the programmers are in charge of writing their own, thorough automated checks (and again, this is reference to more than just the unit checks) as part of the work required before sending their changes to code review (instead of having the testers take care of checking things or implementing the automated checks), a few things happen:
 
 1. The changes are automatically validated, and validated quickly
 2. The checks can be repeated and the results reproduced by anyone else, including the CI/CD pipeline, giving the checks themselves additional validity
