@@ -125,9 +125,7 @@ The programmers are free to run through the code, altering it recklessly, becaus
 
 If there _were_ enough testers and automation engineers to keep pace with the programmers, it would likely mean that the testers and automation engineers would have a good amount of downtime. I would wager that management would see this downtime as slack that can be taken up, and either 1) more programmers would be hired to eliminate that downtime, or 2) it would look poorly on the programmers for working so slow, which would possibly encourage them to work more recklessly.
 
-Following the Theory of Constraints is a common management approach (whether they would refer to it that way or not), and that's more or less what the theory would suggest the next move is.
-
-A balance would have to be struck somewhere, but none of the options seem very appealing to me.
+A balance would have to be struck somewhere, but these options don't seem very appealing to me.
 
 They only thing testers can do, is make decisions as to where they want to make sure functionality is verified. They have to make hard decisions about where they are ok with regressions occurring, so that they can focus on other areas that they deem to be more important. That's not a choice I feel a tester should be making.
 
@@ -143,9 +141,9 @@ If those bugs getting through is accepted as just a part of the development proc
 
 When I say the word "reckless", it seems like a strong word. But I can think of no better word to describe their behavior.
 
-I don't want to imply the programmers, or even the managers, have any malicious intent, are actually incompetent, or are aware that they are acting recklessly. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, and a solution for the problem isn't exactly apparent.
+I don't want to imply the programmers, or even the managers, have any malicious intent, are aware that they are acting recklessly, or are somehow bad people. Nor do I want to imply the programmers would only be interested in giving the appearance of productivity (that would likely be boring for them). In my experience, they are usually just unaware of the consequences of these actions, because the system itself discourages testers from speaking out, the developers are just doing as they're told, and a solution for the problem isn't exactly apparent.
 
-Sure, there's some programmers and managers who may not be cut out for this line of work, and may be apathetic when informed of these issues. But, in my experience, most become genuinely concerned, and want to work with you once informed.
+Sure, there's some programmers and managers who may not be cut out for this line of work, and may be apathetic when informed of these issues. But, in my experience, most become genuinely concerned, and want to work with you once informed. If they don't show concern or a desire to fix it, that's your queue to polish up your resume.
 
 # Restoring Balance
 
@@ -155,6 +153,8 @@ When the programmers are in charge of writing their own, thorough automated chec
 2. The checks can be repeated and the results reproduced by anyone else, including the CI/CD pipeline, giving the checks themselves additional validity
 3. The changes are forever protected from regressions, because requiring all checks to pass before the changes can be merged in would prevent that
 4. Progress is locked to the rate it can sustainably be verified at
+
+Another justification for this is provided by the [Theory of Constraints](https://www.leanproduction.com/theory-of-constraints/#:~:text=Step%20Two%20%E2%80%93%20Exploit%20the%20Constraint). Once you find the constraint, make sure the work center before it is only sending known good parts. The reason for this is so that the constraint isn't wasting resources on something they might have to send back (which causes very significant disruptions). Some might say "but then why would we need testers?" which is a perfectly valid thing to ask. But I would point them to my [previous post]({% post_url 2020-08-26-what-would-qa-do-all-day %}).
 
 ### This isn't a silver bullet
 
