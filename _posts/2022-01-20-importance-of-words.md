@@ -2,7 +2,7 @@
 layout: posts
 title: "The Importance of Words"
 excerpt: "It's natural (and inevitable) for words and phrases to change in meaning over time. But what if they were chosen for a purpose, but their meaning changes enough to undermine that purpose?"
-date: 2022-01-20 12:00:00 -0500
+date: 2022-01-20 12:52:00 -0500
 ---
 
 !["Vision from Marvel requesting elaboration"](/images/elaboration.gif){:height="auto" width="100%"}
