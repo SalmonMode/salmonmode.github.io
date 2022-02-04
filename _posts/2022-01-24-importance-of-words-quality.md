@@ -115,7 +115,7 @@ Michael Bolton and James Bach extended Weinberg's definition to provide this foc
 
 Crosby's definition implies the only thing that matters is the design and conformance to it. But the way we use the word—why we _care_ about the word—often conflicts with his definition.
 
-I personally find Bolton and Bach's definition to be the most helpful. It guides us as makers of software without betraying the way we use the word in day to day life, like in the car examples.
+I personally find Bolton and Bach's definition to be the most helpful. It guides us as makers of software without betraying the way we use the word in day to day life.
 
 It brings that necessary context to the table. Who matters? Who matters more than others? Who matters the most?
 
