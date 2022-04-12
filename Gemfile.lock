@@ -210,7 +210,7 @@ GEM
       jekyll-seo-tag (~> 2.1)
     minitest (5.14.1)
     multipart-post (2.1.1)
-    nokogiri (1.13.3)
+    nokogiri (1.13.4)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     octokit (4.18.0)
@@ -259,8 +259,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  github-pages (~> 207)
-  jekyll-feed (~> 0.12)
+  github-pages
+  jekyll-feed
   jekyll-include-cache
   tzinfo (~> 1.2)
   tzinfo-data
